@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS `orders` (
 `shipping_price` DECIMAL(10, 2) NOT NULL,
   `total_amount` DECIMAL(10, 2) NOT NULL,
   `created_at` VARCHAR(255) DEFAULT NULL,
-`last_processed_at` VARCHAR(255) DEFAULT NULL,
+`last_processed` VARCHAR(255) DEFAULT NULL,
 `courier_id` INT(11) NOT NULL,
   `tracking_number` VARCHAR(100) DEFAULT NULL,
   `delivery_date` VARCHAR(255) DEFAULT NULL

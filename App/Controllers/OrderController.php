@@ -28,8 +28,9 @@ class OrderController extends Controller {
             // Save the data using the Courier model
 
             $_POST['created_at'] = time();
-            $_POST['processed_at'] = strtotime($_POST['processed_at']);
-
+            $_POST['last_processed'] = strtotime(time());
+            $_POST['tracking_number'] = \Utility::generateRandomString();
+            $_POST['total_amount'] = $_POST['shipping_price'] + $_POST['tax']
 
             if ($orderModel->save($_POST)) {
                 // Redirect to the list of couriers on successful creation

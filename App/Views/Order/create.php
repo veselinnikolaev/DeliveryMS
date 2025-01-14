@@ -121,7 +121,7 @@
                                 <label for="name" class="form-label">Delivery Date</label>
                                 <input type="text" class="form-control" id="deliveryDate" name="delivery_date" value="">
                         </div>
-                        <div class="row align-items-end mb-3">
+                            <div class="row align-items-end mb-3">
                             <div class="col-md-6">
                                 <label for="productId1" class="form-label">Products</label>
                                 <select name="product_id[]" id="productId1" class="form-select" required>
