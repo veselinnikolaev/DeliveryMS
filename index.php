@@ -31,7 +31,7 @@ if (!defined("INSTALL_URL")) {
 }
 
 require_once 'config/config.php';
-require_once 'config/functions.php';
+require_once 'config/function.php';
 
 if (empty($_REQUEST['controller'])) {
     $_REQUEST['controller'] = 'Home';

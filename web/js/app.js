@@ -118,6 +118,26 @@
                     $('#deleteProduct').modal('hide');
                 }
             });
+        }).delegate(".add-row", "click", function () {
+            const $currentRow = $(this).closest('.product-row');
+            const $newRow = $currentRow.clone();
+
+            // Clear inputs in the cloned row
+            $newRow.find('select').val('');
+            $newRow.find('input[type="number"]').val('');
+
+            // Update buttons
+            $currentRow.find('.add-row')
+                .removeClass('add-row')
+                .addClass('remove-row')
+                .text('-')
+                .removeClass('btn-light')
+                .addClass('btn-danger');
+
+            // Append the new row to the parent container
+            $('#productRows').append($newRow);
+        }).delegate(".remove-row", "click", function () {
+            $(this).closest('.product-row').remove();
         });
     });
 }(jQuery));

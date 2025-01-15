@@ -55,38 +55,22 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-3 mb-3">
-                                <label for="productPrice" class="form-label">Product Price</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">$</span>
-                                    <input type="number" step="0.01" min="0" class="form-control" id="productPrice"
-                                        name="product_price" required>
-                                </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-6 mb-3">
                                 <label for="tax" class="form-label">Tax</label>
                                 <div class="input-group">
                                     <span class="input-group-text">$</span>
                                     <input type="number" step="0.01" min="0" class="form-control" id="tax" name="tax"
-                                        required>
+                                           required>
                                 </div>
                             </div>
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-6 mb-3">
                                 <label for="shippingPrice" class="form-label">Shipping Price</label>
                                 <div class="input-group">
                                     <span class="input-group-text">$</span>
                                     <input type="number" step="0.01" min="0" class="form-control" id="shippingPrice"
-                                        name="shipping_price" required>
+                                           name="shipping_price" required>
                                 </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label for="totalAmount" class="form-label">Total Amount</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">$</span>
-                                    <input type="number" step="0.01" min="0" class="form-control" id="totalAmount"
-                                        name="total_amount" required>
-                                </div>
-                            </div>
+                            </div>                           
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -106,7 +90,8 @@
                                 <input type="text" class="form-control" id="processedAt" name="processed_at" value="">
                             </div>
                         </div>
-                        <div class="col-md-6 mb-3">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
                                 <label for="courierId" class="form-label">Courier ID</label>
                                 <select name="courier_id" id="courierId" class="form-select" required>
                                     <option value=''>---</option>
@@ -116,32 +101,35 @@
                                     }
                                     ?>
                                 </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
+                            </div>
+                            <div class="col-md-6 mb-3">
                                 <label for="name" class="form-label">Delivery Date</label>
                                 <input type="text" class="form-control" id="deliveryDate" name="delivery_date" value="">
+                            </div>
                         </div>
-                            <div class="row align-items-end mb-3">
-                            <div class="col-md-6">
-                                <label for="productId1" class="form-label">Products</label>
-                                <select name="product_id[]" id="productId1" class="form-select" required>
-                                    <option value="">---</option>
-                                    <?php
-                                    foreach ($tpl['products'] as $product) {
-                                        echo "<option value=\"{$product['id']}\">{$product['name']}</option>";
-                                    }
-                                    ?>
-                                </select>
-                            </div>
+                        <div id="productRows">
+                            <div class="row align-items-end mb-3 product-row">
+                                <div class="col-md-6">
+                                    <label for="productId1" class="form-label">Products</label>
+                                    <select name="product_id[]" id="productId1" class="form-select" required>
+                                        <option value="">---</option>
+                                        <?php
+                                        foreach ($tpl['products'] as $product) {
+                                            echo "<option value=\"{$product['id']}\">{$product['name']}</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
 
-                            <div class="col-md-5">
-                                <label for="quantity1" class="form-label">Quantity</label>
-                                <input type="number" step="1" min="1" class="form-control" id="quantity1"
-                                    name="quantity[]" required>
-                            </div>
+                                <div class="col-md-5">
+                                    <label for="quantity1" class="form-label">Quantity</label>
+                                    <input type="number" step="1" min="1" class="form-control" id="quantity1"
+                                           name="quantity[]" required>
+                                </div>
 
-                            <div class="col-md-1 text-center d-flex justify-content-center align-items-center">
-                                <button type="button" class="btn btn-light d-flex justify-content-center align-items-center rounded-circle add-row" style="width: 36px; height: 36px;">+</button>
+                                <div class="col-md-1 text-center d-flex justify-content-center align-items-center">
+                                    <button type="button" class="btn btn-light d-flex justify-content-center align-items-center rounded-circle add-row" style="width: 36px; height: 36px;">+</button>
+                                </div>
                             </div>
                         </div>
                         <div class="row">

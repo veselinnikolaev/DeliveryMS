@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS `users`;
 DROP TABLE IF EXISTS `products`;
 DROP TABLE IF EXISTS `orders`;
-DROP TABLE IF EXISTS `order_details`;
+DROP TABLE IF EXISTS `order_products`;
 DROP TABLE IF EXISTS `couriers`;
 
 -- Create the `users` table
@@ -41,17 +41,18 @@ CREATE TABLE IF NOT EXISTS `orders` (
 `last_processed` VARCHAR(255) DEFAULT NULL,
 `courier_id` INT(11) NOT NULL,
   `tracking_number` VARCHAR(100) DEFAULT NULL,
-  `delivery_date` VARCHAR(255) DEFAULT NULL
+  `delivery_date` VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create the `order_details` table
-CREATE TABLE IF NOT EXISTS `order_details` (
+CREATE TABLE IF NOT EXISTS `order_products` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `order_id` INT(11) NOT NULL,
   `product_id` INT(11) NOT NULL,
   `quantity` INT(11) NOT NULL,
   `price` DECIMAL(10, 2) NOT NULL,
+  `subtotal` DECIMAL(10, 2) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

@@ -20,41 +20,43 @@ class OrderController extends Controller {
     }
 
     public function create() {
-        // Create an instance of the Courier model
         $orderModel = new \App\Models\Order();
+        $orderProductsModel = new \App\Models\OrderProducts();
+        $productModel = new \App\Models\Product();
+        $userModel = new \App\Models\User();
+        $courierModel = new \App\Models\Courier();
 
-        // Check if the form has been submitted
         if (!empty($_POST['send'])) {
-            // Save the data using the Courier model
+            $products = $_POST['product_id'];
+            $quantities = $_POST['quantity'];
+            $totalAmount = 0;
+            $orderId = $orderModel->save($_POST);
 
-            $_POST['created_at'] = time();
-            $_POST['last_processed'] = strtotime(time());
-            $_POST['tracking_number'] = \Utility::generateRandomString();
-            $_POST['total_amount'] = $_POST['shipping_price'] + $_POST['tax']
+            foreach ($products as $index => $productId) {
+                $productDetails = $productModel->get($productId);
+                $subtotal = $productDetails['price'] * $quantities[$index];
+                $totalAmount += $subtotal;
+                $orderProductsModel->save([
+                    'order_id' => $orderId, 'product_id' => $productId,
+                    'quantity' => $quantities[$index], 'price' => $productDetails['price'],
+                    'subtotal' => $subtotal
+                ]);
+            }
 
-            if ($orderModel->save($_POST)) {
-                // Redirect to the list of couriers on successful creation
+            if ($orderModel->update(['id' => $orderId, 'total_amount' => $totalAmount])) {
                 header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
                 exit;
-            } else {
-                // If saving fails, set an error message
-                $error_message = "Failed to create the order. Please try again.";
             }
+
+            $error_message = "Failed to create the order. Please try again.";
         }
 
-        $userModel = new \App\Models\User();
-        $productModel = new \App\Models\Product();
-        $arr = array();
-
-        // Извличане на всички записи от таблицата gallery
-        $arr['users'] = $userModel->getAll();
-        $arr['products'] = $productModel->getAll();
-        // Pass any error messages to the view
-        if (isset($error_message)) {
-            $arr['error_message'] = $error_message;
-        }
-
-        // Load the view and pass the data to it
+        $arr = [
+            'users' => $userModel->getAll(),
+            'products' => $productModel->getAll(),
+            'couriers' => $courierModel->getAll(),
+            'error_message' => $error_message ?? null
+        ];
         $this->view($this->layout, $arr);
     }
 
@@ -68,15 +70,15 @@ class OrderController extends Controller {
         $orders = $orderModel->getAll();
         $this->view('ajax', ['orders' => $orders]);
     }
-    
+
     function edit() {
         $orderModel = new \App\Models\Order();
-        
+
         $arr = $orderModel->get($_GET['id']);
 
         // Check if the form has been submitted
         if (!empty($_POST['id'])) {
-            
+
             // Save the data using the Courier model
             if ($orderModel->update($_POST)) {
                 // Redirect to the list of couriers on successful creation
@@ -91,4 +93,5 @@ class OrderController extends Controller {
         // Load the view and pass the data to it
         $this->view($this->layout, $arr);
     }
+
 }
