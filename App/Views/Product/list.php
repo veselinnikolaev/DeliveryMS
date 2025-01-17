@@ -30,12 +30,12 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Modal title</h5>
+        <h5 class="modal-title">Delete Product</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
         </button>
       </div>
       <div class="modal-body">
-        <p>Modal body text goes here.</p>
+        <p>Are you sure you want to delete this product?</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-danger" data-id="" id="delete-btn-product-id">Delete</button>

@@ -4,7 +4,7 @@
             <div class="d-sm-flex align-items-center justify-content-between border-bottom">
                 <ul class="nav nav-tabs" role="tablist">
                     <li class="nav-item">
-                        <a class="nav-link" href="<?php echo INSTALL_URL . "?controller=Order&action=list"; ?>">Order List</a>
+                        <a class="nav-link" href="<?php echo INSTALL_URL; ?>?controller=Order&action=list">Order List</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active ps-0" href="<?php echo INSTALL_URL . "?controller=Order&action=edit&id=" . $order['id']; ?>">Edit Order</a>
@@ -159,7 +159,7 @@
                         <div class="row">
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary">Update Order</button>
-                                <a href="list.php" class="btn btn-secondary ms-2">Cancel</a>
+                                <a href="<?php echo INSTALL_URL; ?>?controller=Order&action=list" class="btn btn-secondary ms-2">Cancel</a>
                             </div>
                         </div>
                     </form>

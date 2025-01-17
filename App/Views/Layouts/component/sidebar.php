@@ -51,6 +51,9 @@
                 <ul class="nav flex-column sub-menu">
                     <li class="nav-item"> <a class="nav-link" href="<?php INSTALL_URL; ?>?controller=User&action=list">List Users</a></li>
                 </ul>
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item"> <a class="nav-link" href="<?php INSTALL_URL; ?>?controller=User&action=create">Create User</a></li>
+                </ul>
             </div>
         </li>
         <li class="nav-item">
@@ -67,18 +70,6 @@
             <div class="collapse" id="couriers">
                 <ul class="nav flex-column sub-menu">
                     <li class="nav-item"> <a class="nav-link" href="<?php INSTALL_URL; ?>?controller=Courier&action=create">Create Courier</a></li>
-                </ul>
-            </div>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="collapse" href="#deliveries" aria-expanded="false" aria-controls="deliveries">
-                <i class="menu-icon mdi mdi-card-text-outline"></i>
-                <span class="menu-title">Deliveries</span>
-                <i class="menu-arrow"></i>
-            </a>
-            <div class="collapse" id="deliveries">
-                <ul class="nav flex-column sub-menu">
-                    <li class="nav-item"> <a class="nav-link" href="<?php INSTALL_URL; ?>?controller=Delivery&action=list">List Deliveries</a></li>
                 </ul>
             </div>
         </li>

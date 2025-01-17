@@ -15,54 +15,17 @@
             ]
         });
 
-        $('#processedAt').datepicker({ });
+        $('#user-table-id').dataTable({
+            order: [[1, 'asc']],
+            columnDefs: [
+                {orderable: false, targets: [ 0, -1 ]}
+            ]
+        });
 
-        $(document).delegate("#imageFile", "change", function (e) {
-            e.preventDefault();
+        $('#lastProcessed').datepicker({ });
+        $('#deliveryDate').datepicker({ });
 
-            let formData = new FormData();
-            let fileInput = $('#imageFile')[0].files[0];
-            if (!fileInput) {
-                alert("Please select an image to upload.");
-                return;
-            }
-
-            var $id = $("#input-id").val();
-
-            formData.append('file', fileInput);
-            formData.append('id', $id);
-
-            $.ajax({
-                url: 'index.php?controller=Gallery&action=upload', // Server endpoint (PHP file)
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function (response) {
-
-                    $('#image-container-id').html(response);
-                },
-                error: function (response) {
-                    $('#uploadStatus').html('<p>Error uploading image.</p>');
-                }
-            });
-        }).delegate('.btn-delete-img', 'click', function (e) {
-            e.preventDefault();
-
-            var $id = $(this).attr('data-id');
-            var $this = $(this);
-
-            $.ajax({
-                url: 'index.php?controller=Gallery&action=deleteImage', // Server endpoint (PHP file)
-                type: 'POST',
-                data: {
-                    id: $id
-                },
-                success: function (res) {
-                    $this.parent().parent().remove();
-                }
-            });
-        }).delegate(".delete-curier", "click", function (e) {
+        $(document).delegate(".delete-curier", "click", function (e) {
             e.preventDefault();
 
             var $id = $(this).attr('data-id');
@@ -116,6 +79,34 @@
                     $this.attr('data-id', '');
 
                     $('#deleteProduct').modal('hide');
+                }
+            });
+        }).delegate(".delete-user", "click", function (e) {
+            e.preventDefault();
+
+            var $id = $(this).attr('data-id');
+
+            $("#delete-btn-user-id").attr('data-id', $id);
+
+            $('#deleteUser').modal('show');
+        }).delegate("#delete-btn-user-id", 'click', function (e) {
+            e.preventDefault();
+
+            var $id = $(this).attr('data-id');
+            var $this = $(this);
+
+            $.ajax({
+                url: 'index.php?controller=User&action=delete', // Server endpoint (PHP file)
+                type: 'POST',
+                data: {
+                    id: $id
+                },
+                success: function (res) {
+                    $('#container-user-id').html(res);
+
+                    $this.attr('data-id', '');
+
+                    $('#deleteUser').modal('hide');
                 }
             });
         }).delegate(".add-row", "click", function () {

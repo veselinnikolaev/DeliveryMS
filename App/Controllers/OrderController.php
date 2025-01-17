@@ -30,6 +30,11 @@ class OrderController extends Controller {
             $products = $_POST['product_id'];
             $quantities = $_POST['quantity'];
             $totalAmount = 0;
+            $_POST['last_processed'] = time($_POST['last_processed']);
+            $_POST['tracking_number'] = Utility::generateRandomString();
+            $_POST['delivery_date'] = time($_POST['delivery_date']);
+            $_POST['total_amount'] = $totalAmount;
+
             $orderId = $orderModel->save($_POST);
 
             foreach ($products as $index => $productId) {

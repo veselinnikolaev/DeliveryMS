@@ -8,7 +8,7 @@
                     <?php if(isset($error_message)): ?>
                         <div class="alert alert-danger"><?php echo $error_message; ?></div>
                     <?php endif; ?>
-                    <form class="forms-sample" method="POST" action="<?php echo INSTALL_URL . "?controller=Product&action=edit"; ?>">
+                    <form class="forms-sample" method="POST" action="<?php echo INSTALL_URL; ?>?controller=Product&action=edit">
                         <input type="hidden" name="id" value="<?php echo $tpl['id']; ?>" />
                         <div class="row">
                             <div class="form-group col-md-6 mb-3">
@@ -37,7 +37,7 @@
                         <div class="row">
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary me-2">Edit Product</button>
-                                <a href="<?php echo INSTALL_URL . "?controller=Product&action=list"; ?>" class="btn btn-light">Cancel</a>
+                                <a href="<?php echo INSTALL_URL; ?>?controller=Product&action=list" class="btn btn-light">Cancel</a>
                             </div>
                         </div>
                     </form>

@@ -4,10 +4,10 @@
             <div class="d-sm-flex align-items-center justify-content-between border-bottom">
                 <ul class="nav nav-tabs" role="tablist">
                     <li class="nav-item">
-                        <a class="nav-link" href="<?php echo INSTALL_URL . "?controller=Order&action=list"; ?>">Order List</a>
+                        <a class="nav-link" href="<?php echo INSTALL_URL; ?>?controller=Order&action=list">Order List</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active ps-0" href="<?php echo INSTALL_URL . "?controller=Order&action=create"; ?>">Create Order</a>
+                        <a class="nav-link active ps-0" href="<?php echo INSTALL_URL; ?>?controller=Order&action=create">Create Order</a>
                     </li>
                 </ul>
                 <div>
@@ -26,7 +26,7 @@
                         <div class="alert alert-danger"><?php echo $error_message; ?></div>
                     <?php endif; ?>
 
-                    <form method="POST" action="<?php echo INSTALL_URL . "?controller=Order&action=create"; ?>">
+                    <form method="POST" action="<?php echo INSTALL_URL; ?>?controller=Order&action=create">
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="customer" class="form-label">Customer</label>
@@ -86,13 +86,13 @@
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="processedAt" class="form-label">Processed At</label>
-                                <input type="text" class="form-control" id="processedAt" name="processed_at" value="">
+                                <label for="lastProcessed" class="form-label">Processed At</label>
+                                <input type="text" class="form-control" id="lastProcessed" name="last_processed" value="">
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="courierId" class="form-label">Courier ID</label>
+                                <label for="courierId" class="form-label">Courier</label>
                                 <select name="courier_id" id="courierId" class="form-select" required>
                                     <option value=''>---</option>
                                     <?php
@@ -103,13 +103,13 @@
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="name" class="form-label">Delivery Date</label>
+                                <label for="deliveryDate" class="form-label">Delivery Date</label>
                                 <input type="text" class="form-control" id="deliveryDate" name="delivery_date" value="">
                             </div>
                         </div>
                         <div id="productRows">
                             <div class="row align-items-end mb-3 product-row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label for="productId1" class="form-label">Products</label>
                                     <select name="product_id[]" id="productId1" class="form-select" required>
                                         <option value="">---</option>
@@ -121,7 +121,7 @@
                                     </select>
                                 </div>
 
-                                <div class="col-md-5">
+                                <div class="col-md-2">
                                     <label for="quantity1" class="form-label">Quantity</label>
                                     <input type="number" step="1" min="1" class="form-control" id="quantity1"
                                            name="quantity[]" required>
@@ -135,7 +135,7 @@
                         <div class="row">
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary">Create Order</button>
-                                <a href="list.php" class="btn btn-secondary ms-2">Cancel</a>
+                                <a href="<?php echo INSTALL_URL; ?>?controller=Order&action=list" class="btn btn-secondary ms-2">Cancel</a>
                             </div>
                         </div>
                     </form>

@@ -9,7 +9,7 @@
                         <div class="alert alert-danger"><?php echo $error_message; ?></div>
                     <?php endif; ?>
 
-                    <form class="forms-sample" method="POST" action="<?php echo INSTALL_URL . "?controller=Product&action=create"; ?>">
+                    <form class="forms-sample" method="POST" action="<?php echo INSTALL_URL; ?>?controller=Product&action=create">
                         <input type="hidden" name="send" value="1" />
                         <div class="row">
                             <div class="form-group col-md-6 mb-3">
@@ -38,7 +38,7 @@
                         <div class="row">
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary me-2">Create Product</button>
-                                <a href="<?php echo INSTALL_URL . "?controller=Product&action=list"; ?>" class="btn btn-light">Cancel</a>
+                                <a href="<?php echo INSTALL_URL; ?>?controller=Product&action=list" class="btn btn-light">Cancel</a>
                             </div>
                         </div>
                     </form>
