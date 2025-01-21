@@ -4,28 +4,53 @@
         $('#courier-table-id').dataTable({
             order: [[1, 'asc']],
             columnDefs: [
-                {orderable: false, targets: [ 0, -1 ]}
+                {orderable: false, targets: [0, -1]}
             ]
         });
-        
+
         $('#product-table-id').dataTable({
             order: [[1, 'asc']],
             columnDefs: [
-                {orderable: false, targets: [ 0, -1 ]}
+                {orderable: false, targets: [0, -1]}
             ]
         });
 
         $('#user-table-id').dataTable({
             order: [[1, 'asc']],
             columnDefs: [
-                {orderable: false, targets: [ 0, -1 ]}
+                {orderable: false, targets: [0, -1]}
             ]
         });
 
-        $('#lastProcessed').datepicker({ });
-        $('#deliveryDate').datepicker({ });
+        $('#lastProcessed').datepicker({});
+        $('#deliveryDate').datepicker({});
 
-        $(document).delegate(".delete-curier", "click", function (e) {
+        $(document).delegate("#calculate-price-btn-id", "click", function (e) {
+            e.preventDefault();
+
+            var frm = $("#booking-frm-id");
+
+            $.ajax({
+                url: 'index.php?controller=Order&action=calculatePrice', // Server endpoint (PHP file)
+                type: 'POST',
+                dataType: "json",
+                data: frm.serialize(),
+                success: function (data) {
+                    if ($("#productPrice").length > 0) {
+                        $("#productPrice").val(data.product_price);
+                    }
+                    if ($("#shippingPrice").length > 0) {
+                        $("#shippingPrice").val(data.shipping_price);
+                    }
+                    if ($("#totalPrice").length > 0) {
+                        $("#totalPrice").val(data.total);
+                    }
+                    if ($("#tax").length > 0) {
+                        $("#tax").val(data.tax);
+                    }
+                }
+            });
+        }).delegate(".delete-curier", "click", function (e) {
             e.preventDefault();
 
             var $id = $(this).attr('data-id');
@@ -119,11 +144,11 @@
 
             // Update buttons
             $currentRow.find('.add-row')
-                .removeClass('add-row')
-                .addClass('remove-row')
-                .text('-')
-                .removeClass('btn-light')
-                .addClass('btn-danger');
+                    .removeClass('add-row')
+                    .addClass('remove-row')
+                    .text('-')
+                    .removeClass('btn-light')
+                    .addClass('btn-danger');
 
             // Append the new row to the parent container
             $('#productRows').append($newRow);

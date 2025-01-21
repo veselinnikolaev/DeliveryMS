@@ -30,20 +30,25 @@ class OrderController extends Controller {
             $products = $_POST['product_id'];
             $quantities = $_POST['quantity'];
             $totalAmount = 0;
-            $_POST['last_processed'] = time($_POST['last_processed']);
-            $_POST['tracking_number'] = Utility::generateRandomString();
-            $_POST['delivery_date'] = time($_POST['delivery_date']);
-            $_POST['total_amount'] = $totalAmount;
 
-            $orderId = $orderModel->save($_POST);
+            $orderData = [
+                'last_processed' => time(),
+                'tracking_number' => Utility::generateRandomString(),
+                'delivery_date' => time($_POST['delivery_date']),
+                'total_amount' => $totalAmount,
+            ];
 
-            foreach ($products as $index => $productId) {
+            $orderId = $orderModel->save($orderData + $_POST);
+
+            foreach ($products as $product => $productId) {
                 $productDetails = $productModel->get($productId);
-                $subtotal = $productDetails['price'] * $quantities[$index];
+                $subtotal = $productDetails['price'] * $quantities[$product];
                 $totalAmount += $subtotal;
                 $orderProductsModel->save([
-                    'order_id' => $orderId, 'product_id' => $productId,
-                    'quantity' => $quantities[$index], 'price' => $productDetails['price'],
+                    'order_id' => $orderId,
+                    'product_id' => $productId,
+                    'quantity' => $quantities[$product],
+                    'price' => $productDetails['price'],
                     'subtotal' => $subtotal
                 ]);
             }
@@ -97,6 +102,40 @@ class OrderController extends Controller {
 
         // Load the view and pass the data to it
         $this->view($this->layout, $arr);
+    }
+
+    function calculatePrice() {
+        $productModel = new \App\Models\Product();
+
+        $price_arr = array('shipping_price' => 0, 'total' => 0, 'tax' => 0);
+
+        $price = 0;
+        $total = 0;
+        $shipping_price = 0;
+        $tax = 0;
+
+        if (!empty($_POST['product_id'])) {
+
+            foreach ($_POST['product_id'] as $key => $pid) {
+                $product = $productModel->get($pid);
+
+                $price += $product['price'] * $_POST['quantity'][$key];
+            }
+
+            $tax = ($price * 20) / 100;
+            $shipping_price = 10;
+
+            $total = $tax + $shipping_price + $price;
+        }
+        
+        $price_arr['product_price'] = $price;
+        $price_arr['shipping_price'] = $shipping_price;
+        $price_arr['total'] = $total;
+        $price_arr['tax'] = $tax;
+        
+        header('Content-Type: application/json');
+        
+        echo json_encode($price_arr);
     }
 
 }

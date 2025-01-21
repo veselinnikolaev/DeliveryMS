@@ -26,115 +26,119 @@
                         <div class="alert alert-danger"><?php echo $error_message; ?></div>
                     <?php endif; ?>
 
-                    <form method="POST" action="<?php echo INSTALL_URL; ?>?controller=Order&action=create">
+                    <form method="POST" id="booking-frm-id" action="<?php echo INSTALL_URL; ?>?controller=Order&action=create">
                         <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="customer" class="form-label">Customer</label>
-                                <select name="user_id" id="userId" class="form-select" required>
-                                    <option value=''>---</option>
-                                    <?php
-                                    foreach ($tpl['users'] as $user) {
-                                        echo "<option value=\"{$user['id']}\">{$user['full_name']}</option>";
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="address" class="form-label">Address</label>
-                                <input type="text" class="form-control" id="address" name="address" required>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="country" class="form-label">Country</label>
-                                <input type="text" class="form-control" id="country" name="country" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="region" class="form-label">Region</label>
-                                <input type="text" class="form-control" id="region" name="region" required>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="tax" class="form-label">Tax</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">$</span>
-                                    <input type="number" step="0.01" min="0" class="form-control" id="tax" name="tax"
-                                           required>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="shippingPrice" class="form-label">Shipping Price</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">$</span>
-                                    <input type="number" step="0.01" min="0" class="form-control" id="shippingPrice"
-                                           name="shipping_price" required>
-                                </div>
-                            </div>                           
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="status" class="form-label">Order Status</label>
-                                <select class="form-select" id="status" name="status" required>
-                                    <?php
-                                    foreach (Utility::$order_status as $k => $v) {
-                                        ?>
-                                        <option value="<?php echo $k; ?>"><?php echo $v; ?></option>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="customer" class="form-label">Customer</label>
+                                    <select name="user_id" id="userId" class="form-select" required>
+                                        <option value=''>---</option>
                                         <?php
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="lastProcessed" class="form-label">Processed At</label>
-                                <input type="text" class="form-control" id="lastProcessed" name="last_processed" value="">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="courierId" class="form-label">Courier</label>
-                                <select name="courier_id" id="courierId" class="form-select" required>
-                                    <option value=''>---</option>
-                                    <?php
-                                    foreach ($tpl['couriers'] as $courier) {
-                                        echo "<option value=\"{$courier['id']}\">{$courier['courier_name']}</option>";
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="deliveryDate" class="form-label">Delivery Date</label>
-                                <input type="text" class="form-control" id="deliveryDate" name="delivery_date" value="">
-                            </div>
-                        </div>
-                        <div id="productRows">
-                            <div class="row align-items-end mb-3 product-row">
-                                <div class="col-md-4">
-                                    <label for="productId1" class="form-label">Products</label>
-                                    <select name="product_id[]" id="productId1" class="form-select" required>
-                                        <option value="">---</option>
-                                        <?php
-                                        foreach ($tpl['products'] as $product) {
-                                            echo "<option value=\"{$product['id']}\">{$product['name']}</option>";
+                                        foreach ($tpl['users'] as $user) {
+                                            echo "<option value=\"{$user['id']}\">{$user['full_name']}</option>";
                                         }
                                         ?>
                                     </select>
                                 </div>
-
-                                <div class="col-md-2">
-                                    <label for="quantity1" class="form-label">Quantity</label>
-                                    <input type="number" step="1" min="1" class="form-control" id="quantity1"
-                                           name="quantity[]" required>
+                                <div class="mb-3">
+                                    <label for="address" class="form-label">Address</label>
+                                    <input type="text" class="form-control" id="address" name="address" required>
                                 </div>
+                                <div class="mb-3">
+                                    <label for="country" class="form-label">Country</label>
+                                    <input type="text" class="form-control" id="country" name="country" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="region" class="form-label">Region</label>
+                                    <input type="text" class="form-control" id="region" name="region" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="courierId" class="form-label">Courier</label>
+                                    <select name="courier_id" id="courierId" class="form-select" required>
+                                        <option value=''>---</option>
+                                        <?php
+                                        foreach ($tpl['couriers'] as $courier) {
+                                            echo "<option value=\"{$courier['id']}\">{$courier['courier_name']}</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="deliveryDate" class="form-label">Delivery Date</label>
+                                    <input type="text" class="form-control" id="deliveryDate" name="delivery_date" value="">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="productPrice" class="form-label">Product Price</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" step="0.01" min="0" class="form-control" id="productPrice" name="product_price" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="tax" class="form-label">Tax</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" step="0.01" min="0" class="form-control" id="tax" name="tax" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="shippingPrice" class="form-label">Shipping Price</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" step="0.01" min="0" class="form-control" id="shippingPrice"  name="shipping_price" required>
+                                    </div>
+                                </div> 
+                                <div class="mb-3">
+                                    <label for="totalPrice" class="form-label">Total Price</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="text" class="form-control" id="totalPrice" name="total_price" readonly>
+                                    </div>
+                                </div> 
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">Order Status</label>
+                                    <select class="form-select" id="status" name="status" required>
+                                        <?php
+                                        foreach (Utility::$order_status as $k => $v) {
+                                            ?>
+                                            <option value="<?php echo $k; ?>"><?php echo $v; ?></option>
+                                            <?php
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                                <div id="productRows">
+                                    <div class="row align-items-end mb-3 product-row">
+                                        <div class="col-md-6">
+                                            <label for="productIds" class="form-label">Products</label>
+                                            <select name="product_id[]" id="productIds" class="form-select" required>
+                                                <option value="">---</option>
+                                                <?php
+                                                foreach ($tpl['products'] as $product) {
+                                                    echo "<option value=\"{$product['id']}\">{$product['name']}</option>";
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>   
+                                        <div class="col-md-4">
+                                            <label for="quantities" class="form-label">Quantity</label>
+                                            <input type="number" step="1" min="1" class="form-control" id="quantities"
+                                                   name="quantity[]" required>
+                                        </div>
 
-                                <div class="col-md-1 text-center d-flex justify-content-center align-items-center">
-                                    <button type="button" class="btn btn-light d-flex justify-content-center align-items-center rounded-circle add-row" style="width: 36px; height: 36px;">+</button>
+                                        <div class="col-md-1 text-center d-flex justify-content-center align-items-center">
+                                            <button type="button" class="btn btn-light d-flex justify-content-center align-items-center rounded-circle add-row" style="width: 36px; height: 36px;">+</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary">Create Order</button>
+                                <a href="javascript:" id="calculate-price-btn-id" class="btn btn-secondary ms-2">Calculate Price</a>
                                 <a href="<?php echo INSTALL_URL; ?>?controller=Order&action=list" class="btn btn-secondary ms-2">Cancel</a>
                             </div>
                         </div>
