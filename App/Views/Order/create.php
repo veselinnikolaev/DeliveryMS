@@ -27,6 +27,7 @@
                     <?php endif; ?>
 
                     <form method="POST" id="booking-frm-id" action="<?php echo INSTALL_URL; ?>?controller=Order&action=create">
+                        <input type="hidden" name="send" value="1" />
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
@@ -73,7 +74,7 @@
                                     <label for="productPrice" class="form-label">Product Price</label>
                                     <div class="input-group">
                                         <span class="input-group-text">$</span>
-                                        <input type="number" step="0.01" min="0" class="form-control" id="productPrice" name="product_price" required>
+                                        <input type="number" step="0.01" min="0" class="form-control" id="productPrice" name="product_price" readonly>
                                     </div>
                                 </div>
                                 <div class="mb-3">

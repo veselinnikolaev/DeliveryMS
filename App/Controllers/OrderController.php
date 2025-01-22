@@ -12,11 +12,26 @@ class OrderController extends Controller {
     var $layout = 'admin';
 
     public function list() {
-        $orderModel = new App\Models\Order();
+        $orderModel = new \App\Models\Order();
+        $userModel = new \App\Models\User();
+        $courierModel = new \App\Models\Courier();
 
+        // Retrieve all orders from the database
         $orders = $orderModel->getAll();
 
-        $this->view($this->layout, ['orders' => $orders]);
+        // Format orders for display
+        foreach ($orders as &$order) {
+            $order['customer_name'] = $userModel->get($order['customer_id'])['name'] ?? 'Unknown';
+            $order['courier_name'] = $courierModel->get($order['courier_id'])['name'] ?? 'Unknown';
+            $order['delivery_date'] = date('Y-m-d', strtotime($order['delivery_date']));
+        }
+
+        // Pass the data to the view
+        $arr = [
+            'orders' => $orders,
+        ];
+
+        $this->view($this->layout, $arr);
     }
 
     public function create() {
@@ -33,8 +48,8 @@ class OrderController extends Controller {
 
             $orderData = [
                 'last_processed' => time(),
-                'tracking_number' => Utility::generateRandomString(),
-                'delivery_date' => time($_POST['delivery_date']),
+                'tracking_number' => \Utility::generateRandomString(),
+                'delivery_date' => strtotime($_POST['delivery_date']),
                 'total_amount' => $totalAmount,
             ];
 
@@ -70,6 +85,45 @@ class OrderController extends Controller {
         $this->view($this->layout, $arr);
     }
 
+    public function details() {
+        $orderModel = new \App\Models\Order();
+        $orderProductsModel = new \App\Models\OrderProducts();
+        $productModel = new \App\Models\Product();
+        $userModel = new \App\Models\User();
+        $courierModel = new \App\Models\Courier();
+
+        if (empty($_GET['id'])) {
+            header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
+            exit;
+        }
+
+        $orderId = intval($_GET['id']);
+        $orderData = $orderModel->get($orderId);
+
+        if (!$orderData) {
+            header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
+            exit;
+        }
+
+        $customerData = $userModel->get($orderData['user_id']);
+        $courierData = $courierModel->get($orderData['courier_id']);
+        $orderProducts = $orderProductsModel->getByOrderId($orderId);
+
+        foreach ($orderProducts as &$product) {
+            $productDetails = $productModel->get($product['product_id']);
+            $product['name'] = $productDetails['name'] ?? 'Unknown';
+        }
+
+        $data = [
+            'order' => $orderData,
+            'customer' => $customerData,
+            'courier' => $courierData,
+            'products' => $orderProducts,
+        ];
+
+        $this->view($this->layout, $data);
+    }
+
     function delete() {
         $orderModel = new \App\Models\Order();
 
@@ -81,60 +135,115 @@ class OrderController extends Controller {
         $this->view('ajax', ['orders' => $orders]);
     }
 
-    function edit() {
+    public function edit() {
         $orderModel = new \App\Models\Order();
+        $orderProductsModel = new \App\Models\OrderProducts();
+        $productModel = new \App\Models\Product();
+        $userModel = new \App\Models\User();
+        $courierModel = new \App\Models\Courier();
 
-        $arr = $orderModel->get($_GET['id']);
-
-        // Check if the form has been submitted
-        if (!empty($_POST['id'])) {
-
-            // Save the data using the Courier model
-            if ($orderModel->update($_POST)) {
-                // Redirect to the list of couriers on successful creation
-                header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
-                exit;
-            } else {
-                // If saving fails, set an error message
-                $error_message = "Failed to create the order. Please try again.";
-            }
+        // Check if order ID is provided
+        if (!isset($_GET['order_id']) || empty($_GET['order_id'])) {
+            header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
+            exit;
         }
 
-        // Load the view and pass the data to it
+        $orderId = $_GET['order_id'];
+        $order = $orderModel->get($orderId);
+        if (!$order) {
+            header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
+            exit;
+        }
+
+        if (!empty($_POST['send'])) {
+            $products = $_POST['product_id'];
+            $quantities = $_POST['quantity'];
+            $totalAmount = 0;
+
+            $orderData = [
+                'last_processed' => time(),
+                'tracking_number' => $order['tracking_number'], // keep the same tracking number
+                'delivery_date' => strtotime($_POST['delivery_date']),
+                'total_amount' => $totalAmount,
+            ];
+
+            // Update order data
+            $orderModel->update(['id' => $orderId] + $orderData + $_POST);
+
+            // Delete previous order products before saving updated ones
+            $orderProductsModel->deleteByOrderId($orderId);
+
+            // Add new products
+            foreach ($products as $product => $productId) {
+                $productDetails = $productModel->get($productId);
+                $subtotal = $productDetails['price'] * $quantities[$product];
+                $totalAmount += $subtotal;
+
+                // Save the updated order products
+                $orderProductsModel->save([
+                    'order_id' => $orderId,
+                    'product_id' => $productId,
+                    'quantity' => $quantities[$product],
+                    'price' => $productDetails['price'],
+                    'subtotal' => $subtotal
+                ]);
+            }
+
+            // Update total amount for the order
+            $orderModel->update(['id' => $orderId, 'total_amount' => $totalAmount]);
+
+            // Redirect to the order list
+            header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
+            exit;
+        }
+
+        // Fetch the existing order products
+        $orderProducts = $orderProductsModel->getByOrderId($orderId);
+
+        $arr = [
+            'order' => $order,
+            'orderProducts' => $orderProducts,
+            'users' => $userModel->getAll(),
+            'products' => $productModel->getAll(),
+            'couriers' => $courierModel->getAll(),
+            'error_message' => $error_message ?? null
+        ];
+
+        // Load the edit view with the order data
         $this->view($this->layout, $arr);
     }
 
     function calculatePrice() {
         $productModel = new \App\Models\Product();
 
-        $price_arr = array('shipping_price' => 0, 'total' => 0, 'tax' => 0);
-
-        $price = 0;
+        $productPrice = 0;
         $total = 0;
-        $shipping_price = 0;
+        $shippingPrice = 0;
         $tax = 0;
+
+        $price_arr = array('product_price' => $productPrice, 'shipping_price' => $shippingPrice, 'total' => $total, 'tax' => $tax);
 
         if (!empty($_POST['product_id'])) {
 
             foreach ($_POST['product_id'] as $key => $pid) {
                 $product = $productModel->get($pid);
 
-                $price += $product['price'] * $_POST['quantity'][$key];
+                $productPrice += $product['price'] * $_POST['quantity'][$key];
             }
 
-            $tax = ($price * 20) / 100;
-            $shipping_price = 10;
+            $tax = ($productPrice * 20) / 100;
+            $shippingPrice = 10;
 
-            $total = $tax + $shipping_price + $price;
+            $total = $tax + $shippingPrice + $productPrice;
         }
-        
-        $price_arr['product_price'] = $price;
-        $price_arr['shipping_price'] = $shipping_price;
+
+        $price_arr['product_price'] = $productPrice;
+        $price_arr['shipping_price'] = $shippingPrice;
         $price_arr['total'] = $total;
         $price_arr['tax'] = $tax;
-        
+
         header('Content-Type: application/json');
-        
+
         echo json_encode($price_arr);
     }
 
