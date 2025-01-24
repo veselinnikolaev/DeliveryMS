@@ -27,7 +27,7 @@
                                 <p><strong>Courier:</strong> <?php echo htmlspecialchars($tpl['courier']['courier_name']); ?></p>
                                 <p><strong>Delivery Date:</strong> <?php echo htmlspecialchars(date('Y-m-d', strtotime($tpl['order']['delivery_date']))); ?></p>
                                 <p><strong>Status:</strong> <?php echo htmlspecialchars($tpl['order']['status']); ?></p>
-                                <p><strong>Total Price:</strong> $<?php echo htmlspecialchars(number_format($tpl['order']['total_price'], 2)); ?></p>
+                                <p><strong>Total Price:</strong> $<?php echo htmlspecialchars(number_format($tpl['order']['total_amount'], 2)); ?></p>
                             </div>
                         </div>
                         <hr>

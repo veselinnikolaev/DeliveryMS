@@ -9,7 +9,7 @@ class OrderProducts extends Model {
     var $primaryKey = 'id';
     var $table = 'order_products';
     
-    var $order_items_schema = array(
+    var $schema = array(
         array('name' => 'id', 'type' => 'int', 'default' => ':NULL'),
         array('name' => 'order_id', 'type' => 'int', 'default' => ':NULL'), // Foreign key to orders table
         array('name' => 'product_id', 'type' => 'int', 'default' => ':NULL'), // Foreign key to products table

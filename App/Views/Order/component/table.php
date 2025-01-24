@@ -31,11 +31,11 @@
                 <td><?php echo htmlspecialchars($order['customer_name']); ?></td>
                 <td><?php echo htmlspecialchars($order['courier_name']); ?></td>
                 <td><?php echo htmlspecialchars(date('Y-m-d', strtotime($order['delivery_date']))); ?></td>
-                <td><?php echo htmlspecialchars($order['total_price']); ?></td>
+                <td><?php echo htmlspecialchars($order['total_amount']); ?></td>
                 <td><?php echo htmlspecialchars($order['status']); ?></td>
                 <td style="text-align: right;">
                     <a class="btn btn-light btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=Order&action=details&id=<?php echo $order['id'] ?>">
-                        <i class="fa fa-eye" aria-hidden="true"></i> View Details
+                        <i class="fa fa-eye" aria-hidden="true"></i>
                     </a>
                     <a class="btn btn-light btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=Order&action=edit&order_id=<?php echo $order['id'] ?>">
                         <i class="fa fa-pencil-square-o" aria-hidden="true"></i>

@@ -21,8 +21,8 @@ class OrderController extends Controller {
 
         // Format orders for display
         foreach ($orders as &$order) {
-            $order['customer_name'] = $userModel->get($order['customer_id'])['name'] ?? 'Unknown';
-            $order['courier_name'] = $courierModel->get($order['courier_id'])['name'] ?? 'Unknown';
+            $order['customer_name'] = $userModel->get($order['user_id'])['full_name'] ?? 'Unknown';
+            $order['courier_name'] = $courierModel->get($order['courier_id'])['courier_name'] ?? 'Unknown';
             $order['delivery_date'] = date('Y-m-d', strtotime($order['delivery_date']));
         }
 
@@ -42,8 +42,6 @@ class OrderController extends Controller {
         $courierModel = new \App\Models\Courier();
 
         if (!empty($_POST['send'])) {
-            $products = $_POST['product_id'];
-            $quantities = $_POST['quantity'];
             $totalAmount = 0;
 
             $orderData = [
@@ -55,17 +53,20 @@ class OrderController extends Controller {
 
             $orderId = $orderModel->save($orderData + $_POST);
 
-            foreach ($products as $product => $productId) {
+            foreach ($_POST['product_id'] as $key => $productId) {
+                
                 $productDetails = $productModel->get($productId);
-                $subtotal = $productDetails['price'] * $quantities[$product];
+                $subtotal = $productDetails['price'] * $_POST['quantity'][$key];
                 $totalAmount += $subtotal;
-                $orderProductsModel->save([
-                    'order_id' => $orderId,
-                    'product_id' => $productId,
-                    'quantity' => $quantities[$product],
-                    'price' => $productDetails['price'],
-                    'subtotal' => $subtotal
-                ]);
+
+                $data = array();
+                $data['order_id'] = $orderId;
+                $data['product_id'] = $productId;
+                $data['quantity'] = $_POST['quantity'][$key];
+                $data['price'] = $productDetails['price'];
+                $data['subtotal'] = $subtotal;
+               
+                $orderProductsModel->save($data);
             }
 
             if ($orderModel->update(['id' => $orderId, 'total_amount' => $totalAmount])) {
@@ -107,7 +108,10 @@ class OrderController extends Controller {
 
         $customerData = $userModel->get($orderData['user_id']);
         $courierData = $courierModel->get($orderData['courier_id']);
-        $orderProducts = $orderProductsModel->getByOrderId($orderId);
+
+        $opts = array();
+        $opts['product_id'] = $orderId;
+        $orderProducts = $orderProductsModel->getAll($opts);
 
         foreach ($orderProducts as &$product) {
             $productDetails = $productModel->get($product['product_id']);
@@ -241,6 +245,7 @@ class OrderController extends Controller {
         $price_arr['shipping_price'] = $shippingPrice;
         $price_arr['total'] = $total;
         $price_arr['tax'] = $tax;
+        // to here function
 
         header('Content-Type: application/json');
 

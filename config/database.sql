@@ -32,6 +32,8 @@ CREATE TABLE IF NOT EXISTS `orders` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `user_id` INT(11) NOT NULL,
   `address` VARCHAR(255) NOT NULL,
+  `country` VARCHAR(255) NOT NULL,
+  `region` VARCHAR(255) NOT NULL,
   `status` VARCHAR(50) NOT NULL,
 `product_price` DECIMAL(10, 2) NOT NULL,
 `tax` DECIMAL(10, 2) NOT NULL,
