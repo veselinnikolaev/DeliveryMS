@@ -40,21 +40,22 @@ class OrderController extends Controller {
         $productModel = new \App\Models\Product();
         $userModel = new \App\Models\User();
         $courierModel = new \App\Models\Courier();
-        $productIds = $_POST['product_id'];
-        $quantities = $_POST['quantity'];
 
-        $priceDetails = $this->calculateOrderTotal($productIds, $quantities, $_POST['shipping_price'], $_POST['tax']);
         if (!empty($_POST['send'])) {
+            $productIds = $_POST['product_id'];
+            $quantities = $_POST['quantity'];
+            $priceDetails = $this->calculateOrderTotal($productIds, $quantities);
             $orderData = [
                 'last_processed' => time(),
                 'tracking_number' => \Utility::generateRandomString(),
                 'delivery_date' => strtotime($_POST['delivery_date']),
-                'total_amount' => $priceDetails['total']
+                'total_amount' => $priceDetails['total'],
+                'created_at' => time()
             ];
 
-            $orderId = $orderModel->save($orderData);
+            $orderId = $orderModel->save($orderData + $_POST);
 
-            if (!$orderId) {
+            if ($orderId) {
                 // Save order products
                 foreach ($productIds as $key => $productId) {
                     $productDetails = $productModel->get($productId);
@@ -138,13 +139,36 @@ class OrderController extends Controller {
 
     function delete() {
         $orderModel = new \App\Models\Order();
+        $orderProductsModel = new \App\Models\OrderProducts();
+        $userModel = new \App\Models\User();
+        $courierModel = new \App\Models\Courier();
 
         if (!empty($_POST['id'])) {
-            $orderModel->delete($_POST['id']);
+            $orderId = $_POST['id'];
+            
+            $opts = array();
+            $opts['order_id'] = $orderId;
+            $orderProductsModel->deleteBy($opts);
+            
+            $orderModel->delete($orderId);
         }
 
+        // Retrieve all orders from the database
         $orders = $orderModel->getAll();
-        $this->view('ajax', ['orders' => $orders]);
+
+        // Format orders for display
+        foreach ($orders as &$order) {
+            $order['customer_name'] = $userModel->get($order['user_id'])['full_name'] ?? 'Unknown';
+            $order['courier_name'] = $courierModel->get($order['courier_id'])['courier_name'] ?? 'Unknown';
+            $order['delivery_date'] = date('Y-m-d', strtotime($order['delivery_date']));
+        }
+
+        // Pass the data to the view
+        $arr = [
+            'orders' => $orders,
+        ];
+        
+        $this->view('ajax', $arr);
     }
 
     public function edit() {
@@ -221,7 +245,6 @@ class OrderController extends Controller {
     }
 
     function calculatePrice() {
-        // to here function
         $price_arr = $this->calculateOrderTotal($_POST['product_id'], $_POST['quantity'], 10, 20);
         header('Content-Type: application/json');
 

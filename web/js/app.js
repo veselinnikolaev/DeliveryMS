@@ -21,8 +21,16 @@
                 {orderable: false, targets: [0, -1]}
             ]
         });
+        
+        $('#order-table-id').dataTable({
+            order: [[1, 'asc']],
+            columnDefs: [
+                {orderable: false, targets: [0, -1]}
+            ]
+        });
+        
+        $('#order-products-table-id').dataTable();
 
-        $('#lastProcessed').datepicker({});
         $('#deliveryDate').datepicker({});
 
         $(document).delegate("#calculate-price-btn-id", "click", function (e) {
@@ -132,6 +140,34 @@
                     $this.attr('data-id', '');
 
                     $('#deleteUser').modal('hide');
+                }
+            });
+        }).delegate(".delete-order", "click", function (e) {
+            e.preventDefault();
+
+            var $id = $(this).attr('data-id');
+
+            $("#delete-btn-order-id").attr('data-id', $id);
+
+            $('#deleteOrder').modal('show');
+        }).delegate("#delete-btn-order-id", 'click', function (e) {
+            e.preventDefault();
+
+            var $id = $(this).attr('data-id');
+            var $this = $(this);
+
+            $.ajax({
+                url: 'index.php?controller=Order&action=delete',
+                type: 'POST',
+                data: {
+                    id: $id
+                },
+                success: function (res) {
+                    $('#container-order-id').html(res);
+
+                    $this.attr('data-id', '');
+
+                    $('#deleteOrder').modal('hide');
                 }
             });
         }).delegate(".add-row", "click", function () {

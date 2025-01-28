@@ -97,7 +97,11 @@ class Model {
         $placeholders = implode(',', array_fill(0, count($fields), '?'));
         $query = "INSERT INTO " . $this->getTable() . " (" . implode(',', $fields) . ") VALUES ($placeholders)";
 
-        return $this->executeQuery($query, $values, str_repeat('s', count($values))); // 's' за string
+        if ($this->executeQuery($query, $values, str_repeat('s', count($values)))) { // 's' за string
+            return $this->mysqli->insert_id;
+        } else {
+            return false;
+        }
     }
 
     public function update($data) {
@@ -139,6 +143,24 @@ class Model {
         $primaryKeyName = $this->primaryKey ?: 'id';
         $query = "DELETE FROM " . $this->getTable() . " WHERE `$primaryKeyName` = ?";
         return $this->executeQuery($query, [$id], 'i'); // 'i' за integer
+    }
+
+    public function deleteBy($options = null) {
+        // Изтриване на запис
+        $query = "DELETE FROM " . $this->getTable();
+        if ($options && is_array($options)) {
+            $conditions = [];
+            foreach ($options as $field => $value) {
+                // Изграждане на условията за WHERE
+                $conditions[] = "$field = '$value'";
+            }
+            // Добавяне на WHERE частта към заявката
+            $query .= " WHERE " . implode(" AND ", $conditions);
+        } elseif ($options) {
+            // Ако $options не е масив, добавяме директно
+            $query .= " WHERE " . $options;
+        }
+        return $this->executeQuery($query);
     }
 
     public function executeQuery($query, $params = [], $types = '') {

@@ -33,7 +33,7 @@
                         <hr>
                         <h5>Products</h5>
                         <div class="table-responsive">
-                            <table class="table select-table">
+                            <table class="table select-table" id="order-products-table-id">
                                 <thead>
                                     <tr>
                                         <th>Product Name</th>
