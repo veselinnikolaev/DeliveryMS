@@ -32,7 +32,6 @@
                                 <div class="mb-3">
                                     <label for="customer" class="form-label">Customer</label>
                                     <select name="user_id" id="userId" class="form-select" required>
-                                        <option value=''>---</option>
                                         <?php
                                         foreach ($tpl['users'] as $user) {
                                             $selected = ($user['id'] == $order['user_id']) ? 'selected' : '';
@@ -56,7 +55,6 @@
                                 <div class="mb-3">
                                     <label for="courierId" class="form-label">Courier</label>
                                     <select name="courier_id" id="courierId" class="form-select" required>
-                                        <option value=''>---</option>
                                         <?php
                                         foreach ($tpl['couriers'] as $courier) {
                                             $selected = ($courier['id'] == $order['courier_id']) ? 'selected' : '';
@@ -69,17 +67,81 @@
                                     <label for="deliveryDate" class="form-label">Delivery Date</label>
                                     <input type="text" class="form-control" id="deliveryDate" name="delivery_date" value="<?php echo date('Y-m-d', strtotime($order['delivery_date'])); ?>" required>
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="productPrice" class="form-label">Product Price</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="number" step="0.01" min="0" class="form-control" id="productPrice" name="product_price" value="<?php echo $order['product_price']; ?>" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="tax" class="form-label">Tax</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="number" step="0.01" min="0" class="form-control" id="tax" name="tax" value="<?php echo $order['tax']; ?>" required>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="shippingPrice" class="form-label">Shipping Price</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="number" step="0.01" min="0" class="form-control" id="shippingPrice"  name="shipping_price" value="<?php echo $order['shipping_price']; ?>" required>
+                                        </div>
+                                    </div> 
+                                    <div class="mb-3">
+                                        <label for="totalAmount" class="form-label">Total Amount</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="text" class="form-control" id="totalAmount" name="total_amount" value="<?php echo $order['total_amount']; ?>" readonly>
+                                        </div>
+                                    </div> 
+                                    <div class="mb-3">
+                                        <label for="status" class="form-label">Order Status</label>
+                                        <select class="form-select" id="status" name="status" required>
+                                            <?php
+                                            foreach (Utility::$order_status as $k => $v) {
+                                                $selected = ($k == $order['status']) ? 'selected' : '';
+                                                echo "<option value=\"{$k}\" $selected>{$v}</option>";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                    <div id="productRows">
+                                        <?php foreach ($tpl['orderProducts'] as $product): ?>
+                                            <div class="row align-items-end mb-3 product-row">
+                                                <div class="col-md-6">
+                                                    <label for="productIds" class="form-label">Products</label>
+                                                    <select name="product_id[]" class="form-select" required>
+                                                        <option value="">---</option>
+                                                        <?php foreach ($tpl['products'] as $productOption): ?>
+                                                            <option value="<?php echo $productOption['id']; ?>" <?php echo ($productOption['id'] == $product['product_id']) ? 'selected' : ''; ?>>
+                                                                <?php echo $productOption['name']; ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label for="quantities" class="form-label">Quantity</label>
+                                                    <input type="number" step="1" min="1" class="form-control" name="quantity[]" value="<?php echo $product['quantity']; ?>" required>
+                                                </div>
+                                                <div class="col-md-1 text-center d-flex justify-content-center align-items-center">
+                                                    <button type="button" class="btn btn-light d-flex justify-content-center align-items-center rounded-circle remove-row" style="width: 36px; height: 36px;">-</button>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary" name="send">Save Changes</button>
+                                    <a href="javascript:" id="calculate-price-btn-id" class="btn btn-secondary ms-2">Calculate Price</a>
+                                    <a href="<?php echo INSTALL_URL; ?>?controller=Order&action=list" class="btn btn-secondary ms-2">Cancel</a>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-12">
-                                <button type="submit" class="btn btn-primary" name="send">Save Changes</button>
-                                <a href="javascript:" id="calculate-price-btn-id" class="btn btn-secondary ms-2">Calculate Price</a>
-                                <a href="<?php echo INSTALL_URL; ?>?controller=Order&action=list" class="btn btn-secondary ms-2">Cancel</a>
-                            </div>
-                        </div>
                     </form>
                 </div>
             </div>

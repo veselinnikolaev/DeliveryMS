@@ -101,6 +101,7 @@
                                 <div class="mb-3">
                                     <label for="status" class="form-label">Order Status</label>
                                     <select class="form-select" id="status" name="status" required>
+                                        <option value=''>---</option>
                                         <?php
                                         foreach (Utility::$order_status as $k => $v) {
                                             ?>

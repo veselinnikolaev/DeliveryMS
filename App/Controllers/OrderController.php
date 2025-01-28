@@ -40,41 +40,49 @@ class OrderController extends Controller {
         $productModel = new \App\Models\Product();
         $userModel = new \App\Models\User();
         $courierModel = new \App\Models\Courier();
+        $productIds = $_POST['product_id'];
+        $quantities = $_POST['quantity'];
 
+        $priceDetails = $this->calculateOrderTotal($productIds, $quantities, $_POST['shipping_price'], $_POST['tax']);
         if (!empty($_POST['send'])) {
-            $totalAmount = 0;
-
             $orderData = [
                 'last_processed' => time(),
                 'tracking_number' => \Utility::generateRandomString(),
                 'delivery_date' => strtotime($_POST['delivery_date']),
-                'total_amount' => $totalAmount,
+                'total_amount' => $priceDetails['total']
             ];
 
-            $orderId = $orderModel->save($orderData + $_POST);
+            $orderId = $orderModel->save($orderData);
 
-            foreach ($_POST['product_id'] as $key => $productId) {
-                
-                $productDetails = $productModel->get($productId);
-                $subtotal = $productDetails['price'] * $_POST['quantity'][$key];
-                $totalAmount += $subtotal;
+            if (!$orderId) {
+                // Save order products
+                foreach ($productIds as $key => $productId) {
+                    $productDetails = $productModel->get($productId);
+                    $subtotal = $productDetails['price'] * $quantities[$key];
 
-                $data = array();
-                $data['order_id'] = $orderId;
-                $data['product_id'] = $productId;
-                $data['quantity'] = $_POST['quantity'][$key];
-                $data['price'] = $productDetails['price'];
-                $data['subtotal'] = $subtotal;
-               
-                $orderProductsModel->save($data);
+                    $data = [
+                        'order_id' => $orderId,
+                        'product_id' => $productId,
+                        'quantity' => $quantities[$key],
+                        'price' => $productDetails['price'],
+                        'subtotal' => $subtotal,
+                    ];
+
+                    if (!$orderProductsModel->save($data)) {
+                        // Handle product save failure
+                        $error_message = "Failed to save order products. Please try again.";
+                        break;
+                    }
+                }
+
+                if (!isset($error_message)) {
+                    // Redirect on success
+                    header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
+                    exit;
+                }
+            } else {
+                $error_message = "Failed to create the order. Please try again.";
             }
-
-            if ($orderModel->update(['id' => $orderId, 'total_amount' => $totalAmount])) {
-                header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
-                exit;
-            }
-
-            $error_message = "Failed to create the order. Please try again.";
         }
 
         $arr = [
@@ -160,15 +168,15 @@ class OrderController extends Controller {
         }
 
         if (!empty($_POST['send'])) {
-            $products = $_POST['product_id'];
+            $productIds = $_POST['product_id'];
             $quantities = $_POST['quantity'];
-            $totalAmount = 0;
 
+            $priceDetails = $this->calculateOrderTotal($productIds, $quantities, $productModel);
             $orderData = [
                 'last_processed' => time(),
                 'tracking_number' => $order['tracking_number'], // keep the same tracking number
                 'delivery_date' => strtotime($_POST['delivery_date']),
-                'total_amount' => $totalAmount,
+                'total_amount' => $priceDetails['total']
             ];
 
             // Update order data
@@ -178,10 +186,9 @@ class OrderController extends Controller {
             $orderProductsModel->deleteByOrderId($orderId);
 
             // Add new products
-            foreach ($products as $product => $productId) {
+            foreach ($productIds as $product => $productId) {
                 $productDetails = $productModel->get($productId);
                 $subtotal = $productDetails['price'] * $quantities[$product];
-                $totalAmount += $subtotal;
 
                 // Save the updated order products
                 $orderProductsModel->save([
@@ -193,10 +200,6 @@ class OrderController extends Controller {
                 ]);
             }
 
-            // Update total amount for the order
-            $orderModel->update(['id' => $orderId, 'total_amount' => $totalAmount]);
-
-            // Redirect to the order list
             header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
             exit;
         }
@@ -218,38 +221,31 @@ class OrderController extends Controller {
     }
 
     function calculatePrice() {
-        $productModel = new \App\Models\Product();
-
-        $productPrice = 0;
-        $total = 0;
-        $shippingPrice = 0;
-        $tax = 0;
-
-        $price_arr = array('product_price' => $productPrice, 'shipping_price' => $shippingPrice, 'total' => $total, 'tax' => $tax);
-
-        if (!empty($_POST['product_id'])) {
-
-            foreach ($_POST['product_id'] as $key => $pid) {
-                $product = $productModel->get($pid);
-
-                $productPrice += $product['price'] * $_POST['quantity'][$key];
-            }
-
-            $tax = ($productPrice * 20) / 100;
-            $shippingPrice = 10;
-
-            $total = $tax + $shippingPrice + $productPrice;
-        }
-
-        $price_arr['product_price'] = $productPrice;
-        $price_arr['shipping_price'] = $shippingPrice;
-        $price_arr['total'] = $total;
-        $price_arr['tax'] = $tax;
         // to here function
-
+        $price_arr = $this->calculateOrderTotal($_POST['product_id'], $_POST['quantity'], 10, 20);
         header('Content-Type: application/json');
 
         echo json_encode($price_arr);
     }
 
+    private function calculateOrderTotal(array $productIds, array $quantities): array {
+        $productModel = new \App\Models\Product();
+        $productPrice = 0;
+
+        foreach ($productIds as $key => $productId) {
+            $product = $productModel->get($productId);
+            $productPrice += $product['price'] * $quantities[$key];
+        }
+
+        $shippingPrice = 10;
+        $tax = ($productPrice * 20) / 100;
+        $total = $productPrice + $tax + $shippingPrice;
+
+        return [
+            'product_price' => $productPrice,
+            'shipping_price' => $shippingPrice,
+            'tax' => $tax,
+            'total' => $total,
+        ];
+    }
 }
