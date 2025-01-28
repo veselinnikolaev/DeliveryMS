@@ -145,11 +145,11 @@ class OrderController extends Controller {
 
         if (!empty($_POST['id'])) {
             $orderId = $_POST['id'];
-            
+
             $opts = array();
             $opts['order_id'] = $orderId;
             $orderProductsModel->deleteBy($opts);
-            
+
             $orderModel->delete($orderId);
         }
 
@@ -167,7 +167,7 @@ class OrderController extends Controller {
         $arr = [
             'orders' => $orders,
         ];
-        
+
         $this->view('ajax', $arr);
     }
 
@@ -178,22 +178,11 @@ class OrderController extends Controller {
         $userModel = new \App\Models\User();
         $courierModel = new \App\Models\Courier();
 
-        // Check if order ID is provided
-        if (!isset($_GET['order_id']) || empty($_GET['order_id'])) {
-            header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
-            exit;
-        }
-
-        $orderId = $_GET['order_id'];
-        $order = $orderModel->get($orderId);
-        if (!$order) {
-            header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
-            exit;
-        }
-
-        if (!empty($_POST['send'])) {
+        if (!empty($_POST['id'])) {
             $productIds = $_POST['product_id'];
             $quantities = $_POST['quantity'];
+            $orderId = $_POST['id'];
+            $order = $orderModel->get($orderId);
 
             $priceDetails = $this->calculateOrderTotal($productIds, $quantities, $productModel);
             $orderData = [
@@ -204,7 +193,9 @@ class OrderController extends Controller {
             ];
 
             // Update order data
-            $orderModel->update(['id' => $orderId] + $orderData + $_POST);
+            if (!$orderModel->update(['id' => $orderId] + $orderData + $_POST)) {
+                $error_message = "Failed to update order with id " . $orderId;
+            }
 
             // Delete previous order products before saving updated ones
             $orderProductsModel->deleteByOrderId($orderId);
@@ -228,11 +219,14 @@ class OrderController extends Controller {
             exit;
         }
 
-        // Fetch the existing order products
-        $orderProducts = $orderProductsModel->getByOrderId($orderId);
+        $orderId = $_GET['order_id'];
+        
+        $opt = array();
+        $opt['order_id'] = $orderId;
+        $orderProducts = $orderProductsModel->getAll($opt);
 
         $arr = [
-            'order' => $order,
+            'order' => $orderModel->get($orderId),
             'orderProducts' => $orderProducts,
             'users' => $userModel->getAll(),
             'products' => $productModel->getAll(),
@@ -271,4 +265,5 @@ class OrderController extends Controller {
             'total' => $total,
         ];
     }
+
 }

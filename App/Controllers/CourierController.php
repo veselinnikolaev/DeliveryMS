@@ -72,7 +72,7 @@ class CourierController extends Controller {
                 exit;
             } else {
                 // If saving fails, set an error message
-                $error_message = "Failed to create the courier. Please try again.";
+                $arr['error_message'] = "Failed to create the courier. Please try again.";
             }
         }
 

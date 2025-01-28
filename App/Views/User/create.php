@@ -4,8 +4,8 @@
             <div class="card card-rounded mt-3">
                 <div class="card-body">
                     <h4 class="card-title">Create New User</h4>
-                    
-                    <?php if(isset($error_message)): ?>
+
+                    <?php if (isset($error_message)): ?>
                         <div class="alert alert-danger"><?php echo $error_message; ?></div>
                     <?php endif; ?>
 
@@ -19,14 +19,14 @@
                         </div>
                         <div class="row">
                             <div class="form-group col-md-6 mb-3">
-                                <label for="phoneNumber" class="form-label">Email</label>
-                                <input type="text" class="form-control" id="email" name="email" required>
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
                             </div>
                         </div>
                         <div class="row">
                             <div class="form-group col-md-6 mb-3">
                                 <label for="phoneNumber" class="form-label">Phone Number</label>
-                                <input type="text" class="form-control" id="phoneNumber" name="phone_number" required>
+                                <input type="tel" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" class="form-control" id="phoneNumber" name="phone_number" required>
                             </div>
                         </div>
                         <div class="row">
