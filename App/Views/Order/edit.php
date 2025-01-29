@@ -27,6 +27,7 @@
                     <?php endif; ?>
 
                     <form method="POST" id="booking-frm-id" action="<?php echo INSTALL_URL; ?>?controller=Order&action=edit">
+                        <input type="hidden" name="id" value="<?php echo $order['id']; ?>" />
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
@@ -138,9 +139,9 @@
                         </div>
                         <div class="row">
                             <div class="col-12">
-                                <button type="submit" class="btn btn-primary" name="send">Save Changes</button>
-                                <a href="javascript:" id="calculate-price-btn-id" class="btn btn-secondary ms-2">Calculate Price</a>
-                                <a href="<?php echo INSTALL_URL; ?>?controller=Order&action=list" class="btn btn-secondary ms-2">Cancel</a>
+                                <button type="submit" class="btn btn-primary text-white me-0" name="send">Save Changes</button>
+                                <a href="javascript:" id="calculate-price-btn-id" class="btn btn-primary text-white me-0">Calculate Price</a>
+                                <a href="<?php echo INSTALL_URL; ?>?controller=Order&action=list" class="btn btn-outline-dark">Cancel</a>
                             </div>
                         </div>
                     </form>

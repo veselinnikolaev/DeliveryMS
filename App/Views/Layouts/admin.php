@@ -21,6 +21,7 @@
         <!-- End plugin css for this page -->
         <!-- inject:css -->
         <link rel="stylesheet" href="web/assets/css/style.css">
+        <link rel="stylesheet" href="web/css/style.css">
         <!-- endinject -->
         <link rel="shortcut icon" href="web/assets/images/favicon.png" />
     </head>

@@ -197,8 +197,9 @@ class OrderController extends Controller {
                 $error_message = "Failed to update order with id " . $orderId;
             }
 
-            // Delete previous order products before saving updated ones
-            $orderProductsModel->deleteByOrderId($orderId);
+            $opts = array();
+            $opts['order_id'] = $orderId;
+            $orderProductsModel->deleteBy($opts);
 
             // Add new products
             foreach ($productIds as $product => $productId) {
@@ -220,7 +221,6 @@ class OrderController extends Controller {
         }
 
         $orderId = $_GET['order_id'];
-        
         $opt = array();
         $opt['order_id'] = $orderId;
         $orderProducts = $orderProductsModel->getAll($opt);
@@ -265,5 +265,4 @@ class OrderController extends Controller {
             'total' => $total,
         ];
     }
-
 }

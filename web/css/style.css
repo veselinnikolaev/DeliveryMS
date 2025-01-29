@@ -1,0 +1,8 @@
+/* Custom style for select elements */
+select.form-select {
+    color: #000; /* Set text color to white */
+}
+
+select.form-select option {
+    color: #000; /* Set option text color to white */
+}

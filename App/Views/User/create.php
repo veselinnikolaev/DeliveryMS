@@ -26,19 +26,19 @@
                         <div class="row">
                             <div class="form-group col-md-6 mb-3">
                                 <label for="phoneNumber" class="form-label">Phone Number</label>
-                                <input type="tel" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" class="form-control" id="phoneNumber" name="phone_number" required>
+                                <input type="tel" pattern="^\d{10}$" class="form-control" id="phoneNumber" name="phone_number" required>
                             </div>
                         </div>
                         <div class="row">
                             <div class="form-group col-md-6 mb-3">
                                 <label for="passwordHash" class="form-label">Password</label>
-                                <input type="text" class="form-control" id="passwordHash" name="password_hash" required>
+                                <input type="password" class="form-control" id="passwordHash" name="password_hash" required>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-12">
-                                <button type="submit" class="btn btn-primary me-2">Create User</button>
-                                <a href="<?php echo INSTALL_URL; ?>?controller=User&action=list" class="btn btn-light">Cancel</a>
+                                <button type="submit" class="btn btn-primary text-white me-0">Create User</button>
+                                <a href="<?php echo INSTALL_URL; ?>?controller=User&action=list" class="btn btn-outline-dark">Cancel</a>
                             </div>
                         </div>
                     </form>

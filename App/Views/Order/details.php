@@ -55,7 +55,7 @@
                             </table>
                         </div>
                         <div class="mt-3">
-                            <a href="<?php echo INSTALL_URL; ?>?controller=Order&action=list" class="btn btn-secondary">Back to Order List</a>
+                            <a href="<?php echo INSTALL_URL; ?>?controller=Order&action=list" class="btn btn-outline-dark">Back to Order List</a>
                         </div>
                     </div>
                 </div>

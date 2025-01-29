@@ -40,8 +40,8 @@
                         </div>
                         <div class="row">
                             <div class="col-12">
-                                <button type="submit" class="btn btn-primary me-2">Create Product</button>
-                                <a href="<?php echo INSTALL_URL; ?>?controller=Product&action=list" class="btn btn-light">Cancel</a>
+                                <button type="submit" class="btn btn-primary text-white me-0">Create Product</button>
+                                <a href="<?php echo INSTALL_URL; ?>?controller=Product&action=list" class="btn btn-outline-dark">Cancel</a>
                             </div>
                         </div>
                     </form>
