@@ -11,7 +11,7 @@ class OrderController extends Controller {
 
     var $layout = 'admin';
 
-    public function list() {
+    function list() {
         $orderModel = new \App\Models\Order();
         $userModel = new \App\Models\User();
         $courierModel = new \App\Models\Courier();
@@ -34,7 +34,7 @@ class OrderController extends Controller {
         $this->view($this->layout, $arr);
     }
 
-    public function create() {
+    function create() {
         $orderModel = new \App\Models\Order();
         $orderProductsModel = new \App\Models\OrderProducts();
         $productModel = new \App\Models\Product();
@@ -95,7 +95,7 @@ class OrderController extends Controller {
         $this->view($this->layout, $arr);
     }
 
-    public function details() {
+    function details() {
         $orderModel = new \App\Models\Order();
         $orderProductsModel = new \App\Models\OrderProducts();
         $productModel = new \App\Models\Product();
@@ -171,7 +171,7 @@ class OrderController extends Controller {
         $this->view('ajax', $arr);
     }
 
-    public function edit() {
+    function edit() {
         $orderModel = new \App\Models\Order();
         $orderProductsModel = new \App\Models\OrderProducts();
         $productModel = new \App\Models\Product();

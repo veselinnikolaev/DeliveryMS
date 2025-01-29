@@ -11,7 +11,7 @@ class SettingsController extends Controller{
     
     var $layout = 'admin';
 
-    public function index() {
+    function index() {
 
         $galleryModel = new \App\Models\Gallery();
 

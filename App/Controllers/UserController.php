@@ -30,14 +30,16 @@ class UserController extends Controller {
 
         // Check if the form has been submitted
         if (!empty($_POST['send'])) {
-            // Save the data using the User model
-            if ($userModel->save($_POST)) {
+            $_POST['password_hash'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
+            if ($userModel->existsBy(['email' => $_POST['email']])) {
+                $error_message = "User with this email already exists.";
+            } else if (!$userModel->save($_POST)) {
+                // If saving fails, set an error message
+                $error_message = "Failed to create the user. Please try again.";
+            } else {
                 // Redirect to the list of users on successful creation
                 header("Location: " . INSTALL_URL . "?controller=User&action=list", true, 301);
                 exit;
-            } else {
-                // If saving fails, set an error message
-                $error_message = "Failed to create the user. Please try again.";
             }
         }
 
@@ -61,23 +63,23 @@ class UserController extends Controller {
         $users = $userModel->getAll();
         $this->view('ajax', ['users' => $users]);
     }
-    
+
     function edit() {
         $userModel = new \App\Models\User();
-        
+
         $arr = $userModel->get($_GET['id']);
 
         // Check if the form has been submitted
         if (!empty($_POST['id'])) {
-            
-            // Save the data using the Courier model
-            if ($userModel->update($_POST)) {
+            if ($userModel->existsBy(['email' => $_POST['email']])) {
+                $arr['error_message'] = "User with this email already exists.";
+            } else if (!$userModel->update($_POST)) {
+                // If saving fails, set an error message
+                $arr['error_message'] = "Failed to create the courier. Please try again.";
+            } else {
                 // Redirect to the list of users on successful creation
                 header("Location: " . INSTALL_URL . "?controller=User&action=list", true, 301);
                 exit;
-            } else {
-                // If saving fails, set an error message
-                $arr['error_message'] = "Failed to create the courier. Please try again.";
             }
         }
 

@@ -74,6 +74,48 @@ class Model {
         return $arr[0];
     }
 
+    public function getBy($options = null) {
+        // Създаване на основна SELECT заявка
+        $query = "SELECT * FROM " . $this->getTable();
+
+        // Проверка дали има подаден масив с условия
+        if ($options && is_array($options)) {
+            $conditions = [];
+            foreach ($options as $field => $value) {
+                // Изграждане на условията за WHERE
+                $conditions[] = "$field = '$value'";
+            }
+            // Добавяне на WHERE частта към заявката
+            $query .= " WHERE " . implode(" AND ", $conditions);
+        } elseif ($options) {
+            // Ако $options не е масив, добавяме директно
+            $query .= " WHERE " . $options;
+        }
+
+        // Изпълняване на заявката
+        return $this->executeQuery($query)[0];
+    }
+
+    public function existsBy($options = null) {
+        $query = "SELECT COUNT(*) as count FROM " . $this->getTable();
+
+        if ($options && is_array($options)) {
+            $conditions = [];
+            foreach ($options as $field => $value) {
+                // Изграждане на условията за WHERE
+                $conditions[] = "$field = '$value'";
+            }
+            // Добавяне на WHERE частта към заявката
+            $query .= " WHERE " . implode(" AND ", $conditions);
+        } elseif ($options) {
+            // Ако $options не е масив, добавяме директно
+            $query .= " WHERE " . $options;
+        }
+
+        $result = $this->executeQuery($query);
+        return isset($result[0]['count']) && $result[0]['count'] > 0;
+    }
+
     public function save($data) {
         // Вставка на нов запис
 

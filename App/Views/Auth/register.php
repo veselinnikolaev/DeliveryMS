@@ -3,13 +3,13 @@
         <div class="home-tab">
             <div class="card card-rounded mt-3">
                 <div class="card-body">
-                    <h4 class="card-title">Create New User</h4>
+                    <h4 class="card-title">Register</h4>
 
                     <?php if (isset($error_message)): ?>
                         <div class="alert alert-danger"><?php echo $error_message; ?></div>
                     <?php endif; ?>
 
-                    <form class="forms-sample" method="POST" action="<?php echo INSTALL_URL; ?>?controller=User&action=create">
+                    <form class="forms-sample" method="POST" action="<?php echo INSTALL_URL; ?>?controller=Auth&action=register">
                         <input type="hidden" name="send" value="1" />
                         <div class="row">
                             <div class="form-group col-md-6 mb-3">
@@ -36,14 +36,22 @@
                             </div>
                         </div>
                         <div class="row">
+                            <div class="form-group col-md-6 mb-3">
+                                <label for="repeatPassword" class="form-label">Repeat Password</label>
+                                <input type="password" class="form-control" id="repeatPassword" name="repeat_password" required>
+                            </div>
+                        </div>
+                        <div class="row">
                             <div class="col-12">
-                                <button type="submit" class="btn btn-primary text-white me-0">Create User</button>
+                                <button type="submit" class="btn btn-primary text-white me-0">Register</button>
                                 <a href="<?php echo INSTALL_URL; ?>?controller=User&action=list" class="btn btn-outline-dark">Cancel</a>
                             </div>
                         </div>
                     </form>
+                    <p class="mt-3">Already have an account? <a href="<?php echo INSTALL_URL; ?>?controller=Auth&action=login">Log in here</a></p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+

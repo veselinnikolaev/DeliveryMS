@@ -11,7 +11,7 @@ class ProductController extends Controller {
 
     var $layout = 'admin';
 
-    public function list() {
+    function list() {
         $productModel = new \App\Models\Product();
 
         $products = $productModel->getAll();
@@ -19,7 +19,7 @@ class ProductController extends Controller {
         $this->view($this->layout, ['products' => $products]);
     }
 
-    public function create() {
+    function create() {
         // Create an instance of the Courier model
         $productModel = new \App\Models\Product();
 

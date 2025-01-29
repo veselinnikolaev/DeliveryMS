@@ -11,7 +11,7 @@ class CourierController extends Controller {
 
     var $layout = 'admin';
 
-    public function list() {
+    function list() {
         $courierModel = new \App\Models\Courier();
 
         $couriers = $courierModel->getAll();
@@ -19,7 +19,7 @@ class CourierController extends Controller {
         $this->view($this->layout, ['couriers' => $couriers]);
     }
 
-    public function create() {
+    function create() {
         // Create an instance of the Courier model
         $courierModel = new \App\Models\Courier();
 
