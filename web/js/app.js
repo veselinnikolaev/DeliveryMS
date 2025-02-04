@@ -21,14 +21,14 @@
                 {orderable: false, targets: [0, -1]}
             ]
         });
-        
+
         $('#order-table-id').dataTable({
             order: [[1, 'asc']],
             columnDefs: [
                 {orderable: false, targets: [0, -1]}
             ]
         });
-        
+
         $('#order-products-table-id').dataTable();
 
         $('#deliveryDate').datepicker({});
@@ -190,6 +190,66 @@
             $('#productRows').append($newRow);
         }).delegate(".remove-row", "click", function () {
             $(this).closest('.product-row').remove();
+            validateTotalQuantity();
+        }).delegate('select[name="product_id[]"]', 'change', function () {
+            updateQuantityMax(this);
+            validateTotalQuantity();
+        }).delegate('input[name="quantity[]"]', 'input', function () {
+            validateTotalQuantity();
         });
+        $('select[name="product_id[]"]').each(function () {
+            updateQuantityMax(this);
+        });
+
+        function updateQuantityMax(selectElement) {
+            var selectedOption = $(selectElement).find('option:selected');
+            var maxQuantity = selectedOption.data('max-quantity') || 1;
+            var quantityInput = $(selectElement).closest('.product-row').find('input[name="quantity[]"]');
+            quantityInput.attr('max', maxQuantity);
+        }
+
+        function validateTotalQuantity() {
+            let productQuantities = {};
+
+            // Collect the product quantities and calculate the total quantities per product
+            $("select[name='product_id[]']").each(function () {
+                let productId = $(this).val();
+                let $row = $(this).closest('.product-row');
+                let $quantityInput = $row.find('input[name="quantity[]"]');
+                let quantity = parseInt($quantityInput.val()) || 0;
+                let maxQuantity = $(this).find('option:selected').data('max-quantity') || 1;
+
+                if (!productQuantities[productId]) {
+                    productQuantities[productId] = {total: 0, max: maxQuantity, inputs: []};
+                }
+
+                productQuantities[productId].total += quantity;
+                productQuantities[productId].inputs.push($quantityInput);
+            });
+
+            // Loop over each product to update the max quantities and validate the totals
+            Object.keys(productQuantities).forEach(productId => {
+                let productData = productQuantities[productId];
+                let available = productData.max - productData.total;
+
+                // For each input associated with the product, update the max and min values
+                productData.inputs.forEach($input => {
+                    let currentValue = parseInt($input.val()) || 0;
+                    let newMax = Math.max(0, productData.max - (productData.total - currentValue));
+
+                    // If the total quantity is exceeded, set min/max to 0 to prevent further increases
+                    if (productData.total > productData.max) {
+                        $input.attr('min', 0);
+                        $input.attr('max', 0);
+                        // Ensure input can't increase beyond the current value
+                        $input.val(currentValue);
+                    } else {
+                        // If total is within max, reset min/max and allow normal adjustments
+                        $input.attr('min', 1);
+                        $input.attr('max', productData.max);
+                    }
+                });
+            });
+        }
     });
 }(jQuery));

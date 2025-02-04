@@ -119,7 +119,7 @@
                                                 <option value="">---</option>
                                                 <?php
                                                 foreach ($tpl['products'] as $product) {
-                                                    echo "<option value=\"{$product['id']}\">{$product['name']}</option>";
+                                                    echo "<option value=\"{$product['id']}\" data-max-quantity=\"{$product['stock']}\">{$product['name']}</option>";
                                                 }
                                                 ?>
                                             </select>

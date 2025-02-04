@@ -44,45 +44,71 @@ class OrderController extends Controller {
         if (!empty($_POST['send'])) {
             $productIds = $_POST['product_id'];
             $quantities = $_POST['quantity'];
-            $priceDetails = $this->calculateOrderTotal($productIds, $quantities);
-            $orderData = [
-                'last_processed' => time(),
-                'tracking_number' => \Utility::generateRandomString(),
-                'delivery_date' => strtotime($_POST['delivery_date']),
-                'total_amount' => $priceDetails['total'],
-                'created_at' => time()
-            ];
 
-            $orderId = $orderModel->save($orderData + $_POST);
+            // Validate quantities against available product quantities
+            $quantityError = false;
+            $error_message = null;
 
-            if ($orderId) {
-                // Save order products
-                foreach ($productIds as $key => $productId) {
-                    $productDetails = $productModel->get($productId);
-                    $subtotal = $productDetails['price'] * $quantities[$key];
+            foreach ($productIds as $key => $productId) {
+                $product = $productModel->get($productId);
+                if ($quantities[$key] > $product['stock']) {
+                    $error_message = "Quantity for {$product['name']} exceeds available stock.";
+                    $quantityError = true;
+                    break;
+                }
+            }
 
-                    $data = [
-                        'order_id' => $orderId,
-                        'product_id' => $productId,
-                        'quantity' => $quantities[$key],
-                        'price' => $productDetails['price'],
-                        'subtotal' => $subtotal,
-                    ];
+            if (!$quantityError) {
+                $priceDetails = $this->calculateOrderTotal($productIds, $quantities);
+                $orderData = [
+                    'last_processed' => time(),
+                    'tracking_number' => \Utility::generateRandomString(),
+                    'delivery_date' => strtotime($_POST['delivery_date']),
+                    'total_amount' => $priceDetails['total'],
+                    'created_at' => time()
+                ];
 
-                    if (!$orderProductsModel->save($data)) {
-                        // Handle product save failure
-                        $error_message = "Failed to save order products. Please try again.";
-                        break;
+                $orderId = $orderModel->save($orderData + $_POST);
+
+                if ($orderId) {
+                    // Save order products and update product quantities
+                    foreach ($productIds as $key => $productId) {
+                        $productDetails = $productModel->get($productId);
+                        $subtotal = $productDetails['price'] * $quantities[$key];
+
+                        $orderProductData = [
+                            'order_id' => $orderId,
+                            'product_id' => $productId,
+                            'quantity' => $quantities[$key],
+                            'price' => $productDetails['price'],
+                            'subtotal' => $subtotal,
+                        ];
+
+                        if (!$orderProductsModel->save($orderProductData)) {
+                            $error_message = "Failed to save order products. Please try again.";
+                            break;
+                        }
+
+                        // Update product quantity after order product is saved
+                        $updatedQuantity = $productDetails['stock'] - $quantities[$key];
+                        $updateSuccess = $productModel->update([
+                            'id' => $productId,
+                            'stock' => $updatedQuantity
+                        ]);
+
+                        if (!$updateSuccess) {
+                            $error_message = "Failed to update product stock for {$productDetails['name']}. Please try again.";
+                            break;
+                        }
                     }
-                }
 
-                if (!isset($error_message)) {
-                    // Redirect on success
-                    header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
-                    exit;
+                    if (!isset($error_message)) {
+                        header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
+                        exit;
+                    }
+                } else {
+                    $error_message = "Failed to create the order. Please try again.";
                 }
-            } else {
-                $error_message = "Failed to create the order. Please try again.";
             }
         }
 
@@ -184,46 +210,75 @@ class OrderController extends Controller {
             $orderId = $_POST['id'];
             $order = $orderModel->get($orderId);
 
-            $priceDetails = $this->calculateOrderTotal($productIds, $quantities, $productModel);
-            $orderData = [
-                'last_processed' => time(),
-                'tracking_number' => $order['tracking_number'], // keep the same tracking number
-                'delivery_date' => strtotime($_POST['delivery_date']),
-                'total_amount' => $priceDetails['total']
-            ];
-
-            // Update order data
-            if (!$orderModel->update(['id' => $orderId] + $orderData + $_POST)) {
-                $error_message = "Failed to update order with id " . $orderId;
+            // Validate quantities before proceeding
+            $quantityError = false;
+            foreach ($productIds as $key => $productId) {
+                $product = $productModel->get($productId);
+                if ($quantities[$key] > $product['stock']) {
+                    $error_message = "Quantity for {$product['name']} exceeds available stock.";
+                    $quantityError = true;
+                    break;
+                }
             }
 
-            $opts = array();
-            $opts['order_id'] = $orderId;
-            $orderProductsModel->deleteBy($opts);
+            if (!$quantityError) {
+                // Calculate updated total amount
+                $priceDetails = $this->calculateOrderTotal($productIds, $quantities, $productModel);
+                $orderData = [
+                    'last_processed' => time(),
+                    'tracking_number' => $order['tracking_number'], // Keep the same tracking number
+                    'delivery_date' => strtotime($_POST['delivery_date']),
+                    'total_amount' => $priceDetails['total']
+                ];
 
-            // Add new products
-            foreach ($productIds as $product => $productId) {
-                $productDetails = $productModel->get($productId);
-                $subtotal = $productDetails['price'] * $quantities[$product];
+                // Update order data
+                if (!$orderModel->update(['id' => $orderId] + $orderData + $_POST)) {
+                    $error_message = "Failed to update order with id " . $orderId;
+                }
 
-                // Save the updated order products
-                $orderProductsModel->save([
-                    'order_id' => $orderId,
-                    'product_id' => $productId,
-                    'quantity' => $quantities[$product],
-                    'price' => $productDetails['price'],
-                    'subtotal' => $subtotal
-                ]);
+                // Remove old products from the order
+                $opts = ['order_id' => $orderId];
+                $orderProductsModel->deleteBy($opts);
+
+                // Add new products and update the stock
+                foreach ($productIds as $key => $productId) {
+                    $productDetails = $productModel->get($productId);
+                    $subtotal = $productDetails['price'] * $quantities[$key];
+
+                    // Save the updated order products
+                    $orderProductsModel->save([
+                        'order_id' => $orderId,
+                        'product_id' => $productId,
+                        'quantity' => $quantities[$key],
+                        'price' => $productDetails['price'],
+                        'subtotal' => $subtotal
+                    ]);
+
+                    // Update product stock after saving order products
+                    $updatedQuantity = $productDetails['stock'] - $quantities[$key];
+                    $updateSuccess = $productModel->update([
+                        'id' => $productId,
+                        'stock' => $updatedQuantity
+                    ]);
+
+                    if (!$updateSuccess) {
+                        $error_message = "Failed to update product stock for {$productDetails['name']}. Please try again.";
+                        break;
+                    }
+                }
+
+                // If no errors, redirect to the orders list
+                if (!isset($error_message)) {
+                    header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
+                    exit;
+                }
             }
-
-            header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
-            exit;
         }
 
+        // Fetch the current order details and related products
         $orderId = $_GET['order_id'];
-        $opt = array();
-        $opt['order_id'] = $orderId;
-        $orderProducts = $orderProductsModel->getAll($opt);
+        $opts = ['order_id' => $orderId];
+        $orderProducts = $orderProductsModel->getAll($opts);
 
         $arr = [
             'order' => $orderModel->get($orderId),
