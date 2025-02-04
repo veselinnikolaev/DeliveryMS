@@ -210,11 +210,24 @@ class OrderController extends Controller {
             $orderId = $_POST['id'];
             $order = $orderModel->get($orderId);
 
-            // Validate quantities before proceeding
+            // Fetch current order products
+            $currentOrderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
+
+            // Store current quantities of each product in the order
+            $currentQuantities = [];
+            foreach ($currentOrderProducts as $product) {
+                $currentQuantities[$product['product_id']] = $product['quantity'];
+            }
+
+            // Validate new quantities before proceeding
             $quantityError = false;
             foreach ($productIds as $key => $productId) {
+                $newQuantity = $quantities[$key];
                 $product = $productModel->get($productId);
-                if ($quantities[$key] > $product['stock']) {
+                $currentQuantity = $currentQuantities[$productId] ?? 0; // Default to 0 if not in current order
+                // Check if we're exceeding available stock
+                $stockChange = $newQuantity - $currentQuantity; // Difference to adjust
+                if ($stockChange > 0 && $stockChange > $product['stock']) {
                     $error_message = "Quantity for {$product['name']} exceeds available stock.";
                     $quantityError = true;
                     break;
@@ -240,25 +253,35 @@ class OrderController extends Controller {
                 $opts = ['order_id' => $orderId];
                 $orderProductsModel->deleteBy($opts);
 
-                // Add new products and update the stock
+                // Add new products and update the stock properly
                 foreach ($productIds as $key => $productId) {
                     $productDetails = $productModel->get($productId);
-                    $subtotal = $productDetails['price'] * $quantities[$key];
+                    $newQuantity = $quantities[$key];
+                    $currentQuantity = $currentQuantities[$productId] ?? 0; // Old quantity
+
+                    $subtotal = $productDetails['price'] * $newQuantity;
 
                     // Save the updated order products
                     $orderProductsModel->save([
                         'order_id' => $orderId,
                         'product_id' => $productId,
-                        'quantity' => $quantities[$key],
+                        'quantity' => $newQuantity,
                         'price' => $productDetails['price'],
                         'subtotal' => $subtotal
                     ]);
 
-                    // Update product stock after saving order products
-                    $updatedQuantity = $productDetails['stock'] - $quantities[$key];
+                    // Adjust stock based on quantity difference
+                    $stockChange = $newQuantity - $currentQuantity;
+                    $updatedStock = $productDetails['stock'] - $stockChange;
+
+                    // Ensure stock never goes negative
+                    if ($updatedStock < 0) {
+                        $updatedStock = 0;
+                    }
+
                     $updateSuccess = $productModel->update([
                         'id' => $productId,
-                        'stock' => $updatedQuantity
+                        'stock' => $updatedStock
                     ]);
 
                     if (!$updateSuccess) {
@@ -280,12 +303,22 @@ class OrderController extends Controller {
         $opts = ['order_id' => $orderId];
         $orderProducts = $orderProductsModel->getAll($opts);
 
+        $productQuantities = [];
+        foreach ($orderProducts as $orderProduct) {
+            $productId = $orderProduct['product_id'];
+            if (!isset($productQuantities[$productId])) {
+                $productQuantities[$productId] = 0;
+            }
+            $productQuantities[$productId] += $orderProduct['quantity'];
+        }
+
         $arr = [
             'order' => $orderModel->get($orderId),
             'orderProducts' => $orderProducts,
             'users' => $userModel->getAll(),
             'products' => $productModel->getAll(),
             'couriers' => $courierModel->getAll(),
+            'productQuantities' => $productQuantities,
             'error_message' => $error_message ?? null
         ];
 

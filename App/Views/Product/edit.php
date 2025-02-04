@@ -25,16 +25,16 @@
                         <div class="row">
                             <div class="form-group col-md-6 mb-3">
                                 <label for="price" class="form-label">Price</label>
-                                <div class="form-group col-md-6 mb-3">
-                                    <label for="stock" class="form-label">Stock</label>
-                                    <input type="number" step="0.01" min="0" class="form-control" id="price" name="price" value="<?php echo $tpl['price'] ?>" required>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" step="0.01" min="0.01" class="form-control" id="price" name="price" value="<?php echo $tpl['price'] ?>" required>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="form-group col-md-6 mb-3">
                                 <label for="stock" class="form-label">Stock</label>
-                                <input type="number" step="0.01" min="0" class="form-control" id="stock" name="stock" value="<?php echo $tpl['stock'] ?>" required>
+                                <input type="number" step="1" min="1" class="form-control" id="stock" name="stock" value="<?php echo $tpl['stock'] ?>" required>
                             </div>
                         </div>
                         <div class="row">

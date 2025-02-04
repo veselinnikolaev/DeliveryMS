@@ -110,14 +110,14 @@
                                     </select>
                                 </div>
                                 <div id="productRows">
-                                    <?php foreach ($tpl['orderProducts'] as $orderProduct): ?>
+                                    <?php foreach ($tpl['orderProducts'] as $index => $orderProduct): ?>
                                         <div class="row align-items-end mb-3 product-row">
                                             <div class="col-md-6">
                                                 <label for="productIds" class="form-label">Products</label>
                                                 <select name="product_id[]" class="form-select" required>
                                                     <option value="">---</option>
                                                     <?php foreach ($tpl['products'] as $productOption): ?>
-                                                        <option value="<?php echo $productOption['id']; ?>" data-max-quantity="<?php= $productOption['stock'] + $orderProduct['quantity'] ?>" <?php echo ($productOption['id'] == $orderProduct['product_id']) ? 'selected' : ''; ?>>
+                                                        <option value="<?php echo $productOption['id']; ?>" data-max-quantity="<?php echo $productOption['stock'] + $tpl['productQuantities'][$productOption['id']]; ?>" <?php echo ($productOption['id'] == $orderProduct['product_id']) ? 'selected' : ''; ?>>
                                                             <?php echo $productOption['name']; ?>
                                                         </option>
                                                     <?php endforeach; ?>
@@ -128,7 +128,11 @@
                                                 <input type="number" step="1" min="1" class="form-control" name="quantity[]" value="<?php echo $orderProduct['quantity']; ?>" required>
                                             </div>
                                             <div class="col-md-1 text-center d-flex justify-content-center align-items-center">
-                                                <button type="button" class="btn btn-light d-flex justify-content-center align-items-center rounded-circle add-row" style="width: 36px; height: 36px;">+</button>
+                                                <?php if ($index === count($tpl['orderProducts']) - 1): ?>
+                                                    <button type="button" class="btn btn-light d-flex justify-content-center align-items-center rounded-circle add-row" style="width: 36px; height: 36px;">+</button>
+                                                <?php else: ?>
+                                                    <button type="button" class="btn btn-danger d-flex justify-content-center align-items-center rounded-circle remove-row" style="width: 36px; height: 36px;">−</button>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     <?php endforeach; ?>

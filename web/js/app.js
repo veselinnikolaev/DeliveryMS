@@ -194,9 +194,11 @@
         }).delegate('select[name="product_id[]"]', 'change', function () {
             updateQuantityMax(this);
             validateTotalQuantity();
-        }).delegate('input[name="quantity[]"]', 'input', function () {
-            validateTotalQuantity();
-        });
+        })
+                .delegate('input[name="quantity[]"]', 'input', function () {
+                    validateTotalQuantity();
+                });
+
         $('select[name="product_id[]"]').each(function () {
             updateQuantityMax(this);
         });
@@ -211,7 +213,7 @@
         function validateTotalQuantity() {
             let productQuantities = {};
 
-            // Collect the product quantities and calculate the total quantities per product
+            // Collect product quantities and calculate totals
             $("select[name='product_id[]']").each(function () {
                 let productId = $(this).val();
                 let $row = $(this).closest('.product-row');
@@ -227,26 +229,32 @@
                 productQuantities[productId].inputs.push($quantityInput);
             });
 
-            // Loop over each product to update the max quantities and validate the totals
+            // Adjust each input field dynamically based on the total used
             Object.keys(productQuantities).forEach(productId => {
                 let productData = productQuantities[productId];
-                let available = productData.max - productData.total;
+                let totalUsed = productData.total;
+                let maxAllowed = productData.max;
 
-                // For each input associated with the product, update the max and min values
                 productData.inputs.forEach($input => {
                     let currentValue = parseInt($input.val()) || 0;
-                    let newMax = Math.max(0, productData.max - (productData.total - currentValue));
+                    let availableStock = maxAllowed - (totalUsed - currentValue);
 
-                    // If the total quantity is exceeded, set min/max to 0 to prevent further increases
-                    if (productData.total > productData.max) {
+                    // Ensure availableStock never goes below 0
+                    availableStock = Math.max(0, availableStock);
+
+                    // If total exceeds max, allow reducing the quantity by setting min = 0
+                    if (totalUsed > maxAllowed) {
                         $input.attr('min', 0);
-                        $input.attr('max', 0);
-                        // Ensure input can't increase beyond the current value
-                        $input.val(currentValue);
                     } else {
-                        // If total is within max, reset min/max and allow normal adjustments
-                        $input.attr('min', 1);
-                        $input.attr('max', productData.max);
+                        $input.attr('min', Math.min(1, availableStock)); // If possible, min should be 1
+                    }
+
+                    // Max should be limited to availableStock
+                    $input.attr('max', availableStock);
+
+                    // Prevent input values from exceeding new max
+                    if (currentValue > availableStock) {
+                        $input.val(availableStock);
                     }
                 });
             });
