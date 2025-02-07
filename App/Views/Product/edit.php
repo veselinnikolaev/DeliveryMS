@@ -26,7 +26,7 @@
                             <div class="form-group col-md-6 mb-3">
                                 <label for="price" class="form-label">Price</label>
                                 <div class="input-group">
-                                    <span class="input-group-text">$</span>
+                                    <span class="input-group-text"><?php= $tpl['settings']['currency_code'] ?></span>
                                     <input type="number" step="0.01" min="0.01" class="form-control" id="price" name="price" value="<?php echo $tpl['price'] ?>" required>
                                 </div>
                             </div>

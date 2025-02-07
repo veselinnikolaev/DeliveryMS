@@ -15,6 +15,7 @@ class OrderController extends Controller {
         $orderModel = new \App\Models\Order();
         $userModel = new \App\Models\User();
         $courierModel = new \App\Models\Courier();
+        $settingModel = new \App\Models\Setting();
 
         // Retrieve all orders from the database
         $orders = $orderModel->getAll();
@@ -29,6 +30,7 @@ class OrderController extends Controller {
         // Pass the data to the view
         $arr = [
             'orders' => $orders,
+            'settings' => $settingModel->get(1)
         ];
 
         $this->view($this->layout, $arr);
@@ -40,6 +42,7 @@ class OrderController extends Controller {
         $productModel = new \App\Models\Product();
         $userModel = new \App\Models\User();
         $courierModel = new \App\Models\Courier();
+        $settingModel = new \App\Models\Setting();
 
         if (!empty($_POST['send'])) {
             $productIds = $_POST['product_id'];
@@ -116,6 +119,7 @@ class OrderController extends Controller {
             'users' => $userModel->getAll(),
             'products' => $productModel->getAll(),
             'couriers' => $courierModel->getAll(),
+            'settings' => $settingModel->get(1),
             'error_message' => $error_message ?? null
         ];
         $this->view($this->layout, $arr);
@@ -127,6 +131,7 @@ class OrderController extends Controller {
         $productModel = new \App\Models\Product();
         $userModel = new \App\Models\User();
         $courierModel = new \App\Models\Courier();
+        $settingModel = new \App\Models\Setting();
 
         if (empty($_GET['id'])) {
             header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
@@ -158,6 +163,7 @@ class OrderController extends Controller {
             'customer' => $customerData,
             'courier' => $courierData,
             'products' => $orderProducts,
+            'setting' => $settingModel->get(1)
         ];
 
         $this->view($this->layout, $data);
@@ -203,7 +209,8 @@ class OrderController extends Controller {
         $productModel = new \App\Models\Product();
         $userModel = new \App\Models\User();
         $courierModel = new \App\Models\Courier();
-
+        $settingModel = new \App\Models\Setting();
+        
         if (!empty($_POST['id'])) {
             $productIds = $_POST['product_id'];
             $quantities = $_POST['quantity'];
@@ -236,7 +243,7 @@ class OrderController extends Controller {
 
             if (!$quantityError) {
                 // Calculate updated total amount
-                $priceDetails = $this->calculateOrderTotal($productIds, $quantities, $productModel);
+                $priceDetails = $this->calculateOrderTotal($productIds, $quantities);
                 $orderData = [
                     'last_processed' => time(),
                     'tracking_number' => $order['tracking_number'], // Keep the same tracking number
@@ -319,6 +326,7 @@ class OrderController extends Controller {
             'products' => $productModel->getAll(),
             'couriers' => $courierModel->getAll(),
             'productQuantities' => $productQuantities,
+            'settings' => $settingModel->get(1),
             'error_message' => $error_message ?? null
         ];
 
@@ -327,7 +335,7 @@ class OrderController extends Controller {
     }
 
     function calculatePrice() {
-        $price_arr = $this->calculateOrderTotal($_POST['product_id'], $_POST['quantity'], 10, 20);
+        $price_arr = $this->calculateOrderTotal($_POST['product_id'], $_POST['quantity']);
         header('Content-Type: application/json');
 
         echo json_encode($price_arr);
@@ -335,6 +343,7 @@ class OrderController extends Controller {
 
     private function calculateOrderTotal(array $productIds, array $quantities): array {
         $productModel = new \App\Models\Product();
+        $settingModel = new \App\Models\Setting();
         $productPrice = 0;
 
         foreach ($productIds as $key => $productId) {
@@ -342,8 +351,8 @@ class OrderController extends Controller {
             $productPrice += $product['price'] * $quantities[$key];
         }
 
-        $shippingPrice = 10;
-        $tax = ($productPrice * 20) / 100;
+        $shippingPrice = ($productPrice * $settingModel->get(1)['shipping_rate']) / 100;;
+        $tax = ($productPrice * $settingModel->get(1)['tax_rate']) / 100;
         $total = $productPrice + $tax + $shippingPrice;
 
         return [

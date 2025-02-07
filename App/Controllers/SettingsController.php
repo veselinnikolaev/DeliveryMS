@@ -7,18 +7,34 @@ use Core;
 use Core\View;
 use Core\Controller;
 
-class SettingsController extends Controller{
-    
+class SettingsController extends Controller {
+
     var $layout = 'admin';
 
-    function index() {
+    function list() {
+        $settingModel = new \App\Models\Setting();
 
-        $galleryModel = new \App\Models\Gallery();
+        $this->view($this->layout, ['settings' => $settingModel->get(1)]);
+    }
 
-        // Извличане на всички записи от таблицата gallery
-        $galleries = $galleryModel->getAll();
+    function edit() {
+        $settingModel = new \App\Models\Setting();
 
-        // Прехвърляне на данни към изгледа
-        $this->view($this->layout, ['galleries' => $galleries]);
+        if (!empty($_POST['id'])) {
+            if ($settingModel->update($_POST)) {
+                header('Location: ' . INSTALL_URL . '?controller=Settings&action=list');
+                exit;
+            } else {
+                $error_message = 'Failed to update setting with id ' . $_POST['id'];
+            }
+        }
+
+        $arr = array();
+        if (isset($error_message)) {
+            $arr['error_message'] = $error_message;
+        }
+        $arr['settings'] = $settingModel->get(1);
+
+        $this->view($this->layout, $arr);
     }
 }

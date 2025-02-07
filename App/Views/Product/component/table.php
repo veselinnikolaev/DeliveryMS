@@ -29,7 +29,7 @@
                 <td><?php echo htmlspecialchars($product['id']); ?></td>
                 <td><?php echo htmlspecialchars($product['name']); ?></td>
                 <td><?php echo htmlspecialchars($product['description']); ?></td>
-                <td>$<?php echo htmlspecialchars($product['price']); ?></td>
+                <td><?php echo $tpl['settings']['currency-code'] . htmlspecialchars($product['price']); ?></td>
                 <td><?php echo htmlspecialchars($product['stock']); ?></td>
                 <td style="text-align: right;">
                     <a class="btn btn-light btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=Product&action=edit&id=<?php echo $product['id'] ?>">

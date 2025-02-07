@@ -31,7 +31,7 @@
                 <td><?php echo htmlspecialchars($order['customer_name']); ?></td>
                 <td><?php echo htmlspecialchars($order['courier_name']); ?></td>
                 <td><?php echo htmlspecialchars(date('Y-m-d', strtotime($order['delivery_date']))); ?></td>
-                <td><?php echo htmlspecialchars($order['total_amount']); ?></td>
+                <td><?php echo htmlspecialchars($order['total_amount']) . ' ' . $tpl['settings']['currency_code']; ?></td>
                 <td><?php echo htmlspecialchars($order['status']); ?></td>
                 <td style="text-align: right;">
                     <a class="btn btn-light btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=Order&action=details&id=<?php echo $order['id'] ?>">

@@ -3,6 +3,7 @@ DROP TABLE IF EXISTS `products`;
 DROP TABLE IF EXISTS `orders`;
 DROP TABLE IF EXISTS `order_products`;
 DROP TABLE IF EXISTS `couriers`;
+DROP TABLE IF EXISTS `settings`;
 
 -- Create the `users` table
 CREATE TABLE IF NOT EXISTS `users` (
@@ -66,3 +67,17 @@ CREATE TABLE IF NOT EXISTS `couriers` (
   `email` VARCHAR(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Create the `settings` table
+CREATE TABLE IF NOT EXISTS `settings` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `tax_rate` DECIMAL(10,2) NOT NULL,
+  `shipping_rate` DECIMAL(10,2) NOT NULL,
+  `currency_code` VARCHAR(3) NOT NULL,
+  `email_sending` VARCHAR(20) NOT NULL,
+  `delivery_time_days` INT(11) NOT NULL
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `settings` (`id`, `tax_rate`, `shipping_rate`, `currency_code`, `email_sending`, `delivery_time_days`) 
+VALUES (1, 10.00, 5.00, '$', 'enabled', 3);

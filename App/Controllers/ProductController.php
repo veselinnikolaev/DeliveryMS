@@ -13,15 +13,18 @@ class ProductController extends Controller {
 
     function list() {
         $productModel = new \App\Models\Product();
+        $settingModel = new \App\Models\Setting();
 
         $products = $productModel->getAll();
+        $settings = $settingModel->get(1);
 
-        $this->view($this->layout, ['products' => $products]);
+        $this->view($this->layout, ['products' => $products, 'settings' => $settings]);
     }
 
     function create() {
         // Create an instance of the Courier model
         $productModel = new \App\Models\Product();
+        $settingModel = new \App\Models\Setting();
 
         // Check if the form has been submitted
         if (!empty($_POST['send'])) {
@@ -41,6 +44,7 @@ class ProductController extends Controller {
         if (isset($error_message)) {
             $arr['error_message'] = $error_message;
         }
+        $arr['settings'] = $settingModel->get(1);
 
         // Load the view and pass the data to it
         $this->view($this->layout, $arr);
@@ -56,15 +60,16 @@ class ProductController extends Controller {
         $products = $productModel->getAll();
         $this->view('ajax', ['products' => $products]);
     }
-    
+
     function edit() {
         $productModel = new \App\Models\Product();
-        
+        $settingModel = new \App\Models\Setting();
+
         $arr = $productModel->get($_GET['id']);
 
         // Check if the form has been submitted
         if (!empty($_POST['id'])) {
-            
+
             // Save the data using the Courier model
             if ($productModel->update($_POST)) {
                 // Redirect to the list of couriers on successful creation
@@ -76,6 +81,7 @@ class ProductController extends Controller {
             }
         }
 
+        $arr['settings'] = $settingModel->get(1);
         // Load the view and pass the data to it
         $this->view($this->layout, $arr);
     }
