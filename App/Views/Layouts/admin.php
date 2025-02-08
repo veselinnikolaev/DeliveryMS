@@ -60,9 +60,14 @@
         <!-- Custom js for this page-->
         <script src="web/assets/js/jquery.cookie.js" type="text/javascript"></script>
         <script src="web/assets/js/dashboard.js"></script>
-        
+
         <script src="web/assets/vendors/datatables.net/jquery.dataTables.js"></script>
         <script src="web/assets/vendors/datatables.net-bs4/dataTables.bootstrap4.js"></script>
-        <script src="web/js/app.js"></script>
+        <script src="web/js/tables.js"></script>
+        <script src="web/js/datepicker.js"></script>
+        <script src="web/js/priceCalculation.js"></script>
+        <script src="web/js/deleteActions.js"></script>
+        <script src="web/js/productRows.js"></script>
+        <script src="web/js/settingsUpdate.js"></script>
     </body>
 </html>

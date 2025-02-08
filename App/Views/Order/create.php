@@ -73,28 +73,28 @@
                                 <div class="mb-3">
                                     <label for="productPrice" class="form-label">Product Price</label>
                                     <div class="input-group">
-                                        <span class="input-group-text"><?php= $tpl['settings']['currency_code'] ?></span>
+                                        <span class="input-group-text"><?php echo $tpl['settings']['currency_code']; ?></span>
                                         <input type="number" step="0.01" min="0" class="form-control" id="productPrice" name="product_price" readonly>
                                     </div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="tax" class="form-label">Tax</label>
                                     <div class="input-group">
-                                        <span class="input-group-text"><?php= $tpl['settings']['currency_code'] ?></span>
+                                        <span class="input-group-text"><?php echo $tpl['settings']['currency_code']; ?></span>
                                         <input type="number" step="0.01" min="0" class="form-control" id="tax" name="tax" required>
                                     </div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="shippingPrice" class="form-label">Shipping Price</label>
                                     <div class="input-group">
-                                        <span class="input-group-text"><?php= $tpl['settings']['currency_code'] ?></span>
+                                        <span class="input-group-text"><?php echo $tpl['settings']['currency_code']; ?></span>
                                         <input type="number" step="0.01" min="0" class="form-control" id="shippingPrice"  name="shipping_price" required>
                                     </div>
                                 </div> 
                                 <div class="mb-3">
                                     <label for="totalPrice" class="form-label">Total Price</label>
                                     <div class="input-group">
-                                        <span class="input-group-text"><?php= $tpl['settings']['currency_code'] ?></span>
+                                        <span class="input-group-text"><?php echo $tpl['settings']['currency_code']; ?></span>
                                         <input type="text" class="form-control" id="totalPrice" name="total_price" readonly>
                                     </div>
                                 </div> 

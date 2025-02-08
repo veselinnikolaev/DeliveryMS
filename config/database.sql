@@ -75,9 +75,8 @@ CREATE TABLE IF NOT EXISTS `settings` (
   `shipping_rate` DECIMAL(10,2) NOT NULL,
   `currency_code` VARCHAR(3) NOT NULL,
   `email_sending` VARCHAR(20) NOT NULL,
-  `delivery_time_days` INT(11) NOT NULL
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `settings` (`id`, `tax_rate`, `shipping_rate`, `currency_code`, `email_sending`, `delivery_time_days`) 
-VALUES (1, 10.00, 5.00, '$', 'enabled', 3);
+INSERT INTO `settings` (`id`, `tax_rate`, `shipping_rate`, `currency_code`, `email_sending`) 
+VALUES (1, 10.00, 5.00, '$', 'enabled');

@@ -25,4 +25,17 @@ class Utility {
     static function generateRandomString($length = 10) {
         return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $length);
     }
+
+    static function getDisplayableAmount($amount, $currency) {
+        if (!isset(self::$currencies[$currency])) {
+            throw new InvalidArgumentException("Invalid currency: $currency");
+        }
+
+        $formattedAmount = number_format($amount, 2);
+
+        // Currencies that go before the amount
+        $prefixCurrencies = ['$', '£', '¥', '₣'];
+
+        return in_array($currency, $prefixCurrencies) ? "{$currency}{$formattedAmount}" : "{$formattedAmount} {$currency}";
+    }
 }

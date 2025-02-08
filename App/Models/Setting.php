@@ -14,8 +14,7 @@ class Setting extends Model {
         array('name' => 'tax_rate', 'type' => 'decimal(10,2)', 'default' => ':NULL'),
         array('name' => 'shipping_rate', 'type' => 'decimal(10,2)', 'default' => ':NULL'),
         array('name' => 'currency_code', 'type' => 'varchar(3)', 'default' => ''),
-        array('name' => 'email_sending', 'type' => 'tinyint(1)', 'default' => ''),
-        array('name' => 'delivery_time_days', 'type' => 'int', 'default' => '')
+        array('name' => 'email_sending', 'type' => 'tinyint(1)', 'default' => '')
     );
 }
 ?>

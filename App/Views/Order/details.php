@@ -27,7 +27,7 @@
                                 <p><strong>Courier:</strong> <?php echo htmlspecialchars($tpl['courier']['courier_name']); ?></p>
                                 <p><strong>Delivery Date:</strong> <?php echo htmlspecialchars(date('Y-m-d', strtotime($tpl['order']['delivery_date']))); ?></p>
                                 <p><strong>Status:</strong> <?php echo htmlspecialchars($tpl['order']['status']); ?></p>
-                                <p><strong>Total Price:</strong> <?php echo htmlspecialchars(number_format($tpl['order']['total_amount'], 2)). ' ' . $tpl['settings']['currency_code']; ?></p>
+                                <p><strong>Total Price:</strong> <?php echo Utility::getDisplayableAmount(htmlspecialchars(number_format($tpl['order']['total_amount'], 2)), $tpl['settings']['currency_code']); ?></p>
                             </div>
                         </div>
                         <hr>
@@ -47,8 +47,8 @@
                                         <tr>
                                             <td><?php echo htmlspecialchars($product['name']); ?></td>
                                             <td><?php echo htmlspecialchars($product['quantity']); ?></td>
-                                            <td><?php echo htmlspecialchars(number_format($product['price'], 2)) . ' ' . $tpl['settings']['currency_code']; ?></td>
-                                            <td><?php echo htmlspecialchars(number_format($product['subtotal'], 2)) . ' ' . $tpl['settings']['currency_code']; ?></td>
+                                            <td><?php echo Utility::getDisplayableAmount(htmlspecialchars(number_format($product['price'], 2)), $tpl['settings']['currency_code']); ?></td>
+                                            <td><?php echo Utility::getDisplayableAmount(htmlspecialchars(number_format($product['subtotal'], 2)), $tpl['settings']['currency_code']); ?></td>
                                         </tr>
                                     <?php } ?>
                                 </tbody>

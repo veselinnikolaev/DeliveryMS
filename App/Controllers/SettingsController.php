@@ -10,31 +10,20 @@ use Core\Controller;
 class SettingsController extends Controller {
 
     var $layout = 'admin';
-
-    function list() {
-        $settingModel = new \App\Models\Setting();
-
-        $this->view($this->layout, ['settings' => $settingModel->get(1)]);
-    }
-
-    function edit() {
+    
+    function index() {
         $settingModel = new \App\Models\Setting();
 
         if (!empty($_POST['id'])) {
             if ($settingModel->update($_POST)) {
-                header('Location: ' . INSTALL_URL . '?controller=Settings&action=list');
-                exit;
+                echo json_encode(['success' => true, 'message' => 'Settings updated successfully!']);
             } else {
-                $error_message = 'Failed to update setting with id ' . $_POST['id'];
+                echo json_encode(['success' => false, 'message' => 'Failed to update settings.']);
             }
+            exit;
         }
 
-        $arr = array();
-        if (isset($error_message)) {
-            $arr['error_message'] = $error_message;
-        }
-        $arr['settings'] = $settingModel->get(1);
-
-        $this->view($this->layout, $arr);
+        $settings = $settingModel->get(1);       
+        $this->view($this->layout, ['settings' => $settings]);
     }
 }

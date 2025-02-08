@@ -75,7 +75,7 @@
         </li>
         <li class="nav-item nav-category">Control</li>
         <li class="nav-item">
-            <a class="nav-link" href="#settings">
+            <a class="nav-link" href="<?php INSTALL_URL; ?>?controller=Settings&action=index">
                 <i class="menu-icon mdi mdi-card-text-outline"></i>
                 <span class="menu-title">Settings</span>
             </a>
