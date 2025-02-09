@@ -14,7 +14,7 @@ class Utility {
         '$' => 'USD',
         '€' => 'EUR',
         '£' => 'GBP',
-        'лв' => 'BGN',
+        'lv' => 'BGN',
         'C$' => 'CAD',
         'A$' => 'AUD',
         '¥' => 'JPY',
@@ -27,10 +27,6 @@ class Utility {
     }
 
     static function getDisplayableAmount($amount, $currency) {
-        if (!isset(self::$currencies[$currency])) {
-            throw new InvalidArgumentException("Invalid currency: $currency");
-        }
-
         $formattedAmount = number_format($amount, 2);
 
         // Currencies that go before the amount
