@@ -109,20 +109,21 @@ class OrderController extends Controller {
                     }
 
                     if (!isset($error_message)) {
-                        $order = $orderModel->get($orderId);
-                        $customer = $userModel->get($order['user_id']);
-                        $courier = $courierModel->get($order['courier_id']);
-                        $orderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
+                        if ($settings['email_sending'] == 'enabled') {
+                            $order = $orderModel->get($orderId);
+                            $customer = $userModel->get($order['user_id']);
+                            $courier = $courierModel->get($order['courier_id']);
+                            $orderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
 
-                        foreach ($orderProducts as &$product) {
-                            $productDetails = $productModel->get($product['product_id']);
-                            $product['name'] = $productDetails['name'] ?? 'Unknown';
+                            foreach ($orderProducts as &$product) {
+                                $productDetails = $productModel->get($product['product_id']);
+                                $product['name'] = $productDetails['name'] ?? 'Unknown';
+                            }
+
+                            $emailContent = $this->generateOrderEmail($order, $customer, $courier, $orderProducts, $settings);
+
+                            $mailer->sendMail($customer['email'], "Order Confirmation #{$orderId}", $emailContent);
                         }
-
-                        $emailContent = $this->generateOrderEmail($order, $customer, $courier, $orderProducts, $settings);
-
-                        $mailer->sendMail($customer['email'], "Order Confirmation #{$orderId}", $emailContent);
-
                         header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
                         exit;
                     }
@@ -303,20 +304,21 @@ class OrderController extends Controller {
                 }
 
                 if (!isset($error_message)) {
-                    $order = $orderModel->get($orderId);
-                    $customer = $userModel->get($order['user_id']);
-                    $courier = $courierModel->get($order['courier_id']);
+                    if ($settings['email_sending'] == 'enabled') {
+                        $order = $orderModel->get($orderId);
+                        $customer = $userModel->get($order['user_id']);
+                        $courier = $courierModel->get($order['courier_id']);
 
-                    $orderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
-                    foreach ($orderProducts as &$orderProduct) {
-                        $orderProductDetails = $productModel->get($orderProduct['product_id']);
-                        $orderProduct['name'] = $orderProductDetails['name'] ?? 'Unknown';
+                        $orderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
+                        foreach ($orderProducts as &$orderProduct) {
+                            $orderProductDetails = $productModel->get($orderProduct['product_id']);
+                            $orderProduct['name'] = $orderProductDetails['name'] ?? 'Unknown';
+                        }
+
+                        $emailContent = $this->generateOrderEmail($order, $customer, $courier, $orderProducts, $settings);
+
+                        $mailer->sendMail($customer['email'], "Order Update #{$orderId}", $emailContent);
                     }
-
-                    $emailContent = $this->generateOrderEmail($order, $customer, $courier, $orderProducts, $settings);
-
-                    $mailer->sendMail($customer['email'], "Order Update #{$orderId}", $emailContent);
-
                     header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
                     exit;
                 }
@@ -401,7 +403,7 @@ class OrderController extends Controller {
                                         <p><strong>Courier:</strong> <?= htmlspecialchars($courier['courier_name']) ?></p>
                                         <p><strong>Delivery Date:</strong> <?= date('Y-m-d', strtotime($order['delivery_date'])) ?></p>
                                         <p><strong>Status:</strong> <?php
-                                            foreach (Utility::$order_status as $k => $v) {
+                                            foreach (\Utility::$order_status as $k => $v) {
                                                 if ($k == $order['status']) {
                                                     echo $v;
                                                 }
