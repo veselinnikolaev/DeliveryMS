@@ -14,7 +14,11 @@ class User extends Model {
         array('name' => 'email', 'type' => 'varchar', 'default' => ':NULL'),
         array('name' => 'phone_number', 'type' => 'varchar', 'default' => ':NULL'),
         array('name' => 'password_hash', 'type' => 'varchar', 'default' => ''),
-        array('name' => 'created_at', 'type' => 'timestamp', 'default' => 'CURRENT_TIMESTAMP')
+        array('name' => 'created_at', 'type' => 'timestamp', 'default' => 'CURRENT_TIMESTAMP'),
+        array('name' => 'role', 'type' => 'varchar', 'default' => ''),
+        array('name' => 'address', 'type' => 'varchar', 'default' => ':NULL'),
+        array('name' => 'country', 'type' => 'varchar', 'default' => ':NULL'),
+        array('name' => 'region', 'type' => 'varchar', 'default' => ':NULL')
     );
 }
 ?>

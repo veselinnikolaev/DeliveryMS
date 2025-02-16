@@ -11,6 +11,13 @@ class UserController extends Controller {
 
     var $layout = 'admin';
 
+    public function __construct() {
+        if(empty($_SESSION['user']) || $_SESSION['user']['role'] != 'admin'){
+            header("Location: " . INSTALL_URL . "?controller=auth&action=login", true, 301);
+            exit;
+        }
+    }
+    
     function list() {
 
         $userModel = new \App\Models\User();

@@ -1,7 +1,6 @@
 <?php
 
 if (!headers_sent()) {
-    @session_name('12Z');
     @session_start();
 }
 

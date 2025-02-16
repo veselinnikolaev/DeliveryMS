@@ -12,6 +12,13 @@ class OrderController extends Controller {
 
     var $layout = 'admin';
 
+    public function __construct() {
+        if(empty($_SESSION['user']) || $_SESSION['user']['role'] != 'admin'){
+            header("Location: " . INSTALL_URL . "?controller=auth&action=login", true, 301);
+            exit;
+        }
+    }
+    
     function list() {
         $orderModel = new \App\Models\Order();
         $userModel = new \App\Models\User();
@@ -168,7 +175,7 @@ class OrderController extends Controller {
         $courierData = $courierModel->get($orderData['courier_id']);
 
         $opts = array();
-        $opts['product_id'] = $orderId;
+        $opts['order_id'] = $orderId;
         $orderProducts = $orderProductsModel->getAll($opts);
 
         foreach ($orderProducts as &$product) {

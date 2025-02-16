@@ -13,8 +13,11 @@ CREATE TABLE IF NOT EXISTS `users` (
   `phone_number` VARCHAR(20) DEFAULT NULL,
   `password_hash` VARCHAR(255) NOT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `email` (`email`)
+`role` VARCHAR(20) NOT NULL,
+`address` VARCHAR(255) NOT NULL,
+  `country` VARCHAR(255) NOT NULL,
+  `region` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create the `products` table

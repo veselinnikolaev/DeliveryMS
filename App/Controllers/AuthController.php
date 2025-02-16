@@ -21,9 +21,10 @@ class AuthController extends Controller {
                 $error_message = "Passwords do not match.";
             } else {
                 $_POST['password_hash'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
-
+                $_POST['role'] = $_POST['email'] == 'admin@admin.com' ? 'admin' : 'user';
+                
                 if ($userModel->save($_POST)) {
-                    header("Location: " . INSTALL_URL . "?controller=Home&action=index", true, 301);
+                    header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
                     exit;
                 } else {
                     $error_message = "Failed to register. Please try again.";
