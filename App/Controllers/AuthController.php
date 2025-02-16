@@ -9,7 +9,7 @@ use Core\Controller;
 
 class AuthController extends Controller {
 
-    var $layout = 'user';
+    var $layout = 'admin';
 
     function register() {
         $userModel = new \App\Models\User();
@@ -48,7 +48,7 @@ class AuthController extends Controller {
             $user = $userModel->getBy($opt);
 
             if ($user && password_verify($_POST['password'], $user['password_hash'])) {
-                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user'] = $user;
                 header("Location: " . INSTALL_URL . "?controller=Home&action=index", true, 301);
                 exit;
             } else {
@@ -65,8 +65,6 @@ class AuthController extends Controller {
     }
 
     function logout() {
-        session_start();
-        session_unset();
         session_destroy();
 
         header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);

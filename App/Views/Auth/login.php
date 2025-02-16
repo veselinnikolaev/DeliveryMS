@@ -26,10 +26,11 @@
                         <div class="row">
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary text-white me-0">Login</button>
-                                <a href="<?php echo INSTALL_URL; ?>?controller=Auth&action=register" class="btn btn-outline-dark">Register</a>
+                                <a href="<?php echo INSTALL_URL; ?>index.html" class="btn btn-outline-dark">Cancel</a>
                             </div>
                         </div>
                     </form>
+                        <p class="mt-3">You don't have an account? <a href="<?php echo INSTALL_URL; ?>?controller=Auth&action=register">Register here</a></p>
                 </div>
             </div>
         </div>
