@@ -96,6 +96,20 @@ class Model {
         return $this->executeQuery($query)[0];
     }
 
+    public function getMultiple($ids){
+        // Създаване на основна SELECT заявка
+        $query = "SELECT * FROM " . $this->getTable();
+        $primaryKeyName = $this->primaryKey ?: 'id';
+        // Проверка дали има подаден масив с условия
+        if ($ids && is_array($ids)) {
+            // Добавяне на WHERE частта към заявката
+            $query .= " WHERE `$primaryKeyName` IN (" . implode(", ", $ids) . ")";
+        } elseif ($ids) {
+            // Ако $options не е масив, добавяме директно
+            this->get($ids);
+        }
+    }
+    
     public function existsBy($options = null) {
         $query = "SELECT COUNT(*) as count FROM " . $this->getTable();
 
