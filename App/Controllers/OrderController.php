@@ -2,11 +2,7 @@
 
 namespace App\Controllers;
 
-use Models;
-use Core;
-use Core\View;
 use Core\Controller;
-use Helpers\mailer\Mailer;
 
 class OrderController extends Controller {
 
