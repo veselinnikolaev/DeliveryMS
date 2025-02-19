@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/HomeController.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/UserController.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/config/database.sql</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Settings/index.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/AuthController.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/Core/View.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/OrderController.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Auth/register.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/datepicker.js</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/Core/Router.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/Core/Controller.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Layouts/ajax.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/tables.js</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/index.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Layouts/admin.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/priceCalculation.js</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/Core/Model.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/ProductController.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Layouts/component/sidebar.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/config/config.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Helpers/mailer/Mailer.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Layouts/component/top_nav.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Order/create.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/productRows.js</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Order/delete.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Order/edit.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Layouts/front.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/SettingsController.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/CourierController.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/deleteActions.js</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Order/details.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Auth/login.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Models/User.php</file>
+        </group>
+    </open-files>
+</project-private>
