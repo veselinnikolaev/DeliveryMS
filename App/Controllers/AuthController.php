@@ -12,6 +12,11 @@ class AuthController extends Controller {
     var $layout = 'admin';
 
     function register() {
+        if (!empty($_SESSION['user'])) {
+            header("Location: " . INSTALL_URL, true, 301);
+            exit;
+        }
+
         $userModel = new \App\Models\User();
 
         if (!empty($_POST['send'])) {
@@ -22,7 +27,7 @@ class AuthController extends Controller {
             } else {
                 $_POST['password_hash'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
                 $_POST['role'] = $_POST['email'] == 'admin@admin.com' ? 'admin' : 'user';
-                
+
                 if ($userModel->save($_POST)) {
                     header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
                     exit;
@@ -41,12 +46,15 @@ class AuthController extends Controller {
     }
 
     function login() {
+        if (!empty($_SESSION['user'])) {
+            header("Location: " . INSTALL_URL, true, 301);
+            exit;
+        }
+
         $userModel = new \App\Models\User();
 
         if (!empty($_POST['send'])) {
-            $opt = array();
-            $opt['email'] = $_POST['email'];
-            $user = $userModel->getBy($opt);
+            $user = $userModel->getFirstBy(['email' => $_POST['email']]);
 
             if ($user && password_verify($_POST['password'], $user['password_hash'])) {
                 $_SESSION['user'] = $user;
@@ -66,6 +74,11 @@ class AuthController extends Controller {
     }
 
     function logout() {
+        if (empty($_SESSION['user'])) {
+            header("Location: " . INSTALL_URL, true, 301);
+            exit;
+        }
+
         session_destroy();
 
         header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);

@@ -43,12 +43,14 @@
                     <a class="btn btn-light btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=Order&action=details&id=<?php echo $order['id'] ?>">
                         <i class="fa fa-eye" aria-hidden="true"></i>
                     </a>
+                    <?php if ($_SESSION['user']['role'] == 'admin') { ?>
                     <a class="btn btn-light btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=Order&action=edit&order_id=<?php echo $order['id'] ?>">
                         <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                     </a>
                     <a class="btn btn-danger btn-circle delete-order" href="#" data-id="<?php echo $order['id']; ?>">
                         <i class="fa fa-trash-o" aria-hidden="true"></i>
                     </a>
+                    <?php } ?>
                 </td>
             </tr>
         <?php } ?>

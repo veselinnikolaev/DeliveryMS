@@ -31,7 +31,7 @@ class Utility {
         $settingModel = new Setting();
         $formattedAmount = number_format($amount, 2);
 
-        $currency = $settingModel->get(['key' => 'currency_code']['value']);
+        $currency = $settingModel->getFirstBy(['key' => 'currency_code'])['value'];
         // Currencies that go before the amount
         $prefixCurrencies = ['$', '£', '¥', '₣'];
 

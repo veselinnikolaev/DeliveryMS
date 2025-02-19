@@ -12,8 +12,12 @@ class SettingsController extends Controller {
     var $layout = 'admin';
     
     public function __construct() {
-        if(empty($_SESSION['user']) || $_SESSION['user']['role'] != 'admin'){
-            header("Location: " . INSTALL_URL . "?controller=auth&action=login", true, 301);
+        if (empty($_SESSION['user'])) {
+            header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
+            exit;
+        }
+        if ($_SESSION['user']['role'] != 'admin') {
+            header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
     }

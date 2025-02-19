@@ -62,7 +62,7 @@
                         <div class="row">
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary text-white me-0">Register</button>
-                                <a href="<?php echo INSTALL_URL; ?>index.html" class="btn btn-outline-dark">Cancel</a>
+                                <a href="<?php echo INSTALL_URL; ?>" class="btn btn-outline-dark">Cancel</a>
                             </div>
                         </div>
                     </form>

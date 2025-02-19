@@ -2,7 +2,7 @@
     <ul class="nav">
         <?php if (isset($_SESSION['user'])): ?>
             <li class="nav-item active">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="<?php echo INSTALL_URL; ?>">
                     <i class="mdi mdi-chart-line menu-icon"></i>
                     <span class="menu-title">Dashboard</span>
                 </a>
@@ -71,7 +71,7 @@
             <?php else: ?>
                 <li class="nav-item nav-category">Orders</li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?php INSTALL_URL; ?>?controller=Order&action=myOrders">
+                    <a class="nav-link" href="<?php INSTALL_URL; ?>?controller=Order&action=list&user_id=<?php echo $_SESSION['user']['id']; ?>">
                         <i class="menu-icon mdi mdi-clipboard-list"></i>
                         <span class="menu-title">My Orders</span>
                     </a>

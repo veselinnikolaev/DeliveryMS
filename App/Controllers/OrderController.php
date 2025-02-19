@@ -8,11 +8,8 @@ class OrderController extends Controller {
 
     var $layout = 'admin';
     var $settings;
+
     public function __construct() {
-        if (empty($_SESSION['user']) || $_SESSION['user']['role'] != 'admin') {
-            header("Location: " . INSTALL_URL . "?controller=auth&action=login", true, 301);
-            exit;
-        }
         $this->settings = $this->loadSettings();
     }
 
@@ -32,7 +29,14 @@ class OrderController extends Controller {
         $courierModel = new \App\Models\Courier();
 
         // Retrieve all orders from the database
-        $orders = $orderModel->getAll();
+        if (empty($_GET['user_id'])) {
+            $orders = $orderModel->getAll();
+        } else if ($_GET['user_id'] == $_SESSION['user']['id']) {
+            $orders = $orderModel->getAll(['user_id' => $_GET['user_id']]);
+        } else {
+            header("Location: " . INSTALL_URL, true, 301);
+            exit;
+        }
 
         // Format orders for display
         foreach ($orders as &$order) {
@@ -51,6 +55,15 @@ class OrderController extends Controller {
     }
 
     function create() {
+        if (empty($_SESSION['user'])) {
+            header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
+            exit;
+        }
+        if ($_SESSION['user']['role'] != 'admin') {
+            header("Location: " . INSTALL_URL, true, 301);
+            exit;
+        }
+
         $orderModel = new \App\Models\Order();
         $orderProductsModel = new \App\Models\OrderProducts();
         $productModel = new \App\Models\Product();
@@ -58,7 +71,7 @@ class OrderController extends Controller {
         $courierModel = new \App\Models\Courier();
         $mailer = new \App\Helpers\mailer\Mailer();
         $currency = $this->settings['currency_code'];
-        
+
         if (!empty($_POST['send'])) {
             $productIds = $_POST['product_id'];
             $quantities = $_POST['quantity'];
@@ -162,8 +175,19 @@ class OrderController extends Controller {
         $userModel = new \App\Models\User();
         $courierModel = new \App\Models\Courier();
 
+        if (empty($_SESSION['user'])) {
+            header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
+            exit;
+        }
+
         if (empty($_GET['id'])) {
             header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
+            exit;
+        }
+
+        $userOrders = $orderModel->getAll(['user_id' => $_SESSION['user']['id']]);
+        if (!in_array($_GET['id'], $userOrders)) {
+            header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
 
@@ -199,6 +223,15 @@ class OrderController extends Controller {
     }
 
     function delete() {
+        if (empty($_SESSION['user'])) {
+            header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
+            exit;
+        }
+        if ($_SESSION['user']['role'] != 'admin') {
+            header("Location: " . INSTALL_URL, true, 301);
+            exit;
+        }
+        
         $orderModel = new \App\Models\Order();
         $orderProductsModel = new \App\Models\OrderProducts();
         $userModel = new \App\Models\User();
@@ -228,6 +261,15 @@ class OrderController extends Controller {
     }
 
     function edit() {
+        if (empty($_SESSION['user'])) {
+            header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
+            exit;
+        }
+        if ($_SESSION['user']['role'] != 'admin') {
+            header("Location: " . INSTALL_URL, true, 301);
+            exit;
+        }
+
         $orderModel = new \App\Models\Order();
         $orderProductsModel = new \App\Models\OrderProducts();
         $productModel = new \App\Models\Product();
