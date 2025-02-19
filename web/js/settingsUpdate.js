@@ -1,45 +1,51 @@
 (function ($) {
     $(function () {
-        const form = $("#settings-form");
-        const inputs = form.find(".settings-input");
-        const saveBtn = $("#save-btn");
-        const undoBtn = $("#undo-btn");
-        const originalValues = {};
+        var form = $("#settings-form");
+        var saveBtn = $("#save-btn");
+        var undoBtn = $("#undo-btn");
+        var inputs = $(".settings-input");
 
-        // Store original values
+        // Store initial values for undo functionality
+        var initialValues = {};
         inputs.each(function () {
-            originalValues[this.name] = $(this).val();
+            initialValues[$(this).attr("id")] = $(this).val();
         });
 
-        // Enable buttons on input change
+        // Enable buttons when input changes
         inputs.on("input", function () {
-            saveBtn.prop("disabled", false);
-            undoBtn.prop("disabled", false);
+            var changed = false;
+            inputs.each(function () {
+                if ($(this).val() !== initialValues[$(this).attr("id")]) {
+                    changed = true;
+                }
+            });
+            saveBtn.prop("disabled", !changed);
+            undoBtn.prop("disabled", !changed);
         });
 
         // Undo functionality
         undoBtn.on("click", function () {
             inputs.each(function () {
-                $(this).val(originalValues[this.name]);
+                $(this).val(initialValues[$(this).attr("id")]);
             });
             saveBtn.prop("disabled", true);
             undoBtn.prop("disabled", true);
         });
 
-        // Handle form submission via AJAX
+        // AJAX form submission
         form.on("submit", function (e) {
             e.preventDefault();
-
             $.ajax({
-                url: form.attr("action"),
+                url: "index.php?controller=Settings&action=index",
                 type: "POST",
                 dataType: "json",
                 data: form.serialize(),
-                success: function (data) {
-                    if (data.success) {
-                        // Update original values to new values
+                success: function (response) {
+                    if (response.success) {
+                        alert(response.message);
+                        // Update initial values after successful save
                         inputs.each(function () {
-                            originalValues[this.name] = $(this).val();
+                            initialValues[$(this).attr("id")] = $(this).val();
                         });
                         saveBtn.prop("disabled", true);
                         undoBtn.prop("disabled", true);
@@ -47,10 +53,10 @@
                         alert("Failed to update settings.");
                     }
                 },
-                error: function (error) {
-                    console.error("Error:", error);
-                },
+                error: function () {
+                    alert("An error occurred. Please try again.");
+                }
             });
         });
     });
-})(jQuery);
+}(jQuery));

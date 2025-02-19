@@ -193,7 +193,7 @@ class Model {
         $values[] = $data[$primaryKeyName]; // Добавяме стойността за primary key накрая
 
         return $this->executeQuery($query, $values, str_repeat('s', count($values) - 1) . 'i'); // Добавяме 'i' за integer
-    }
+    } 
 
     public function delete($id) {
         // Изтриване на запис
@@ -202,23 +202,40 @@ class Model {
         return $this->executeQuery($query, [$id], 'i'); // 'i' за integer
     }
 
-    public function deleteBy($options = null) {
-        // Изтриване на запис
-        $query = "DELETE FROM " . $this->getTable();
-        if ($options && is_array($options)) {
-            $conditions = [];
-            foreach ($options as $field => $value) {
-                // Изграждане на условията за WHERE
-                $conditions[] = "$field = '$value'";
-            }
-            // Добавяне на WHERE частта към заявката
-            $query .= " WHERE " . implode(" AND ", $conditions);
-        } elseif ($options) {
-            // Ако $options не е масив, добавяме директно
-            $query .= " WHERE " . $options;
+    public function updateBatch($data = null, $keyColumn = null) {
+        // Проверка дали има подадени данни
+        if (empty($data) || empty($keyColumn)) {
+            return false;
         }
-        return $this->executeQuery($query);
-    }
+    
+        // Подготовка на заявката
+        $query = "UPDATE settings SET value = CASE";
+        $conditions = [];
+        $params = [];
+    
+        foreach ($data as $row) {
+            // Добавяне на условията за CASE
+            $query .= " WHEN `{$keyColumn}` = ? THEN ?";
+            $conditions[] = $row['key'];
+            $params[] = $row['key'];
+            $params[] = $row['value'];
+        }
+    
+        // Завършване на заявката
+        $query .= " END WHERE `{$keyColumn}` IN ('" . implode("','", $conditions) . "')";
+    
+        // Подготовка на заявката за изпълнение
+        if ($stmt = $this->mysqli->prepare($query)) {
+            // Свързване на параметрите
+            $types = str_repeat('s', count($params)); // Assuming all params are strings
+            $stmt->bind_param($types, ...$params);
+    
+            // Изпълнение на заявката
+            return $stmt->execute();
+        }
+    
+        return false;
+    }    
 
     public function executeQuery($query, $params = [], $types = '') {
         // Подготовка на заявката
