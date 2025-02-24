@@ -7,5 +7,5 @@ define("DEFAULT_DB", "deliverymanagement");
 define("DEFAULT_PREFIX", "");
 define("MAIL_HOST", "sandbox.smtp.mailtrap.io");
 define("MAIL_PORT", "2525");
-define("MAIL_USERNAME", "");
-define("MAIL_PASSWORD", "");
+define("MAIL_USERNAME", "username");
+define("MAIL_PASSWORD", "password");
