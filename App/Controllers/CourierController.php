@@ -22,12 +22,28 @@ class CourierController extends Controller {
         }
     }
     
-    function list() {
+    function list($layout = 'admin') {
         $courierModel = new \App\Models\Courier();
 
-        $couriers = $courierModel->getAll();
+        $opts = array();
+        if($_SERVER['REQUEST_METHOD'] === 'POST'){
+            if(!empty($_POST['courier_name'])) {
+                $opts["courier_name LIKE '%".$_POST['courier_name']."%' AND 1 = "] = "1";
+            }
+            if(!empty($_POST['phone_number'])) {
+                $opts["phone_number LIKE '%".$_POST['phone_number']."%' AND 1 = "] = "1";
+            }
+            if(!empty($_POST['email'])) {
+                $opts["email LIKE '%".$_POST['email']."%' AND 1 = "] = "1";
+            }
+        }
+        $couriers = $courierModel->getAll($opts);
 
-        $this->view($this->layout, ['couriers' => $couriers]);
+        $this->view($layout, ['couriers' => $couriers]);
+    }
+
+    function filter(){
+        $this->list('ajax');
     }
 
     function create() {

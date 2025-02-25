@@ -16,7 +16,7 @@
         </tr>
     </thead>
     <tbody>
-        <?php foreach ($tpl['couriers'] as $courier) { ?>
+        <?php if(empty($tpl['couriers'])) { } else { foreach ($tpl['couriers'] as $courier) { ?>
             <tr>
                 <td>
                     <div class="form-check form-check-flat mt-0">
@@ -33,11 +33,12 @@
                     <a class="btn btn-light btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=Courier&action=edit&id=<?php echo $courier['id'] ?>">
                         <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                     </a>
-                    <a class="btn btn-danger btn-circle delete-curier" href="#" data-id="<?php echo $courier['id']; ?>">
+                    <a class="btn btn-danger btn-circle delete-courier" href="#" data-id="<?php echo $courier['id']; ?>">
                         <i class="fa fa-trash-o" aria-hidden="true"></i>
                     </a>
                 </td>
             </tr>
+        <?php } ?>
         <?php } ?>
     </tbody>
 </table>

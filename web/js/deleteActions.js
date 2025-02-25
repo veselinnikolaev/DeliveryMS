@@ -26,6 +26,6 @@
             });
         }
 
-        ['curier', 'product', 'user', 'order'].forEach(entity => setupDeleteButton(entity));
+        ['courier', 'product', 'user', 'order'].forEach(entity => setupDeleteButton(entity));
     });
 }(jQuery));

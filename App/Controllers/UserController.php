@@ -68,6 +68,11 @@ class UserController extends Controller {
         $userModel = new \App\Models\User();
 
         if (!empty($_POST['id'])) {
+            if($_POST['id'] == $_SESSION['user']['id']){
+                session_destroy();
+                header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
+                exit;
+            }
             $userModel->delete($_POST['id']);
         }
 
