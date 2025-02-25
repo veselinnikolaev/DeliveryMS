@@ -69,6 +69,7 @@
         <script src="web/js/deleteActions.js"></script>
         <script src="web/js/productRows.js"></script>
         <script src="web/js/settingsUpdate.js"></script>
+        <script src="web/js/changeRole.js"></script>
         <script src="web/js/filter.js"></script>
     </body>
 </html>

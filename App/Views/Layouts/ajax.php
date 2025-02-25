@@ -10,3 +10,4 @@ include $viewPath;
 <script src="web/js/productRows.js"></script>
 <script src="web/js/settingsUpdate.js"></script>
 <script src="web/js/filter.js"></script>
+<script src="web/js/changeRole.js"></script>

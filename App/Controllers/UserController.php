@@ -21,7 +21,7 @@ class UserController extends Controller {
             exit;
         }
     }
-    
+
     function list() {
 
         $userModel = new \App\Models\User();
@@ -33,6 +33,22 @@ class UserController extends Controller {
 
         // Прехвърляне на данни към изгледа
         $this->view($this->layout, $tpl);
+    }
+
+    public function changeRole() {
+        $userModel = new \App\Models\User();
+
+        if (!empty($_POST['id']) && !empty($_POST['role'])) {
+            $role = $_POST['role'];
+
+            if (in_array($role, ['user', 'admin'])) {
+                $userModel->update($_POST);
+            }
+        }
+
+        // Return refreshed user list
+        $users = $userModel->getAll();
+        $this->view('ajax', ['users' => $users]);
     }
 
     function create() {
@@ -75,7 +91,9 @@ class UserController extends Controller {
             }
             $userModel->delete($_POST['id']);
         }
-
+        if ($_SESSION['user']['id'] == $_POST['id']) {
+            session_destroy();
+        }
         $users = $userModel->getAll();
         $this->view('ajax', ['users' => $users]);
     }
