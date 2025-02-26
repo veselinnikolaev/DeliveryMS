@@ -32,7 +32,7 @@
                     type: "POST",
                     data: {id: userId, role: newRole},
                     success: function (response) {
-                        $("#user-table-id").replaceWith($(response).find("#user-table-id"));
+                        $(`#container-user-id`).html(response);
 
                         // Явно затваряне на модала
                         $("#roleModal").modal("hide");

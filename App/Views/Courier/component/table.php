@@ -10,7 +10,7 @@
             </th>
             <th>Courier ID</th>
             <th>Courier Name</th>
-            <th>Contact</th>
+            <th>Phone Number</th>
             <th>Email</th>
             <th style="text-align: right;"></th>
         </tr>

@@ -19,7 +19,7 @@
                         </div>
                         <div class="row">
                             <div class="form-group col-md-6 mb-3">
-                                <label for="phoneNumber" class="form-label">Contact Number</label>
+                                <label for="phoneNumber" class="form-label">Phone Number</label>
                                 <input type="tel" pattern="^\d{10}$" class="form-control" id="phoneNumber" name="phone_number" required>
                             </div>
                         </div>

@@ -22,9 +22,8 @@
                 email : filters.email
             },
             dataType: 'json',
-            success: function (res) {
-                alert(res);
-                $(`#container-courier-id`).html(res);
+            success: function (response) {
+                $(`#container-courier-id`).html(response);
             }
         });
     });

@@ -28,13 +28,13 @@ class CourierController extends Controller {
         $opts = array();
         if($_SERVER['REQUEST_METHOD'] === 'POST'){
             if(!empty($_POST['courier_name'])) {
-                $opts["courier_name LIKE '%".$_POST['courier_name']."%' AND 1 = "] = "1";
+                $opts["courier_name LIKE '%".$_POST['courier_name']."%' AND 1 "] = "1";
             }
             if(!empty($_POST['phone_number'])) {
-                $opts["phone_number LIKE '%".$_POST['phone_number']."%' AND 1 = "] = "1";
+                $opts["phone_number LIKE '%".$_POST['phone_number']."%' AND 1 "] = "1";
             }
             if(!empty($_POST['email'])) {
-                $opts["email LIKE '%".$_POST['email']."%' AND 1 = "] = "1";
+                $opts["email LIKE '%".$_POST['email']."%' AND 1 "] = "1";
             }
         }
         $couriers = $courierModel->getAll($opts);
