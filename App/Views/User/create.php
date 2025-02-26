@@ -32,7 +32,10 @@
                         <div class="row">
                             <div class="form-group col-md-6 mb-3">
                                 <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="password" name="password" required>
+                                <div class="position-relative">
+                                    <input type="password" class="form-control pe-5" id="password" name="password" required>
+                                    <i class="password-toggle-icon fa fa-eye" data-target="password"></i>
+                                </div>
                             </div>
                         </div>
                         <div class="row">

@@ -6,3 +6,21 @@ select.form-select {
 select.form-select option {
     color: #000; /* Set option text color to white */
 }
+
+.password-toggle-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #6c757d;
+    z-index: 10;
+}
+
+.password-toggle-icon:hover {
+    color: #212529;
+}
+
+.form-control.pe-5 {
+    padding-right: 40px !important;
+}

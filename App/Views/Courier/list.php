@@ -21,7 +21,7 @@
                                         data-bs-target="#filters-container"
                                         aria-expanded="false" 
                                         aria-controls="filters-container">
-                                    <i class="bi bi-funnel me-2"></i>
+                                    <i class="fa fa-filter me-2"></i>
                                     <span>Toggle Filters</span>
                                 </button>
                             </div>
@@ -85,3 +85,4 @@
             </div>
         </div>
     </div>
+</div>

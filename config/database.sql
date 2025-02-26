@@ -1,3 +1,7 @@
+CREATE DATABASE `deliverymanagement`;
+
+USE `deliverymanagement`;
+
 DROP TABLE IF EXISTS `users`;
 DROP TABLE IF EXISTS `products`;
 DROP TABLE IF EXISTS `orders`;
