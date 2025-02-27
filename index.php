@@ -1,7 +1,7 @@
 <?php
 
 if (!headers_sent()) {
-    @session_start();
+    session_start();
 }
 
 header("Content-type: text/html; charset=utf-8");
@@ -29,7 +29,7 @@ if (!defined("INSTALL_URL")) {
     define("INSTALL_URL", $fullUrl);
 }
 
-require_once 'config/config.php';
+require_once 'config/constant.php';
 require_once 'config/function.php';
 
 if (empty($_REQUEST['controller'])) {

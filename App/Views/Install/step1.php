@@ -16,9 +16,9 @@
             <h2 class="card-title text-center mb-4">Database Configuration</h2>
             <p class="card-text mb-4">Please enter your database connection details below:</p>
 
-            <?php if (!empty($error_message)): ?>
+            <?php if (isset($tpl['error_message'])): ?>
                 <div class="alert alert-danger" role="alert">
-                    <?php echo $error_message; ?>
+                    <?php echo $tpl['error_message']; ?>
                 </div>
             <?php endif; ?>
 

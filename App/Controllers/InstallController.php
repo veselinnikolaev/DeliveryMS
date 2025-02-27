@@ -8,13 +8,17 @@ class InstallController extends Controller {
 
     var $layout = 'front';
 
+    function step0() {
+        $this->view($this->layout);
+    }
+
     function step1() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hostname = $_POST['hostname'];
             $connectionUsername = $_POST['username'];
-            $connectionPassword = $_POST['password'];
+            $connectionPassword = $_POST['password'] ?? '';
             $databaseName = $_POST['database'];
-            $model = \Core\Model();
+            $model = new \Core\Model();
 
             // Проверка за грешка
             $connected = $model->checkConnection($hostname, $connectionUsername, $connectionPassword, $databaseName);
@@ -43,7 +47,7 @@ class InstallController extends Controller {
                 exit;
             }
         }
-        $this->view($this->layout, ['error_message' => $errorMessage]);
+        $this->view($this->layout, ['error_message' => $errorMessage  ?? null]);
     }
 
     function step2() {
@@ -73,7 +77,7 @@ class InstallController extends Controller {
                 exit;
             }
         }
-        $this->view($this->layout, ['error_message' => $errorMessage]);
+        $this->view($this->layout, ['error_message' => $errorMessage  ?? null]);
     }
 
     function step3() {
@@ -82,7 +86,6 @@ class InstallController extends Controller {
             $mailPort = $_POST['mail_port'];
             $mailUsername = $_POST['mail_username'];
             $mailPassword = $_POST['mail_password'];
-
             $mailer = new \App\Helpers\mailer\Mailer();
 
             $connected = $mailer->checkConnection($mailHost, $mailPort, $mailUsername, $mailPassword);
@@ -104,6 +107,10 @@ class InstallController extends Controller {
                 exit;
             }
         }
-        $this->view($this->layout, ['error_message' => $errorMessage]);
+        $this->view($this->layout, ['error_message' => $errorMessage ?? null]);
+    }
+
+    function step4() {
+        $this->view($this->layout);
     }
 }

@@ -34,14 +34,34 @@ class Model {
     }
 
     public function checkConnection($host, $user, $password, $database) {
-        // Създаване на връзка с базата данни
-        $this->mysqli = new \mysqli($host, $user, $password, $database);
+        // Създаване на връзка към MySQL сървъра (без база данни)
+        $this->mysqli = new \mysqli($host, $user, $password);
 
-        // Проверка за грешка при връзка
+        // Проверка за грешка при връзка към MySQL сървър
         if ($this->mysqli->connect_error) {
             return [
                 'status' => false,
-                'message' => "Connection failed: " . $this->mysqli->connect_errors
+                'message' => "Connection failed: " . $this->mysqli->connect_error
+            ];
+        }
+
+        // Създаване на база данни, ако не съществува
+        $query = "CREATE DATABASE IF NOT EXISTS `$database`";
+        if (!$this->mysqli->query($query)) {
+            return [
+                'status' => false,
+                'message' => "Failed to create database: " . $this->mysqli->error
+            ];
+        }
+
+        // След създаване на базата данни, свързваме се към нея
+        $this->mysqli->select_db($database);
+
+        // Проверка за грешка при връзка към конкретната база данни
+        if ($this->mysqli->connect_error) {
+            return [
+                'status' => false,
+                'message' => "Connection to database failed: " . $this->mysqli->connect_error
             ];
         }
 
@@ -51,7 +71,7 @@ class Model {
         ];
     }
 
-    public function migrate($databaseName, $filePath = 'database.sql') {
+    public function migrate($databaseName, $filePath = 'config/database.sql') {
         // Check if file exists
         if (!file_exists($filePath)) {
             return [

@@ -9,7 +9,7 @@ use Core\Controller;
 
 class AuthController extends Controller {
 
-    var $layout = 'admin';
+    var $layout = 'front';
 
     function register() {
         if (!empty($_SESSION['user'])) {
