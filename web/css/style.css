@@ -24,3 +24,50 @@ select.form-select option {
 .form-control.pe-5 {
     padding-right: 40px !important;
 }
+
+.steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+.step {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #fff;
+    position: relative;
+}
+.step.active {
+    background-color: #0d6efd;
+}
+.step.completed {
+    background-color: #198754;
+}
+.step-line {
+    flex: 1;
+    height: 2px;
+    background-color: #dee2e6;
+    margin: 15px 10px;
+}
+.step-line.completed {
+    background-color: #198754;
+}
+.install-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+.check-icon {
+    font-size: 64px;
+    color: #198754;
+    margin-bottom: 20px;
+}
+.install-logo {
+    margin-bottom: 30px;
+    text-align: center;
+}
