@@ -11,6 +11,7 @@ class Utility {
         'cancelled' => 'Cancelled',
         'returned' => 'Returned'
     ];
+
     static $currencies = [
         '$' => 'USD',
         '€' => 'EUR',
