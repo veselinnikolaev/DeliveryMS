@@ -1,6 +1,6 @@
-CREATE DATABASE `deliverymanagement`;
+CREATE DATABASE `{database_name}`;
 
-USE `deliverymanagement`;
+USE `{database_name}`;
 
 DROP TABLE IF EXISTS `users`;
 DROP TABLE IF EXISTS `products`;
@@ -12,13 +12,13 @@ DROP TABLE IF EXISTS `settings`;
 -- Create the `users` table
 CREATE TABLE IF NOT EXISTS `users` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `full_name` VARCHAR(100) NOT NULL,
+  `name` VARCHAR(100) NOT NULL,
   `email` VARCHAR(100) NOT NULL,
   `phone_number` VARCHAR(20),
   `password_hash` VARCHAR(255) NOT NULL,
   `created_at` BIGINT DEFAULT UNIX_TIMESTAMP(),
-`role` VARCHAR(20) NOT NULL,
-`address` VARCHAR(255),
+  `role` VARCHAR(20) NOT NULL,
+  `address` VARCHAR(255),
   `country` VARCHAR(255),
   `region` VARCHAR(255),
   PRIMARY KEY (`id`)
@@ -43,13 +43,13 @@ CREATE TABLE IF NOT EXISTS `orders` (
   `country` VARCHAR(255) NOT NULL,
   `region` VARCHAR(255) NOT NULL,
   `status` VARCHAR(50) NOT NULL,
-`product_price` DECIMAL(10, 2) NOT NULL,
-`tax` DECIMAL(10, 2) NOT NULL,
-`shipping_price` DECIMAL(10, 2) NOT NULL,
+  `product_price` DECIMAL(10, 2) NOT NULL,
+  `tax` DECIMAL(10, 2) NOT NULL,
+  `shipping_price` DECIMAL(10, 2) NOT NULL,
   `total_amount` DECIMAL(10, 2) NOT NULL,
   `created_at` BIGINT DEFAULT UNIX_TIMESTAMP(),
-`last_processed` BIGINT DEFAULT UNIX_TIMESTAMP(),
-`courier_id` INT(11) NOT NULL,
+  `last_processed` BIGINT DEFAULT UNIX_TIMESTAMP(),
+  `courier_id` INT(11) NOT NULL,
   `tracking_number` VARCHAR(100) DEFAULT NULL,
   `delivery_date` VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS `order_products` (
 -- Create the `couriers` table
 CREATE TABLE IF NOT EXISTS `couriers` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `courier_name` VARCHAR(100) NOT NULL,
+  `name` VARCHAR(100) NOT NULL,
   `phone_number` VARCHAR(20) DEFAULT NULL,
   `email` VARCHAR(100) DEFAULT NULL,
   PRIMARY KEY (`id`)

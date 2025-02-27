@@ -16,6 +16,12 @@
             <h2 class="card-title text-center mb-4">Create Admin Account</h2>
             <p class="card-text mb-4">Please create an administrator account for the application:</p>
 
+            <?php if (!empty($error_message)): ?>
+                <div class="alert alert-danger" role="alert">
+                    <?php echo $error_message; ?>
+                </div>
+            <?php endif; ?>
+
             <form action="<?php echo INSTALL_URL; ?>?controller=Install&action=step2" method="POST">
                 <div class="mb-3">
                     <label for="admin_name" class="form-label">Admin Name</label>
@@ -28,12 +34,17 @@
                 </div>
                 <div class="mb-3">
                     <label for="admin_password" class="form-label">Admin Password</label>
-                    <input type="password" class="form-control" id="admin_password" name="admin_password" required>
-                    <div class="form-text">Password must be at least 8 characters</div>
+                    <div class="position-relative">
+                        <input type="password" class="form-control" id="adminPassword" name="admin_password" required>
+                        <i class="password-toggle-icon fa fa-eye" data-target="adminPassword"></i>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label for="admin_password_confirm" class="form-label">Confirm Password</label>
-                    <input type="password" class="form-control" id="admin_password_confirm" name="admin_password_confirm" required>
+                    <div class="position-relative">
+                        <input type="password" class="form-control" id="adminPasswordConfirm" name="admin_password_confirm" required>
+                        <i class="password-toggle-icon fa fa-eye" data-target="adminPasswordConfirm"></i>
+                    </div>
                 </div>
 
                 <div class="d-flex justify-content-between mt-4">

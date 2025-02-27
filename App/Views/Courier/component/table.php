@@ -26,7 +26,7 @@
                     </div>
                 </td>
                 <td><?php echo htmlspecialchars($courier['id']); ?></td>
-                <td><?php echo htmlspecialchars($courier['courier_name']); ?></td>
+                <td><?php echo htmlspecialchars($courier['name']); ?></td>
                 <td><?php echo htmlspecialchars($courier['phone_number']); ?></td>
                 <td><?php echo htmlspecialchars($courier['email']); ?></td>
                 <td style="text-align: right;">

@@ -36,7 +36,7 @@
                                         <option value=''>---</option>
                                         <?php
                                         foreach ($tpl['users'] as $user) {
-                                            echo "<option value=\"{$user['id']}\">{$user['full_name']}</option>";
+                                            echo "<option value=\"{$user['id']}\">{$user['name']}</option>";
                                         }
                                         ?>
                                     </select>
@@ -59,7 +59,7 @@
                                         <option value=''>---</option>
                                         <?php
                                         foreach ($tpl['couriers'] as $courier) {
-                                            echo "<option value=\"{$courier['id']}\">{$courier['courier_name']}</option>";
+                                            echo "<option value=\"{$courier['id']}\">{$courier['name']}</option>";
                                         }
                                         ?>
                                     </select>

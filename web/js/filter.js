@@ -17,7 +17,7 @@
             url: 'index.php?controller=Courier&action=filter',
             type: 'POST',
             data: {
-                courier_name : filters.name,
+                name : filters.name,
                 phone_number : filters.phone,
                 email : filters.email
             },

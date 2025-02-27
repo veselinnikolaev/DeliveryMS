@@ -16,6 +16,12 @@
             <h2 class="card-title text-center mb-4">Database Configuration</h2>
             <p class="card-text mb-4">Please enter your database connection details below:</p>
 
+            <?php if (!empty($error_message)): ?>
+                <div class="alert alert-danger" role="alert">
+                    <?php echo $error_message; ?>
+                </div>
+            <?php endif; ?>
+
             <form action="<?php echo INSTALL_URL; ?>?controller=Install&action=step1" method="POST">
                 <div class="mb-3">
                     <label for="hostname" class="form-label">Database Hostname</label>

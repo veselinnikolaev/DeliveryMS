@@ -43,6 +43,31 @@ class Mailer {
         }
     }
 
+    function checkConnection($host, $port, $username, $password) {
+        $this->phpmailer = new PHPMailer(true);
+
+        try {
+            $this->phpmailer->isSMTP();
+            $this->phpmailer->Host = $host;
+            $this->phpmailer->SMTPAuth = true;
+            $this->phpmailer->Port = $port;
+            $this->phpmailer->Username = $username;
+            $this->phpmailer->Password = $password;
+            $this->phpmailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $this->phpmailer->CharSet = 'UTF-8';
+
+            return [
+                'status' => true,
+                'message' => 'Connection successful!'
+            ];
+        } catch (Exception) {
+            return [
+                'status' => false,
+                'message' => 'Connection failed: ' . $this->phpmailer->ErrorInfo
+            ];
+        }
+    }
+
     public function sendMail($to, $subject, $body, $from = 'delivery@system.com') {
         try {
             $this->phpmailer->setFrom($from, 'DeliveryMS');

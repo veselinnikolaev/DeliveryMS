@@ -13,7 +13,7 @@
                         <div class="row">
                             <div class="form-group col-md-6 mb-3">
                                 <label for="courierName" class="form-label">Courier Name</label>
-                                <input type="text" class="form-control" id="courierName" name="courier_name" value="<?php echo $tpl['courier_name'] ?>" required>
+                                <input type="text" class="form-control" id="courierName" name="name" value="<?php echo $tpl['name'] ?>" required>
                             </div>
                         </div>
                         <div class="row">

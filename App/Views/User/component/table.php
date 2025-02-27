@@ -27,7 +27,7 @@
                     </div>
                 </td>
                 <td><?php echo htmlspecialchars($user['id']); ?></td>
-                <td><?php echo htmlspecialchars($user['full_name']); ?></td>
+                <td><?php echo htmlspecialchars($user['name']); ?></td>
                 <td><?php echo htmlspecialchars($user['email']); ?></td>
                 <td><?php echo htmlspecialchars($user['phone_number']); ?></td>
                 <td><?php echo htmlspecialchars($user['role']); ?></td>

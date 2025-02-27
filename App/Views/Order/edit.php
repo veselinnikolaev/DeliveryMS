@@ -36,7 +36,7 @@
                                         <?php
                                         foreach ($tpl['users'] as $user) {
                                             $selected = ($user['id'] == $order['user_id']) ? 'selected' : '';
-                                            echo "<option value=\"{$user['id']}\" $selected>{$user['full_name']}</option>";
+                                            echo "<option value=\"{$user['id']}\" $selected>{$user['name']}</option>";
                                         }
                                         ?>
                                     </select>
@@ -59,7 +59,7 @@
                                         <?php
                                         foreach ($tpl['couriers'] as $courier) {
                                             $selected = ($courier['id'] == $order['courier_id']) ? 'selected' : '';
-                                            echo "<option value=\"{$courier['id']}\" $selected>{$courier['courier_name']}</option>";
+                                            echo "<option value=\"{$courier['id']}\" $selected>{$courier['name']}</option>";
                                         }
                                         ?>
                                     </select>

@@ -18,13 +18,13 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <p><strong>Order ID:</strong> <?php echo htmlspecialchars($tpl['order']['id']); ?></p>
-                                <p><strong>Customer:</strong> <?php echo htmlspecialchars($tpl['customer']['full_name']); ?></p>
+                                <p><strong>Customer:</strong> <?php echo htmlspecialchars($tpl['customer']['name']); ?></p>
                                 <p><strong>Address:</strong> <?php echo htmlspecialchars($tpl['order']['address']); ?></p>
                                 <p><strong>Country:</strong> <?php echo htmlspecialchars($tpl['order']['country']); ?></p>
                                 <p><strong>Region:</strong> <?php echo htmlspecialchars($tpl['order']['region']); ?></p>
                             </div>
                             <div class="col-md-6">
-                                <p><strong>Courier:</strong> <?php echo htmlspecialchars($tpl['courier']['courier_name']); ?></p>
+                                <p><strong>Courier:</strong> <?php echo htmlspecialchars($tpl['courier']['name']); ?></p>
                                 <p><strong>Delivery Date:</strong> <?php echo htmlspecialchars(date('Y-m-d', strtotime($tpl['order']['delivery_date']))); ?></p>
                                 <p><strong>Status:</strong> <?php echo htmlspecialchars($tpl['order']['status']); ?></p>
                                 <p><strong>Total Price:</strong> <?php echo Utility::getDisplayableAmount(htmlspecialchars(number_format($tpl['order']['total_amount'], 2))); ?></p>

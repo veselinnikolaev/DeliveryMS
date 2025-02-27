@@ -16,6 +16,12 @@
             <h2 class="card-title text-center mb-4">Mail Configuration</h2>
             <p class="card-text mb-4">Please enter your mail server details below:</p>
 
+            <?php if (!empty($error_message)): ?>
+                <div class="alert alert-danger" role="alert">
+                    <?php echo $error_message; ?>
+                </div>
+            <?php endif; ?>
+
             <form action="<?php echo INSTALL_URL; ?>?controller=Install&action=step3" method="POST">
                 <div class="mb-3">
                     <label for="mail_host" class="form-label">Mail Host</label>
@@ -33,11 +39,6 @@
                 <div class="mb-3">
                     <label for="mail_password" class="form-label">Mail Password</label>
                     <input type="password" class="form-control" id="mail_password" name="mail_password" required>
-                </div>
-
-                <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input" id="test_email">
-                    <label class="form-check-label" for="test_email">Send a test email to admin</label>
                 </div>
 
                 <div class="d-flex justify-content-between mt-4">

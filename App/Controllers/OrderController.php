@@ -40,8 +40,8 @@ class OrderController extends Controller {
 
         // Format orders for display
         foreach ($orders as &$order) {
-            $order['customer_name'] = $userModel->get($order['user_id'])['full_name'] ?? 'Unknown';
-            $order['courier_name'] = $courierModel->get($order['courier_id'])['courier_name'] ?? 'Unknown';
+            $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
+            $order['name'] = $courierModel->get($order['courier_id'])['name'] ?? 'Unknown';
             $order['delivery_date'] = date('Y-m-d', strtotime($order['delivery_date']));
         }
 
@@ -231,7 +231,7 @@ class OrderController extends Controller {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
-        
+
         $orderModel = new \App\Models\Order();
         $orderProductsModel = new \App\Models\OrderProducts();
         $userModel = new \App\Models\User();
@@ -252,8 +252,8 @@ class OrderController extends Controller {
 
         // Format orders for display
         foreach ($orders as &$order) {
-            $order['customer_name'] = $userModel->get($order['user_id'])['full_name'] ?? 'Unknown';
-            $order['courier_name'] = $courierModel->get($order['courier_id'])['courier_name'] ?? 'Unknown';
+            $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
+            $order['name'] = $courierModel->get($order['courier_id'])['name'] ?? 'Unknown';
             $order['delivery_date'] = date('Y-m-d', strtotime($order['delivery_date']));
         }
 
@@ -523,13 +523,13 @@ class OrderController extends Controller {
                         <div class="order-details">
                             <div class="detail-column">
                                 <p><strong>Order ID:</strong> <?= htmlspecialchars($order['id']) ?></p>
-                                <p><strong>Customer:</strong> <?= htmlspecialchars($customer['full_name']) ?></p>
+                                <p><strong>Customer:</strong> <?= htmlspecialchars($customer['name']) ?></p>
                                 <p><strong>Address:</strong> <?= htmlspecialchars($order['address']) ?></p>
                                 <p><strong>Country:</strong> <?= htmlspecialchars($order['country']) ?></p>
                                 <p><strong>Region:</strong> <?= htmlspecialchars($order['region']) ?></p>
                             </div>
                             <div class="detail-column">
-                                <p><strong>Courier:</strong> <?= htmlspecialchars($courier['courier_name']) ?></p>
+                                <p><strong>Courier:</strong> <?= htmlspecialchars($courier['name']) ?></p>
                                 <p><strong>Delivery Date:</strong> <?= date('Y-m-d', strtotime($order['delivery_date'])) ?></p>
                                 <p><strong>Status:</strong> <?= \Utility::$order_status[$order['status']] ?? 'Unknown' ?></p>
                                 <p><strong>Total Price:</strong> <?= \Utility::getDisplayableAmount(htmlspecialchars(number_format($order['total_amount'], 2))) ?></p>

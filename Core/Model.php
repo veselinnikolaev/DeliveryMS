@@ -33,6 +33,71 @@ class Model {
         }
     }
 
+    public function checkConnection($host, $user, $password, $database) {
+        // Създаване на връзка с базата данни
+        $this->mysqli = new \mysqli($host, $user, $password, $database);
+
+        // Проверка за грешка при връзка
+        if ($this->mysqli->connect_error) {
+            return [
+                'status' => false,
+                'message' => "Connection failed: " . $this->mysqli->connect_errors
+            ];
+        }
+
+        return [
+            'status' => true,
+            'message' => 'Connection successful!'
+        ];
+    }
+
+    public function migrate($databaseName, $filePath = 'database.sql') {
+        // Check if file exists
+        if (!file_exists($filePath)) {
+            return [
+                'status' => false,
+                'message' => "SQL file not found!"
+            ];
+        }
+
+        // Read SQL file
+        $sql = file_get_contents($filePath);
+
+        str_replace('{database_name}', $databaseName, $sql);
+
+        // Execute the SQL script
+        if ($this->mysqli->multi_query($sql)) {
+            // Wait for all queries to finish
+            do {
+                $result = $this->mysqli->store_result();
+                if ($result) {
+                    $result->free();
+                }
+            } while ($this->mysqli->next_result());
+
+            return [
+                'status' => true,
+                'message' => "Database setup successfully!"
+            ];
+        } else {
+            return [
+                'status' => false,
+                'message' => "Error executing script: " . $this->mysqli->error
+            ];
+        }
+    }
+
+    public function isDbMigrated($databaseName) {
+        $dbCheckQuery = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$databaseName'";
+        $dbExists = $this->mysqli->query($dbCheckQuery);
+
+        if ($dbExists->num_rows > 0) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function getAll($options = null, $column = null, $limit = null) {
         // Създаване на основна SELECT заявка
         $query = "SELECT * FROM " . $this->getTable();
