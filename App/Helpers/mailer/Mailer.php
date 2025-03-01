@@ -38,33 +38,8 @@ class Mailer {
             $this->phpmailer->Password = MAIL_PASSWORD;
             $this->phpmailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $this->phpmailer->CharSet = 'UTF-8';
-        } catch (Exception $e) {
-            die("Mailer Error: " . $this->phpmailer->ErrorInfo);
-        }
-    }
-
-    function checkConnection($host, $port, $username, $password) {
-        $this->phpmailer = new PHPMailer(true);
-
-        try {
-            $this->phpmailer->isSMTP();
-            $this->phpmailer->Host = $host;
-            $this->phpmailer->SMTPAuth = true;
-            $this->phpmailer->Port = $port;
-            $this->phpmailer->Username = $username;
-            $this->phpmailer->Password = $password;
-            $this->phpmailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $this->phpmailer->CharSet = 'UTF-8';
-
-            return [
-                'status' => true,
-                'message' => 'Connection successful!'
-            ];
         } catch (Exception) {
-            return [
-                'status' => false,
-                'message' => 'Connection failed: ' . $this->phpmailer->ErrorInfo
-            ];
+            die("Mailer Error: " . $this->phpmailer->ErrorInfo);
         }
     }
 
@@ -77,7 +52,7 @@ class Mailer {
             $this->phpmailer->isHTML(true);
 
             return $this->phpmailer->send();
-        } catch (Exception $e) {
+        } catch (Exception) {
             return "Mail Error: " . $this->phpmailer->ErrorInfo;
         }
     }

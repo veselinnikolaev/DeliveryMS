@@ -1,17 +1,19 @@
 <?php
 
-define("DEFAULT_HOST", "{hostname}");
-define("DEFAULT_USER", "{host_username}");
-define("DEFAULT_PASS", "{host_password}");
-define("DEFAULT_DB", "{database_name}");
+define("DEFAULT_HOST", "127.0.0.1:8111");
+define("DEFAULT_USER", "root");
+define("DEFAULT_PASS", "");
+define("DEFAULT_DB", "deliverymanagementsystem");
 define("MAIL_HOST", "{mail_host}");
 define("MAIL_PORT", "{mail_port}");
 define("MAIL_USERNAME", "{mail_username}");
 define("MAIL_PASSWORD", "{mail_password}");
+define("INSTALLED", false);
 
-if (DEFAULT_HOST == "{hostname}" || DEFAULT_USER == "{host_username}" ||
-        DEFAULT_PASS == "{host_password}" || DEFAULT_DB == "{database_name}") {
+if (!INSTALLED) {
     // Пренасочване към инсталационната страница
-    header("Location: " . INSTALL_URL . "?controller=Install&action=step0", true, 301);
-    exit;
+    if (empty($_REQUEST['action'])) {
+        $_REQUEST['controller'] = 'Install';
+        $_REQUEST['action'] = 'step0';
+    }
 }

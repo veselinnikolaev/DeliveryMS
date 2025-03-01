@@ -33,44 +33,6 @@ class Model {
         }
     }
 
-    public function checkConnection($host, $user, $password, $database) {
-        // Създаване на връзка към MySQL сървъра (без база данни)
-        $this->mysqli = new \mysqli($host, $user, $password);
-
-        // Проверка за грешка при връзка към MySQL сървър
-        if ($this->mysqli->connect_error) {
-            return [
-                'status' => false,
-                'message' => "Connection failed: " . $this->mysqli->connect_error
-            ];
-        }
-
-        // Създаване на база данни, ако не съществува
-        $query = "CREATE DATABASE IF NOT EXISTS `$database`";
-        if (!$this->mysqli->query($query)) {
-            return [
-                'status' => false,
-                'message' => "Failed to create database: " . $this->mysqli->error
-            ];
-        }
-
-        // След създаване на базата данни, свързваме се към нея
-        $this->mysqli->select_db($database);
-
-        // Проверка за грешка при връзка към конкретната база данни
-        if ($this->mysqli->connect_error) {
-            return [
-                'status' => false,
-                'message' => "Connection to database failed: " . $this->mysqli->connect_error
-            ];
-        }
-
-        return [
-            'status' => true,
-            'message' => 'Connection successful!'
-        ];
-    }
-
     public function migrate($databaseName, $filePath = 'config/database.sql') {
         // Check if file exists
         if (!file_exists($filePath)) {
@@ -176,7 +138,11 @@ class Model {
             $query .= " WHERE " . $options; // Тук няма prepared statement, внимавай с инжекциите!
         }
 
-        return $this->executeQuery($query, $params, str_repeat("s", count($params)))[0]; // Изпълняване със защитени параметри
+        $result = $this->executeQuery($query, $params, str_repeat("s", count($params)));
+        if (!empty($result)) {
+            return $result[0];
+        }
+        // Изпълняване със защитени параметри
     }
 
     public function getMultiple($ids) {

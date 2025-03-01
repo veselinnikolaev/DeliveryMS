@@ -25,20 +25,40 @@
             <form action="<?php echo INSTALL_URL; ?>?controller=Install&action=step1" method="POST">
                 <div class="mb-3">
                     <label for="hostname" class="form-label">Database Hostname</label>
-                    <input type="text" class="form-control" id="hostname" name="hostname" placeholder="localhost" required>
+                    <input type="text" class="form-control" id="hostname" name="hostname" placeholder="localhost" 
+                           value="<?php
+                           if (DEFAULT_HOST != '{hostname}') {
+                               echo DEFAULT_HOST;
+                           }
+                           ?>" required>
                     <div class="form-text">Usually "localhost" or an IP address</div>
                 </div>
                 <div class="mb-3">
                     <label for="username" class="form-label">Connection Username</label>
-                    <input type="text" class="form-control" id="username" name="username" required>
+                    <input type="text" class="form-control" id="username" name="username"
+                           value="<?php
+                           if (DEFAULT_USER != '{host_username}') {
+                               echo DEFAULT_USER;
+                           }
+                           ?>" required>
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Connection Password</label>
-                    <input type="password" class="form-control" id="password" name="password">
+                    <input type="password" class="form-control" id="password" name="password" 
+                           value="<?php
+                           if (DEFAULT_PASS != '{host_password}') {
+                               echo DEFAULT_PASS;
+                           }
+                           ?>">
                 </div>
                 <div class="mb-3">
                     <label for="database" class="form-label">Database Name</label>
-                    <input type="text" class="form-control" id="database" name="database" required>
+                    <input type="text" class="form-control" id="database" name="database" 
+                           value="<?php
+                           if (DEFAULT_DB != '{database_name}') {
+                               echo DEFAULT_DB;
+                           }
+                           ?>" required>
                 </div>
 
                 <div class="d-flex justify-content-between mt-4">

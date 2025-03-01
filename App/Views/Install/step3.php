@@ -25,20 +25,38 @@
             <form action="<?php echo INSTALL_URL; ?>?controller=Install&action=step3" method="POST">
                 <div class="mb-3">
                     <label for="mail_host" class="form-label">Mail Host</label>
-                    <input type="text" class="form-control" id="mail_host" name="mail_host" placeholder="smtp.example.com" required>
+                    <input type="text" class="form-control" id="mailHost" name="mail_host" placeholder="smtp.example.com" 
+                           value="<?php
+                           if (MAIL_HOST != '{mail_host}') {
+                               echo MAIL_HOST;
+                           }
+                           ?>"  required>
                 </div>
                 <div class="mb-3">
                     <label for="mail_port" class="form-label">Mail Port</label>
-                    <input type="number" class="form-control" id="mail_port" name="mail_port" placeholder="587" required>
+                    <input type="number" class="form-control" id="mailPort" name="mail_port" placeholder="587"
+                           value="<?php
+                           if (MAIL_PORT != '{mail_port}') {
+                               echo MAIL_PORT;
+                           }
+                           ?>" required>
                     <div class="form-text">Common ports: 25, 465, 587, 2525</div>
                 </div>
                 <div class="mb-3">
                     <label for="mail_username" class="form-label">Mail Username</label>
-                    <input type="text" class="form-control" id="mail_username" name="mail_username" required>
+                    <input type="text" class="form-control" id="mailUsername" name="mail_username" 
+                           value="<?php
+                           if (MAIL_USERNAME != '{mail_username}') {
+                               echo MAIL_USERNAME;
+                           }
+                           ?>" required>
                 </div>
                 <div class="mb-3">
                     <label for="mail_password" class="form-label">Mail Password</label>
-                    <input type="password" class="form-control" id="mail_password" name="mail_password" required>
+                    <div class="position-relative">
+                        <input type="password" class="form-control" id="mailPassword" name="mail_password" required>
+                        <i class="password-toggle-icon fa fa-eye" data-target="mailPassword"></i>
+                    </div>
                 </div>
 
                 <div class="d-flex justify-content-between mt-4">

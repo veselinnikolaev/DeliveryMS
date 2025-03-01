@@ -24,6 +24,7 @@
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Helpers/mailer/Mailer.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Order/create.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/productRows.js</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/config/constant_original.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/CourierController.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Order/list.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/User/list.php</file>
@@ -34,6 +35,7 @@
             <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/jquery-3.7.1.min.js</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/UserController.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Settings/index.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Install/step0.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Auth/register.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/datepicker.js</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/Core/Controller.php</file>
@@ -46,7 +48,6 @@
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Install/step3.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/Core/Model.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/User/edit.php</file>
-            <file>file:/C:/xampp/htdocs/DeliveryMS/config/config.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Courier/create.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Layouts/component/top_nav.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Install/step4.php</file>

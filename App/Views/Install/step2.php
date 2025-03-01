@@ -25,11 +25,12 @@
             <form action="<?php echo INSTALL_URL; ?>?controller=Install&action=step2" method="POST">
                 <div class="mb-3">
                     <label for="admin_name" class="form-label">Admin Name</label>
-                    <input type="text" class="form-control" id="admin_name" name="admin_name" required>
+                    <input type="text" class="form-control" id="admin_name" name="admin_name"
+                           value="<?php echo $tpl['admin']['name']; ?>" required>
                 </div>
                 <div class="mb-3">
                     <label for="admin_email" class="form-label">Admin Email</label>
-                    <input type="email" class="form-control" id="admin_email" name="admin_email" required>
+                    <input type="email" class="form-control" id="admin_email" name="admin_email" value="<?php echo $tpl['admin']['email']; ?>" required>
                     <div class="form-text">This email will be used for login and important notifications</div>
                 </div>
                 <div class="mb-3">
@@ -58,17 +59,3 @@
         <small>Step 2 of 4 - Admin Account Creation</small>
     </div>
 </div>
-<script>
-    document.querySelector('form').addEventListener('submit', function (e) {
-        const password = document.getElementById('admin_password').value;
-        const confirm = document.getElementById('admin_password_confirm').value;
-
-        if (password !== confirm) {
-            e.preventDefault();
-            alert('Passwords do not match.');
-            return false;
-        }
-
-        return true;
-    });
-</script>
