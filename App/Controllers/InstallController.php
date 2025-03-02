@@ -25,9 +25,10 @@ class InstallController extends Controller {
             $connectionUsername = $_POST['username'];
             $connectionPassword = $_POST['password'] ?? '';
             $databaseName = $_POST['database'];
+            $model = new \Core\Model();
 
             // Проверка за грешка
-            $connected = $this->checkDbConnection($hostname, $connectionUsername, $connectionPassword, $databaseName);
+            $connected = $model->checkConnection($hostname, $connectionUsername, $connectionPassword, $databaseName);
             if (!$connected['status']) {
                 $errorMessage = $connected['message'];
             }
@@ -42,7 +43,6 @@ class InstallController extends Controller {
 
                 file_put_contents("config/constant.php", $file);
 
-                $model = new \Core\Model();
                 if (!$model->isDbMigrated($databaseName)) {
                     $migrated = $model->migrate($databaseName);
                     if (!$migrated['status']) {
@@ -81,15 +81,16 @@ class InstallController extends Controller {
                         'password_hash' => password_hash($adminPassword, PASSWORD_DEFAULT),
                         'role' => 'admin'
                     ];
+                    $userModel->save($userData);
                 } else {
                     $userData = [
                         'id' => $admin['id'],
                         'name' => $adminName,
                         'email' => $adminEmail,
-                        'password_hash' => password_hash($adminPassword, PASSWORD_DEFAULT),
+                        'password_hash' => password_hash($adminPassword, PASSWORD_DEFAULT)
                     ];
+                    $userModel->update($userData);
                 }
-                $userModel->save($userData);
 
                 header("Location: " . INSTALL_URL . "?controller=Install&action=step3", true, 301);
                 exit;
@@ -112,7 +113,7 @@ class InstallController extends Controller {
             $mailPassword = $_POST['mail_password'];
             $mailer = new \App\Helpers\mailer\Mailer();
 
-            $connected = $this->checkMailConnection($mailHost, $mailPort, $mailUsername, $mailPassword);
+            $connected = $mailer->checkConnection($mailHost, $mailPort, $mailUsername, $mailPassword);
             if (!$connected['status']) {
                 $errorMessage = $connected['message'];
             }
@@ -142,68 +143,5 @@ class InstallController extends Controller {
         file_put_contents("config/constant.php", $file);
 
         $this->view($this->layout);
-    }
-
-    private function checkDbConnection($host, $user, $password, $database) {
-        // Създаване на връзка към MySQL сървъра (без база данни)
-        $mysqli = new \mysqli($host, $user, $password);
-
-        // Проверка за грешка при връзка към MySQL сървър
-        if ($mysqli->connect_error) {
-            return [
-                'status' => false,
-                'message' => "Connection failed: " . $mysqli->connect_error
-            ];
-        }
-
-        // Създаване на база данни, ако не съществува
-        $query = "CREATE DATABASE IF NOT EXISTS `$database`";
-        if (!$mysqli->query($query)) {
-            return [
-                'status' => false,
-                'message' => "Failed to create database: " . $mysqli->error
-            ];
-        }
-
-        // След създаване на базата данни, свързваме се към нея
-        $mysqli->select_db($database);
-
-        // Проверка за грешка при връзка към конкретната база данни
-        if ($mysqli->connect_error) {
-            return [
-                'status' => false,
-                'message' => "Connection to database failed: " . $mysqli->connect_error
-            ];
-        }
-
-        return [
-            'status' => true,
-            'message' => 'Connection successful!'
-        ];
-    }
-
-    private function checkMailConnection($host, $port, $username, $password) {
-        $phpmailer = new \PHPMailer(true);
-
-        try {
-            $phpmailer->isSMTP();
-            $phpmailer->Host = $host;
-            $phpmailer->SMTPAuth = true;
-            $phpmailer->Port = $port;
-            $phpmailer->Username = $username;
-            $phpmailer->Password = $password;
-            $phpmailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $phpmailer->CharSet = 'UTF-8';
-
-            return [
-                'status' => true,
-                'message' => 'Connection successful!'
-            ];
-        } catch (\PHPMailer\PHPMailer\Exception) {
-            return [
-                'status' => false,
-                'message' => 'Connection failed: ' . $phpmailer->ErrorInfo
-            ];
-        }
     }
 }

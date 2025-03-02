@@ -25,12 +25,20 @@ if (!defined("INSTALL_URL")) {
     $path = dirname($_SERVER['PHP_SELF']);
 
 // Combine the protocol, domain, and path
-    $fullUrl = $protocol . "://" . $domain . $path.'/index.php';
+    $fullUrl = $protocol . "://" . $domain . $path . '/index.php';
     define("INSTALL_URL", $fullUrl);
 }
 
 require_once 'config/constant.php';
 require_once 'config/function.php';
+
+if (!INSTALLED) {
+    // Пренасочване към инсталационната страница
+    if (empty($_REQUEST['action'])) {
+        $_REQUEST['controller'] = 'Install';
+        $_REQUEST['action'] = 'step0';
+    }
+}
 
 if (empty($_REQUEST['controller'])) {
     $_REQUEST['controller'] = 'Home';

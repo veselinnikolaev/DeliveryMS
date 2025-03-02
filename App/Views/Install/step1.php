@@ -44,12 +44,10 @@
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Connection Password</label>
-                    <input type="password" class="form-control" id="password" name="password" 
-                           value="<?php
-                           if (DEFAULT_PASS != '{host_password}') {
-                               echo DEFAULT_PASS;
-                           }
-                           ?>">
+                    <div class="position-relative">
+                        <input type="password" class="form-control" id="password" name="password">
+                        <i class="password-toggle-icon fa fa-eye" data-target="password"></i>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label for="database" class="form-label">Database Name</label>

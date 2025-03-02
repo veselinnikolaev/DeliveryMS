@@ -25,12 +25,21 @@
             <form action="<?php echo INSTALL_URL; ?>?controller=Install&action=step2" method="POST">
                 <div class="mb-3">
                     <label for="admin_name" class="form-label">Admin Name</label>
-                    <input type="text" class="form-control" id="admin_name" name="admin_name"
-                           value="<?php echo $tpl['admin']['name']; ?>" required>
+                    <input type="text" class="form-control" id="adminName" name="admin_name"
+                           value="<?php
+                           if (!empty($tpl['admin']['name'])) {
+                               echo $tpl['admin']['name'];
+                           }
+                           ?>" required>
                 </div>
                 <div class="mb-3">
                     <label for="admin_email" class="form-label">Admin Email</label>
-                    <input type="email" class="form-control" id="admin_email" name="admin_email" value="<?php echo $tpl['admin']['email']; ?>" required>
+                    <input type="email" class="form-control" id="adminEmail" name="admin_email" 
+                           value="<?php
+                           if (!empty($tpl['admin']['email'])) {
+                               echo $tpl['admin']['email'];
+                           }
+                           ?>" required>
                     <div class="form-text">This email will be used for login and important notifications</div>
                 </div>
                 <div class="mb-3">
