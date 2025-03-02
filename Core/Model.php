@@ -13,15 +13,13 @@ class Model {
     public $table = null;
     public $primaryKey = null;
 
-    public function __construct() {
-// Инициализиране на mysqli връзката
+    public function connect() {
+        // Инициализиране на mysqli връзката
         $this->host = DEFAULT_HOST;
         $this->user = DEFAULT_USER;
         $this->pass = DEFAULT_PASS;
         $this->database = DEFAULT_DB;
-    }
 
-    public function connect() {
 // Създаване на връзка с базата данни
         $this->mysqli = new \mysqli($this->host, $this->user, $this->pass, $this->database);
 

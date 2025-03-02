@@ -1,9 +1,9 @@
 <?php
 
-define("DEFAULT_HOST", "127.0.0.1:8111");
-define("DEFAULT_USER", "root");
-define("DEFAULT_PASS", "");
-define("DEFAULT_DB", "deliverymanagementsystem");
+define("DEFAULT_HOST", "{hostname}");
+define("DEFAULT_USER", "{host_username}");
+define("DEFAULT_PASS", "{host_password}");
+define("DEFAULT_DB", "{database_name}");
 define("MAIL_HOST", "{mail_host}");
 define("MAIL_PORT", "{mail_port}");
 define("MAIL_USERNAME", "{mail_username}");
