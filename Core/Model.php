@@ -21,11 +21,13 @@ class Model {
         $this->database = DEFAULT_DB;
 
 // Създаване на връзка с базата данни
-        $this->mysqli = new \mysqli($this->host, $this->user, $this->pass, $this->database);
+        if ($this->mysqli == null) {
+            $this->mysqli = new \mysqli($this->host, $this->user, $this->pass, $this->database);
 
 // Проверка за грешка при връзка
-        if ($this->mysqli->connect_error) {
-            die("Connection failed: " . $this->mysqli->connect_error);
+            if ($this->mysqli->connect_error) {
+                die("Connection failed: " . $this->mysqli->connect_error);
+            }
         }
     }
 
@@ -89,7 +91,7 @@ class Model {
 // Read SQL file
         $sql = file_get_contents($filePath);
 
-        str_replace('{database_name}', $databaseName, $sql);
+        $sql = str_replace('{database_name}', $databaseName, $sql);
 
 // Execute the SQL script
         if ($this->mysqli->multi_query($sql)) {
@@ -126,7 +128,6 @@ class Model {
     }
 
     public function getAll($options = null, $column = null, $limit = null) {
-        $this->connect();
 // Създаване на основна SELECT заявка
         $query = "SELECT * FROM " . $this->getTable();
 
@@ -159,7 +160,6 @@ class Model {
     }
 
     public function get($id) {
-        $this->connect();
 // Връща един запис по primary key
         $primaryKeyName = $this->primaryKey ?: 'id';
         $query = "SELECT * FROM " . $this->getTable() . " WHERE `$primaryKeyName` = ?";
@@ -169,7 +169,6 @@ class Model {
     }
 
     public function getFirstBy($options = null) {
-        $this->connect();
 // Основна SELECT заявка
         $query = "SELECT * FROM `" . $this->getTable() . "`";
         $params = [];
@@ -194,7 +193,6 @@ class Model {
     }
 
     public function getMultiple($ids) {
-        $this->connect();
 // Създаване на основна SELECT заявка
         $query = "SELECT * FROM " . $this->getTable();
         $primaryKeyName = $this->primaryKey ?: 'id';
@@ -210,7 +208,6 @@ class Model {
     }
 
     public function existsBy($options = null) {
-        $this->connect();
         $query = "SELECT COUNT(*) as count FROM " . $this->getTable();
 
         if ($options && is_array($options)) {
@@ -262,7 +259,6 @@ class Model {
     }
 
     public function update($data) {
-        $this->connect();
 // Обновяване на съществуващ запис
         $save = array();
 
@@ -297,7 +293,6 @@ class Model {
     }
 
     public function delete($id) {
-        $this->connect();
 // Изтриване на запис
         $primaryKeyName = $this->primaryKey ?: 'id';
         $query = "DELETE FROM " . $this->getTable() . " WHERE `$primaryKeyName` = ?";
@@ -328,7 +323,8 @@ class Model {
         $query .= " END WHERE `{$keyColumn}` IN ('" . implode("','", $conditions) . "')";
 
 // Подготовка на заявката за изпълнение
-        if ($stmt = $this->mysqli->prepare($query)) {
+        $stmt = $this->mysqli->prepare($query);
+        if ($stmt) {
 // Свързване на параметрите
             $types = str_repeat('s', count($params)); // Assuming all params are strings
             $stmt->bind_param($types, ...$params);
