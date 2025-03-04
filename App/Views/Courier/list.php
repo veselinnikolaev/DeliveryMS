@@ -5,22 +5,24 @@
                 <div class="d-sm-flex align-items-center justify-content-between border-bottom">
                     <div>
                         <div class="btn-wrapper">
-                            <a href="#" class="btn btn-outline-dark align-items-center"><i class="icon-share"></i> Share</a>
-                            <a href="#" class="btn btn-outline-dark align-items-center"><i class="icon-printer"></i> Print</a>
-                            <a href="<?php echo INSTALL_URL; ?>?controller=Courier&action=create" class="btn btn-primary text-white me-0"><i class="icon-plus"></i> New Courier</a>
+                            <a href="#" class="btn btn-outline-dark align-items-center"><i class="icon-share"></i>
+                                Share</a>
+                            <a href="#" class="btn btn-outline-dark align-items-center"><i class="icon-printer"></i>
+                                Print</a>
+                            <a href="<?php echo INSTALL_URL; ?>?controller=Courier&action=create"
+                                class="btn btn-primary text-white me-0"><i class="icon-plus"></i> New Courier</a>
                         </div>
                     </div>
                 </div>
-                <div class="card card-rounded mb-3">
+                <div class="card card-rounded mt-3">
                     <div class="card shadow-sm mb-4">
                         <div class="card-header bg-gradient-light py-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <h5 class="card-title mb-0 font-weight-bold text-primary">Advanced Filters</h5>
-                                <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 d-flex align-items-center" 
-                                        data-bs-toggle="collapse" 
-                                        data-bs-target="#filters-container"
-                                        aria-expanded="false" 
-                                        aria-controls="filters-container">
+                                <button type="button"
+                                    class="btn btn-primary btn-sm rounded-pill px-3 d-flex align-items-center"
+                                    data-bs-toggle="collapse" data-bs-target="#filters-container" aria-expanded="false"
+                                    aria-controls="filters-container">
                                     <i class="fa fa-filter me-2"></i>
                                     <span>Toggle Filters</span>
                                 </button>
@@ -31,43 +33,45 @@
                                 <div class="row">
                                     <div class="col-md-4 mb-3">
                                         <label for="filter-name" class="form-label">Courier Name</label>
-                                        <input type="text" class="form-control" id="filter-name" placeholder="Search by name">
+                                        <input type="text" class="form-control" id="filter-name"
+                                            placeholder="Search by name">
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="filter-phone" class="form-label">Phone Number</label>
-                                        <input type="text" class="form-control" id="filter-phone" placeholder="Search by phone">
+                                        <input type="text" class="form-control" id="filter-phone"
+                                            placeholder="Search by phone">
                                     </div>
                                     <div class="col-md-4 mb-3">
                                         <label for="filter-email" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="filter-email" placeholder="Search by email">
+                                        <input type="text" class="form-control" id="filter-email"
+                                            placeholder="Search by email">
                                     </div>
-                                </div>                                     
+                                </div>
                                 <div class="d-flex justify-content-end gap-2">
-                                    <button type="button" class="btn btn-light" id="reset-filters">
+                                    <button type="button" class="btn btn-light" id="reset-filters-courier">
                                         <i class="icon-refresh"></i> Reset
                                     </button>
-                                    <button type="button" class="btn btn-primary" id="apply-filters">
+                                    <button type="button" class="btn btn-primary" id="apply-filters-courier">
                                         <i class="icon-search"></i> Apply Filters
                                     </button>
                                 </div>
                             </form>
                         </div>
                     </div>
-                    <div class="card card-rounded mt-3">
-                        <div class="card-body">
-                            <div class="table-responsive" id="container-courier-id">
-                                <?php
-                                include 'component/table.php';
-                                ?>
-                            </div>
+                    <div class="card-body">
+                        <div class="table-responsive" id="container-courier-id">
+                            <?php
+                            include 'component/table.php';
+                            ?>
                         </div>
-                    </div>  
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="deleteCourier" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="deleteCourier" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">

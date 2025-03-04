@@ -1,32 +1,89 @@
 <div class="container-scroller">
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="">
-                <div class="d-sm-flex align-items-center justify-content-between border-bottom">
-                    <div>
-                        <div class="btn-wrapper">
-                            <a href="#" class="btn btn-outline-dark align-items-center"><i class="icon-share"></i> Share</a>
-                            <a href="#" class="btn btn-outline-dark align-items-center"><i class="icon-printer"></i> Print</a>
-                            <a href="<?php echo INSTALL_URL . "?controller=Product&action=create"; ?>" class="btn btn-primary text-white me-0"><i class="icon-plus"></i>New Product</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card card-rounded mt-3">
-                    <div class="card-body">
-                        <div class="table-responsive" id="container-product-id">
-                            <?php
-                            include 'component/table.php';
-                            ?>
-                        </div>
-                    </div>
-                </div>
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="">
+        <div class="d-sm-flex align-items-center justify-content-between border-bottom">
+          <div>
+            <div class="btn-wrapper">
+              <a href="#" class="btn btn-outline-dark align-items-center"><i class="icon-share"></i> Share</a>
+              <a href="#" class="btn btn-outline-dark align-items-center"><i class="icon-printer"></i> Print</a>
+              <a href="<?php echo INSTALL_URL . "?controller=Product&action=create"; ?>"
+                class="btn btn-primary text-white me-0"><i class="icon-plus"></i>New Product</a>
             </div>
+          </div>
         </div>
+
+        <div class="card card-rounded mt-3">
+          <div class="card shadow-sm mb-4">
+            <div class="card-header bg-gradient-light py-3">
+              <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0 font-weight-bold text-primary">Advanced Filters</h5>
+                <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 d-flex align-items-center"
+                  data-bs-toggle="collapse" data-bs-target="#filters-container" aria-expanded="false"
+                  aria-controls="filters-container">
+                  <i class="fa fa-filter me-2"></i>
+                  <span>Toggle Filters</span>
+                </button>
+              </div>
+            </div>
+            <div class="collapse show card-body" id="filters-container">
+              <form id="product-filter-form">
+                <div class="row">
+                  <div class="col-md-4 mb-3">
+                    <label for="filter-name" class="form-label">Product Name</label>
+                    <input type="text" class="form-control" id="filter-name" placeholder="Search by name">
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label for="filter-description" class="form-label">Product Description</label>
+                    <input type="text" class="form-control" id="filter-description" placeholder="Search by description">
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label for="filter-price-min" class="form-label">Minimum Price</label>
+                    <input type="number" class="form-control" id="filter-price-min"
+                      placeholder="Search by minimum price">
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label for="filter-price-max" class="form-label">Maximum Price</label>
+                    <input type="number" class="form-control" id="filter-price-max"
+                      placeholder="Search by maximum price">
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label for="filter-stock-min" class="form-label">Minimum Stock</label>
+                    <input type="number" class="form-control" id="filter-stock-min"
+                      placeholder="Search by minimum stock">
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label for="filter-stock-max" class="form-label">Maximum Stock</label>
+                    <input type="number" class="form-control" id="filter-stock-max"
+                      placeholder="Search by maximum stock">
+                  </div>
+                </div>
+                <div class="d-flex justify-content-end gap-2">
+                  <button type="button" class="btn btn-light" id="reset-filters-product">
+                    <i class="icon-refresh"></i> Reset
+                  </button>
+                  <button type="button" class="btn btn-primary" id="apply-filters-product">
+                    <i class="icon-search"></i> Apply Filters
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive" id="container-product-id">
+              <?php
+              include 'component/table.php';
+              ?>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 
-<div class="modal fade" id="deleteProduct" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="deleteProduct" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">

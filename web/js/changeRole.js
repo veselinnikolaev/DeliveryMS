@@ -36,6 +36,11 @@
 
                         // Явно затваряне на модала
                         $("#roleModal").modal("hide");
+
+                        $(`#user-table-id`).dataTable({
+                            order: [[1, 'asc']],
+                            columnDefs: [{ orderable: false, targets: [0, -1] }]
+                        });
                     }
                 });
             });

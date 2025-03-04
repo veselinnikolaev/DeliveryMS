@@ -7,11 +7,13 @@ use Core;
 use Core\View;
 use Core\Controller;
 
-class AuthController extends Controller {
+class AuthController extends Controller
+{
 
     var $layout = 'admin';
 
-    function register() {
+    function register()
+    {
         if (!empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
@@ -26,7 +28,7 @@ class AuthController extends Controller {
                 $error_message = "Passwords do not match.";
             } else {
                 $_POST['password_hash'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
-                $_POST['role'] = $_POST['email'] == 'admin@admin.com' ? 'admin' : 'user';
+                $_POST['role'] = 'user';
 
                 if ($userModel->save($_POST)) {
                     header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
@@ -45,7 +47,8 @@ class AuthController extends Controller {
         $this->view($this->layout, $arr);
     }
 
-    function login() {
+    function login()
+    {
         if (!empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
@@ -73,7 +76,8 @@ class AuthController extends Controller {
         $this->view($this->layout, $arr);
     }
 
-    function logout() {
+    function logout()
+    {
         if (empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL, true, 301);
             exit;

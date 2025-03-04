@@ -21,6 +21,11 @@
                         $(`#container-${entity}-id`).html(res);
                         $this.attr('data-id', '');
                         $(`#delete${entity.charAt(0).toUpperCase() + entity.slice(1)}`).modal('hide');
+
+                        $(`#${entity}-table-id`).dataTable({
+                            order: [[1, 'asc']],
+                            columnDefs: [{ orderable: false, targets: [0, -1] }]
+                        });
                     }
                 });
             });

@@ -16,8 +16,5 @@
                 <a href="<?php echo INSTALL_URL; ?>?controller=Install&action=step1" class="btn btn-primary btn-lg">Start Installation</a>
             </div>
         </div>
-    </div>
-    <div class="mt-4 text-center text-muted">
-        <small>If you need help, please refer to the <a href="#">documentation</a> or contact <a href="#">support</a>.</small>
-    </div>
+    </div>  
 </div>

@@ -8,11 +8,13 @@ use Core;
 use Core\View;
 use Core\Controller;
 
-class ProductController extends Controller {
+class ProductController extends Controller
+{
 
     var $layout = 'admin';
     var $settings;
-    public function __construct() {
+    public function __construct()
+    {
         if (empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
             exit;
@@ -23,8 +25,9 @@ class ProductController extends Controller {
         }
         $this->settings = $this->loadSettings();
     }
-    
-    function loadSettings() {
+
+    function loadSettings()
+    {
         $settingModel = new \App\Models\Setting();
         $settings = $settingModel->getAll();
         $app_settings = [];
@@ -34,15 +37,44 @@ class ProductController extends Controller {
         return $app_settings;
     }
 
-    function list() {
+    function list($layout = 'admin')
+    {
         $productModel = new \App\Models\Product();
 
-        $products = $productModel->getAll();
+        $opts = array();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!empty($_POST['name'])) {
+                $opts["name LIKE '%" . $_POST['name'] . "%' AND 1 "] = "1";
+            }
+            if (!empty($_POST['description'])) {
+                $opts["description LIKE '%" . $_POST['description'] . "%' AND 1 "] = "1";
+            }
+            if (!empty($_POST['minPrice'])) {
+                $opts["price >= " . $_POST['minPrice'] . " AND 1 "] = "1";
+            }
+            if (!empty($_POST['maxPrice'])) {
+                $opts["price <= " . $_POST['maxPrice'] . " AND 1 "] = "1";
+            }
+            if (!empty($_POST['minStock'])) {
+                $opts["stock >= " . $_POST['minStock'] . " AND 1 "] = "1";
+            }
+            if (!empty($_POST['maxStock'])) {
+                $opts["stock <= " . $_POST['maxStock'] . " AND 1 "] = "1";
+            }
+        }
 
-        $this->view($this->layout, ['products' => $products, 'currency' => $this->settings['currency_code']]);
+        $products = $productModel->getAll($opts);
+
+        $this->view($layout, ['products' => $products, 'currency' => $this->settings['currency_code']]);
     }
 
-    function create() {
+    function filter()
+    {
+        $this->list('ajax');
+    }
+
+    function create()
+    {
         // Create an instance of the Courier model
         $productModel = new \App\Models\Product();
 
@@ -70,7 +102,8 @@ class ProductController extends Controller {
         $this->view($this->layout, $arr);
     }
 
-    function delete() {
+    function delete()
+    {
         $productModel = new \App\Models\Product();
 
         if (!empty($_POST['id'])) {
@@ -81,7 +114,8 @@ class ProductController extends Controller {
         $this->view('ajax', ['products' => $products]);
     }
 
-    function edit() {
+    function edit()
+    {
         $productModel = new \App\Models\Product();
 
         $arr = $productModel->get($_GET['id']);
