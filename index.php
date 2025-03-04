@@ -40,13 +40,6 @@ if (!INSTALLED) {
     }
 }
 
-if (!MAIL_CONFIGURED) {
-    if (!empty($_REQUEST['action']) && $_REQUEST['action'] == 'step3') {
-        $_REQUEST['controller'] = 'Install';
-        $_REQUEST['action'] = 'step3';
-    }
-}
-
 if (empty($_REQUEST['controller'])) {
     $_REQUEST['controller'] = 'Home';
 }
