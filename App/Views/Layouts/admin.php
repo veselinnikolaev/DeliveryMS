@@ -72,5 +72,6 @@
         <script src="web/js/changeRole.js"></script>
         <script src="web/js/filter.js"></script>
         <script src="web/js/passwordEye.js"></script>
+        <script src="web/js/skipMailConfig.js"></script>
     </body>
 </html>

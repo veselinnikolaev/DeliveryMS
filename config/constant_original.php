@@ -9,3 +9,4 @@ define("MAIL_PORT", "{mail_port}");
 define("MAIL_USERNAME", "{mail_username}");
 define("MAIL_PASSWORD", "{mail_password}");
 define("INSTALLED", false);
+define("MAIL_CONFIGURED", false);

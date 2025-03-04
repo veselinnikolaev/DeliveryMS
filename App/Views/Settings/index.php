@@ -27,9 +27,14 @@
                                         </select>
                                     <?php elseif ($setting['key'] === 'email_sending'): ?>
                                         <select class="form-control settings-input" id="<?php echo $setting['key']; ?>" name="settings[<?php echo $setting['key']; ?>]" required>
-                                            <option value="enabled" <?php echo ($setting['value'] == 'enabled') ? 'selected' : ''; ?>>Enabled</option>
+                                            <option value="enabled" <?php echo ($setting['value'] == 'enabled') ? 'selected' : ''; ?> 
+                                                    <?php echo (!MAIL_CONFIGURED) ? 'disabled' : ''; ?>>Enabled</option>
                                             <option value="disabled" <?php echo ($setting['value'] == 'disabled') ? 'selected' : ''; ?>>Disabled</option>
                                         </select>
+
+                                        <?php if (!MAIL_CONFIGURED): ?>
+                                            <a href="<?php echo INSTALL_URL; ?>?controller=Install&action=step3" class="btn btn-warning mt-2">Configure Email</a>
+                                        <?php endif; ?>
                                     <?php else: ?>
                                         <input type="text" class="form-control settings-input" id="<?php echo $setting['key']; ?>" name="settings[<?php echo $setting['key']; ?>]" value="<?php echo $setting['value']; ?>" required>
                                     <?php endif; ?>

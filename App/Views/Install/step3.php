@@ -61,6 +61,7 @@
 
                 <div class="d-flex justify-content-between mt-4">
                     <a href="<?php echo INSTALL_URL; ?>?controller=Install&action=step2" class="btn btn-secondary">Back</a>
+                    <a class="btn btn-warning skip-mail-config">Skip</a>
                     <button type="submit" class="btn btn-primary">Next Step</button>
                 </div>
             </form>
@@ -68,5 +69,24 @@
     </div>
     <div class="mt-4 text-center text-muted">
         <small>Step 3 of 4 - Mail Configuration</small>
+    </div>
+</div>
+
+<div class="modal fade" id="skipMailConfig" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Skip Mail Configuration</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to skip mail configuration?</p>
+                <p>This means you won’t be able to send system emails until configured later.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" id="skip-mail-config-button">Skip</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
 </div>

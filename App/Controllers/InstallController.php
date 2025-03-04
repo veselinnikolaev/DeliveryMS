@@ -9,7 +9,7 @@ class InstallController extends Controller {
     var $layout = 'front';
 
     public function __construct() {
-        if (INSTALLED) {
+        if (INSTALLED && MAIL_CONFIGURED) {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
@@ -51,6 +51,17 @@ class InstallController extends Controller {
                 }
             }
 
+            if (isset($errorMessage)) {
+                $file = file_get_contents("config\constant.php");
+
+                $file = str_replace($hostname, '{hostname}', $file);
+                $file = str_replace($connectionUsername, '{host_username}', $file);
+                $file = str_replace($connectionPassword, '{host_password}', $file);
+                $file = str_replace($databaseName, '{database_name}', $file);
+
+                file_put_contents("config/constant.php", $file);
+            }
+
             if (!isset($errorMessage)) {
                 header("Location: " . INSTALL_URL . "?controller=Install&action=step2", true, 301);
                 exit;
@@ -60,6 +71,17 @@ class InstallController extends Controller {
     }
 
     function step2() {
+        $model = new \Core\Model();
+        try {
+            if (!$model->isDbMigrated(DEFAULT_DB)) {
+                header("Location: " . INSTALL_URL . "?controller=Install&action=step1", true, 301);
+                exit;
+            }
+        } catch (\Throwable) {
+            header("Location: " . INSTALL_URL . "?controller=Install&action=step1", true, 301);
+            exit;
+        }
+
         $userModel = new \App\Models\User();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -107,6 +129,21 @@ class InstallController extends Controller {
 
     function step3() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $file = file_get_contents("config/constant.php");
+            if (!empty($_POST['skip_mail']) && $_POST['skip_mail']) {
+                try {
+                    $settingModel = new \App\Models\Setting();
+                    $emailSendingSetting = $settingModel->getFirstBy(['key' => 'email_sending']);
+                    $emailSendingSetting['value'] = false;
+                    $settingModel->update($emailSendingSetting);
+                } catch (\Throwable) {
+                    echo json_encode(["error" => "Failed to update settings."]);
+                    exit();
+                }
+
+                echo json_encode(["success" => true]);
+                exit;
+            }
             $mailHost = $_POST['mail_host'];
             $mailPort = $_POST['mail_port'];
             $mailUsername = $_POST['mail_username'];
@@ -125,6 +162,7 @@ class InstallController extends Controller {
                 $file = str_replace('{mail_port}', $mailPort, $file);
                 $file = str_replace('{mail_username}', $mailUsername, $file);
                 $file = str_replace('{mail_password}', $mailPassword, $file);
+                $file = str_replace('"MAIL_CONFIGURED", false', '"MAIL_CONFIGURED", true', $file);
 
                 file_put_contents("config/constant.php", $file);
 
@@ -136,9 +174,31 @@ class InstallController extends Controller {
     }
 
     function step4() {
+        $model = new \Core\Model();
+        try {
+            if (!$model->isDbMigrated(DEFAULT_DB)) {
+                header("Location: " . INSTALL_URL . "?controller=Install&action=step1", true, 301);
+                exit;
+            }
+        } catch (\Throwable) {
+            header("Location: " . INSTALL_URL . "?controller=Install&action=step1", true, 301);
+            exit;
+        }
+
+        $userModel = new \App\Models\User();
+        try {
+            if (empty($userModel->getFirstBy(['role' => 'admin']))) {
+                header("Location: " . INSTALL_URL . "?controller=Install&action=step2", true, 301);
+                exit;
+            }
+        } catch (\Throwable) {
+            header("Location: " . INSTALL_URL . "?controller=Install&action=step1", true, 301);
+            exit;
+        }
+
         $file = file_get_contents("config/constant.php");
 
-        $file = str_replace('false', 'true', $file);
+        $file = str_replace('"INSTALLED", false', '"INSTALLED", true', $file);
 
         file_put_contents("config/constant.php", $file);
 

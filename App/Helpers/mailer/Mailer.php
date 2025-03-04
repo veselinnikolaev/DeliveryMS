@@ -37,10 +37,10 @@ class Mailer {
             $this->phpmailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $this->phpmailer->CharSet = 'UTF-8';
 
-            $this->phpmailer->setFrom('Blabla@Blabla.com', 'Blabla');
-            $this->phpmailer->addAddress('Blabla@Blabla.com');
-            $this->phpmailer->Subject = 'Blabla';
-            $this->phpmailer->Body = 'Blabla';
+            $this->phpmailer->setFrom('test@test.com', 'Testing Connection');
+            $this->phpmailer->addAddress('test@test.com');
+            $this->phpmailer->Subject = 'Testing Connection';
+            $this->phpmailer->Body = 'Testing Connection';
             $this->phpmailer->isHTML(false);
 
             $this->phpmailer->send();

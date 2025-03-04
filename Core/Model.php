@@ -93,38 +93,59 @@ class Model {
 
         $sql = str_replace('{database_name}', $databaseName, $sql);
 
-// Execute the SQL script
-        if ($this->mysqli->multi_query($sql)) {
+        try {
+            // Execute the SQL script
+            if ($this->mysqli->multi_query($sql)) {
 // Wait for all queries to finish
-            do {
-                $result = $this->mysqli->store_result();
-                if ($result) {
-                    $result->free();
-                }
-            } while ($this->mysqli->next_result());
+                do {
+                    $result = $this->mysqli->store_result();
+                    if ($result) {
+                        $result->free();
+                    }
+                } while ($this->mysqli->next_result());
 
-            return [
-                'status' => true,
-                'message' => "Database setup successfully!"
-            ];
-        } else {
+                return [
+                    'status' => true,
+                    'message' => "Database setup successfully!"
+                ];
+            } else {
+                return [
+                    'status' => false,
+                    'message' => "Error executing script: " . $this->mysqli->error
+                ];
+            }
+        } catch (\Throwable) {
             return [
                 'status' => false,
-                'message' => "Error executing script: " . $this->mysqli->error
+                'message' => "Error executing script for migration"
             ];
         }
     }
 
     public function isDbMigrated($databaseName) {
         $this->connect();
-        $dbCheckQuery = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$databaseName'";
-        $dbExists = $this->mysqli->query($dbCheckQuery);
 
-        if ($dbExists->num_rows > 0) {
+        // Проверка дали базата данни съществува
+        $dbCheckQuery = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$databaseName'";
+
+        try {
+            $dbExists = $this->mysqli->query($dbCheckQuery);
+            if (!$dbExists || $dbExists->num_rows === 0) {
+                return false; // Базата не съществува
+            }
+
+            // Проверка дали има таблици в базата
+            $tableCheckQuery = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '$databaseName'";
+            $tables = $this->mysqli->query($tableCheckQuery);
+
+            if ($tables && $tables->num_rows > 0) {
+                return true; // Има поне една таблица -> мигрирано е
+            }
+        } catch (\Throwable) {
             return false;
         }
 
-        return true;
+        return false; // Няма таблици -> не е мигрирано
     }
 
     public function getAll($options = null, $column = null, $limit = null) {
