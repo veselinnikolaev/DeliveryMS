@@ -7,13 +7,11 @@ use Core;
 use Core\View;
 use Core\Controller;
 
-class UserController extends Controller
-{
+class UserController extends Controller {
 
     var $layout = 'admin';
 
-    public function __construct()
-    {
+    public function __construct() {
         if (empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
             exit;
@@ -24,8 +22,7 @@ class UserController extends Controller
         }
     }
 
-    function list($layout = 'admin')
-    {
+    function list($layout = 'admin') {
 
         $userModel = new \App\Models\User();
 
@@ -61,13 +58,11 @@ class UserController extends Controller
         $this->view($layout, ['users' => $users]);
     }
 
-    function filter()
-    {
+    function filter() {
         $this->list('ajax');
     }
 
-    public function changeRole()
-    {
+    public function changeRole() {
         $userModel = new \App\Models\User();
 
         if (!empty($_POST['id']) && !empty($_POST['role'])) {
@@ -83,23 +78,26 @@ class UserController extends Controller
         $this->view('ajax', ['users' => $users]);
     }
 
-    function create()
-    {
+    function create() {
         // Create an instance of the User model
         $userModel = new \App\Models\User();
 
         // Check if the form has been submitted
         if (!empty($_POST['send'])) {
-            $_POST['password_hash'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
             if ($userModel->existsBy(['email' => $_POST['email']])) {
                 $error_message = "User with this email already exists.";
-            } else if (!$userModel->save($_POST)) {
-                // If saving fails, set an error message
-                $error_message = "Failed to create the user. Please try again.";
+            } else if ($_POST['password'] !== $_POST['repeat_password']) {
+                $error_message = "Passwords do not match.";
             } else {
-                // Redirect to the list of users on successful creation
-                header("Location: " . INSTALL_URL . "?controller=User&action=list", true, 301);
-                exit;
+                $_POST['password_hash'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
+                $_POST['role'] = 'user';
+
+                if ($userModel->save($_POST)) {
+                    header("Location: " . INSTALL_URL . "?controller=User&action=list", true, 301);
+                    exit;
+                } else {
+                    $error_message = "Failed to register. Please try again.";
+                }
             }
         }
 
@@ -113,8 +111,7 @@ class UserController extends Controller
         $this->view($this->layout, $arr);
     }
 
-    function delete()
-    {
+    function delete() {
         $userModel = new \App\Models\User();
 
         if (!empty($_POST['id'])) {
@@ -132,8 +129,7 @@ class UserController extends Controller
         $this->view('ajax', ['users' => $users]);
     }
 
-    function edit()
-    {
+    function edit() {
         $userModel = new \App\Models\User();
 
         $arr = $userModel->get($_GET['id']);

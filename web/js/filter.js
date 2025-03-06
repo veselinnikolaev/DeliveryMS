@@ -4,24 +4,20 @@
         $(document).on('click', '#apply-filters-courier', function () {
             let filters = {
                 name: $('#filter-name').val(),
-                phone: $('#filter-phone').val(),
+                phone_number: $('#filter-phone').val(),
                 email: $('#filter-email').val()
             };
 
             $.ajax({
                 url: 'index.php?controller=Courier&action=filter',
                 type: 'POST',
-                data: {
-                    name: filters.name,
-                    phone_number: filters.phone,
-                    email: filters.email
-                },
+                data: filters,
                 success: function (response) {
                     $(`#container-courier-id`).html(response);
 
                     $(`#courier-table-id`).dataTable({
                         order: [[1, 'asc']],
-                        columnDefs: [{ orderable: false, targets: [0, -1] }]
+                        columnDefs: [{orderable: false, targets: [0, -1]}]
                     });
                 }
             });
@@ -43,7 +39,7 @@
                 name: $('#filter-name').val(),
                 phone: $('#filter-phone').val(),
                 email: $('#filter-email').val(),
-                role: $('#filter-role').val().toLowerCase(),
+                role: $('#filter-role').val(),
                 address: $('#filter-address').val(),
                 country: $('#filter-country').val(),
                 region: $('#filter-region').val()
@@ -52,21 +48,13 @@
             $.ajax({
                 url: 'index.php?controller=User&action=filter',
                 type: 'POST',
-                data: {
-                    name: filters.name,
-                    phone_number: filters.phone,
-                    email: filters.email,
-                    role: filters.role,
-                    address: filters.address,
-                    country: filters.country,
-                    region: filters.region
-                },
+                data: filters,
                 success: function (response) {
                     $(`#container-user-id`).html(response);
 
                     $(`#user-table-id`).dataTable({
                         order: [[1, 'asc']],
-                        columnDefs: [{ orderable: false, targets: [0, -1] }]
+                        columnDefs: [{orderable: false, targets: [0, -1]}]
                     });
                 }
             });
@@ -100,20 +88,13 @@
             $.ajax({
                 url: 'index.php?controller=Product&action=filter',
                 type: 'POST',
-                data: {
-                    name: filters.name,
-                    description: filters.description,
-                    minPrice: filters.minPrice,
-                    maxPrice: filters.maxPrice,
-                    minStock: filters.minStock,
-                    maxStock: filters.maxStock
-                },
+                data: filters,
                 success: function (response) {
                     $(`#container-product-id`).html(response);
 
                     $(`#product-table-id`).dataTable({
                         order: [[1, 'asc']],
-                        columnDefs: [{ orderable: false, targets: [0, -1] }]
+                        columnDefs: [{orderable: false, targets: [0, -1]}]
                     });
                 }
             });
@@ -131,6 +112,52 @@
 
             // Trigger apply filters to restore previous results
             $('#apply-filters-product').trigger('click');
+        });
+
+        $(document).on('click', '#apply-filters-order', function () {
+            let filters = {
+                customerName: $('#filter-customer').val(),
+                courierName: $('#filter-courier').val(),
+                status: $('#filter-status').val(),
+                trackingNumber: $('#filter-tracking').val(),
+                country: $('#filter-country').val(),
+                region: $('#filter-region').val(),
+                orderDateFrom: $('#filter-date-from').val(),
+                orderDateTo: $('#filter-date-to').val(),
+                deliveryDate: $('#filter-delivery-date').val(),
+                minPrice: $('#filter-price-min').val(),
+                maxPrice: $('#filter-price-max').val()
+            };
+
+            $.ajax({
+                url: 'index.php?controller=Order&action=filter',
+                type: 'POST',
+                data: filters,
+                success: function (response) {
+                    $('#container-order-id').html(response);
+
+                    $('#order-table-id').dataTable({
+                        order: [[1, 'asc']],
+                        columnDefs: [{orderable: false, targets: [0, -1]}]
+                    });
+                }
+            });
+        });
+
+        $(document).on('click', '#reset-filters-order', function () {
+            $('#filter-customer').val('');
+            $('#filter-courier').val('');
+            $('#filter-status').val('');
+            $('#filter-tracking').val('');
+            $('#filter-country').val('');
+            $('#filter-region').val('');
+            $('#filter-date-from').val('');
+            $('#filter-date-to').val('');
+            $('#filter-delivery-date').val('');
+            $('#filter-price-min').val('');
+            $('#filter-price-max').val('');
+
+            $('#apply-filters-order').trigger('click');
         });
     });
 }(jQuery));

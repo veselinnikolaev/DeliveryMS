@@ -9,7 +9,7 @@
                         <div class="alert alert-danger"><?php echo $error_message; ?></div>
                     <?php endif; ?>
 
-                    <form class="forms-sample" method="POST" action="<?php echo INSTALL_URL; ?>?controller=Auth&action=register">
+                    <form class="forms-sample" method="POST" action="<?php echo INSTALL_URL; ?>?controller=User&action=create">
                         <input type="hidden" name="send" value="1" />
 
                         <div class="row">

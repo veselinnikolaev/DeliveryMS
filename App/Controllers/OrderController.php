@@ -23,25 +23,59 @@ class OrderController extends Controller {
         return $app_settings;
     }
 
-    function list() {
+    function list($layout = 'admin') {
         $orderModel = new \App\Models\Order();
         $userModel = new \App\Models\User();
         $courierModel = new \App\Models\Courier();
 
-        // Retrieve all orders from the database
-        if (empty($_GET['user_id'])) {
-            $orders = $orderModel->getAll();
-        } else if ($_GET['user_id'] == $_SESSION['user']['id']) {
-            $orders = $orderModel->getAll(['user_id' => $_GET['user_id']]);
-        } else {
-            header("Location: " . INSTALL_URL, true, 301);
-            exit;
+        $opts = array();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!empty($_POST['customerName'])) {
+                $opts["user_id IN (SELECT id FROM users WHERE name LIKE '%" . $_POST['customerName'] . "%')"] = "1";
+            }
+            if (!empty($_POST['courierName'])) {
+                $opts["courier_id IN (SELECT id FROM couriers WHERE name LIKE '%" . $_POST['courierName'] . "%')"] = "1";
+            }
+            if (!empty($_POST['status'])) {
+                $opts["status LIKE '%" . $_POST['status'] . "%' AND 1 "] = "1";
+            }
+            if (!empty($_POST['trackingNumber'])) {
+                $opts["tracking_number LIKE '%" . $_POST['trackingNumber'] . "%' AND 1 "] = "1";
+            }
+            if (!empty($_POST['country'])) {
+                $opts["country LIKE '%" . $_POST['country'] . "%' AND 1 "] = "1";
+            }
+            if (!empty($_POST['region'])) {
+                $opts["region LIKE '%" . $_POST['region'] . "%' AND 1 "] = "1";
+            }
+            if (!empty($_POST['orderDateFrom'])) {
+                $opts["created_at >= '" . strtotime($_POST['orderDateFrom']) . "'"] = "1";
+            }
+            if (!empty($_POST['orderDateTo'])) {
+                $opts["created_at <= '" . strtotime($_POST['orderDateTo']) . "'"] = "1";
+            }
+            if (!empty($_POST['deliveryDate'])) {
+                $opts["delivery_date = '" . $_POST['deliveryDate'] . "'"] = "1";
+            }
+            if (!empty($_POST['minTotalPrice'])) {
+                $opts["total_amount >= '" . $_POST['minTotalPrice'] . "'"] = "1";
+            }
+            if (!empty($_POST['maxTotalPrice'])) {
+                $opts["total_amount <= '" . $_POST['maxTotalPrice'] . "'"] = "1";
+            }
         }
+
+        // Retrieve all orders from the database
+        if (!empty($_GET['user_id']) && $_GET['user_id'] == $_SESSION['user']['id']) { //User role checking orders
+            $opts['user_id'] = $_GET['user_id'];
+        }
+
+        $orders = $orderModel->getAll($opts);
 
         // Format orders for display
         foreach ($orders as &$order) {
             $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
-            $order['name'] = $courierModel->get($order['courier_id'])['name'] ?? 'Unknown';
+            $order['courier_name'] = $courierModel->get($order['courier_id'])['name'] ?? 'Unknown';
             $order['delivery_date'] = date('Y-m-d', strtotime($order['delivery_date']));
         }
 
@@ -51,7 +85,11 @@ class OrderController extends Controller {
             'currency' => $this->settings['currency_code']
         ];
 
-        $this->view($this->layout, $arr);
+        $this->view($layout, $arr);
+    }
+
+    function filter() {
+        $this->list('ajax');
     }
 
     function create() {
@@ -185,10 +223,13 @@ class OrderController extends Controller {
             exit;
         }
 
-        $userOrders = $orderModel->getAll(['user_id' => $_SESSION['user']['id']]);
-        if (!in_array($_GET['id'], $userOrders)) {
-            header("Location: " . INSTALL_URL, true, 301);
-            exit;
+        if ($_SESSION['user']['role'] == 'user') {
+            $userOrders = $orderModel->getAll(['user_id' => $_SESSION['user']['id']]);
+            $userOrderIds = array_column($userOrders, 'id');
+            if (!in_array($_GET['id'], $userOrderIds)) {
+                header("Location: " . INSTALL_URL, true, 301);
+                exit;
+            }
         }
 
         $orderId = intval($_GET['id']);
@@ -529,6 +570,7 @@ class OrderController extends Controller {
                                 <p><strong>Region:</strong> <?= htmlspecialchars($order['region']) ?></p>
                             </div>
                             <div class="detail-column">
+                                <p><strong>Tracking Number:</strong> <?php echo htmlspecialchars($order['tracking_number']); ?></p>
                                 <p><strong>Courier:</strong> <?= htmlspecialchars($courier['name']) ?></p>
                                 <p><strong>Delivery Date:</strong> <?= date('Y-m-d', strtotime($order['delivery_date'])) ?></p>
                                 <p><strong>Status:</strong> <?= \Utility::$order_status[$order['status']] ?? 'Unknown' ?></p>

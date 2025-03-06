@@ -36,7 +36,11 @@
                                         <option value=''>---</option>
                                         <?php
                                         foreach ($tpl['users'] as $user) {
-                                            echo "<option value=\"{$user['id']}\">{$user['name']}</option>";
+                                            echo "<option value=\"{$user['id']}\" 
+                                                data-address=\"" . htmlspecialchars($user['address']) . "\" 
+                                                data-country=\"" . htmlspecialchars($user['country']) . "\" 
+                                                data-region=\"" . htmlspecialchars($user['region']) . "\">
+                                                {$user['name']}</option>";
                                         }
                                         ?>
                                     </select>

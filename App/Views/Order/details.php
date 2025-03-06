@@ -24,6 +24,7 @@
                                 <p><strong>Region:</strong> <?php echo htmlspecialchars($tpl['order']['region']); ?></p>
                             </div>
                             <div class="col-md-6">
+                                <p><strong>Tracking Number:</strong> <?php echo htmlspecialchars($tpl['order']['tracking_number']); ?></p>
                                 <p><strong>Courier:</strong> <?php echo htmlspecialchars($tpl['courier']['name']); ?></p>
                                 <p><strong>Delivery Date:</strong> <?php echo htmlspecialchars(date('Y-m-d', strtotime($tpl['order']['delivery_date']))); ?></p>
                                 <p><strong>Status:</strong> <?php echo htmlspecialchars($tpl['order']['status']); ?></p>

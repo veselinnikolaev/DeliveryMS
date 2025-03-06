@@ -14,6 +14,7 @@
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/OrderController.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/Core/Router.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/tables.js</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Product/filter.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/index.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/filter.js</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Layouts/admin.php</file>
@@ -23,6 +24,7 @@
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Courier/edit.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/User/create.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Helpers/mailer/Mailer.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/.htaccess</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Order/create.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/productRows.js</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/config/constant_original.php</file>
@@ -44,13 +46,16 @@
             <file>file:/C:/xampp/htdocs/DeliveryMS/config/constant.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Models/Courier.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Layouts/ajax.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/autoCompleteUserData.js</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/skipMailConfig.js</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Install/step1.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/priceCalculation.js</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Install/step3.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/Core/Model.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/User/edit.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Order/filter.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Courier/create.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/passwordEye.js</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Layouts/component/top_nav.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Install/step4.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Install/step2.php</file>

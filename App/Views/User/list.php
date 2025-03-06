@@ -50,10 +50,6 @@
                                         </select>
                                     </div>
                                     <div class="col-md-4 mb-3">
-                                        <label for="filter-address" class="form-label">Address</label>
-                                        <input type="text" class="form-control" id="filter-address" placeholder="Search by address">
-                                    </div>
-                                    <div class="col-md-4 mb-3">
                                         <label for="filter-country" class="form-label">Country</label>
                                         <input type="text" class="form-control" id="filter-country" placeholder="Search by country">
                                     </div>
@@ -61,8 +57,12 @@
                                         <label for="filter-region" class="form-label">Region</label>
                                         <input type="text" class="form-control" id="filter-region" placeholder="Search by region">
                                     </div>
+                                    <div class="col-md-12 mb-3">
+                                        <label for="filter-address" class="form-label">Address</label>
+                                        <input type="text" class="form-control" id="filter-address" placeholder="Search by address">
+                                    </div>
                                 </div>
-                                <div class="d-flex justify-content-end gap-2">
+                                <div class="d-flex justify-content-end gap-2 mt-3">
                                     <button type="button" class="btn btn-light" id="reset-filters-user">
                                         <i class="icon-refresh"></i> Reset
                                     </button>

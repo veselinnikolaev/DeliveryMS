@@ -73,5 +73,6 @@
         <script src="web/js/filter.js"></script>
         <script src="web/js/passwordEye.js"></script>
         <script src="web/js/skipMailConfig.js"></script>
+        <script src="web/js/autoCompleteUserData.js"></script>
     </body>
 </html>

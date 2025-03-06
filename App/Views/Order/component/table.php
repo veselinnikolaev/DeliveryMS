@@ -9,10 +9,14 @@
                 </div>
             </th>
             <th>Order ID</th>
+            <th>Tracking Number</th>
             <th>Customer</th>
             <th>Courier</th>
             <th>Delivery Date</th>
             <th>Total Price</th>
+            <th>Address</th>
+            <th>Country</th>
+            <th>Region</th>
             <th>Status</th>
             <th style="text-align: right;">Actions</th>
         </tr>
@@ -28,10 +32,14 @@
                     </div>
                 </td>
                 <td><?php echo htmlspecialchars($order['id']); ?></td>
+                <td><?php echo htmlspecialchars($order['tracking_number']); ?></td>
                 <td><?php echo htmlspecialchars($order['customer_name']); ?></td>
-                <td><?php echo htmlspecialchars($order['name']); ?></td>
+                <td><?php echo htmlspecialchars($order['courier_name']); ?></td>
                 <td><?php echo htmlspecialchars(date('Y-m-d', strtotime($order['delivery_date']))); ?></td>
                 <td><?php echo Utility::getDisplayableAmount(htmlspecialchars($order['total_amount'])); ?></td>
+                <td><?php echo htmlspecialchars($order['address']); ?></td>
+                <td><?php echo htmlspecialchars($order['country']); ?></td>
+                <td><?php echo htmlspecialchars($order['region']); ?></td>
                 <td><?php
                     foreach (Utility::$order_status as $k => $v) {
                         if ($k == $order['status']) {
@@ -44,12 +52,12 @@
                         <i class="fa fa-eye" aria-hidden="true"></i>
                     </a>
                     <?php if ($_SESSION['user']['role'] == 'admin') { ?>
-                    <a class="btn btn-light btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=Order&action=edit&order_id=<?php echo $order['id'] ?>">
-                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
-                    </a>
-                    <a class="btn btn-danger btn-circle delete-order" href="#" data-id="<?php echo $order['id']; ?>">
-                        <i class="fa fa-trash-o" aria-hidden="true"></i>
-                    </a>
+                        <a class="btn btn-light btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=Order&action=edit&order_id=<?php echo $order['id'] ?>">
+                            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                        </a>
+                        <a class="btn btn-danger btn-circle delete-order" href="#" data-id="<?php echo $order['id']; ?>">
+                            <i class="fa fa-trash-o" aria-hidden="true"></i>
+                        </a>
                     <?php } ?>
                 </td>
             </tr>
