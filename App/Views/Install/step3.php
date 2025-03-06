@@ -60,8 +60,18 @@
                 </div>
 
                 <div class="d-flex justify-content-between mt-4">
-                    <a href="<?php echo INSTALL_URL; ?>?controller=Install&action=step2" class="btn btn-secondary">Back</a>
-                    <a class="btn btn-warning skip-mail-config">Skip</a>
+                    <a href="<?php
+                    if (!INSTALLED) {
+                        echo INSTALL_URL . "?controller=Install&action=step2";
+                    } else {
+                        echo INSTALL_URL;
+                    }
+                    ?>" class="btn btn-secondary">Back</a>
+                       <?php
+                       if (!INSTALLED) {
+                           echo '<a class="btn btn-warning skip-mail-config">Skip</a>';
+                       }
+                       ?>
                     <button type="submit" class="btn btn-primary">Next Step</button>
                 </div>
             </form>

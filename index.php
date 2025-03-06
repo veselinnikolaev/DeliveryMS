@@ -34,18 +34,21 @@ require_once 'config/function.php';
 
 if (!INSTALLED) {
     // Пренасочване към инсталационната страница
-    if (empty($_REQUEST['action'])) {
+    if (empty($_REQUEST['controller'])) {
         $_REQUEST['controller'] = 'Install';
+    }
+
+    if (empty($_REQUEST['action'])) {
         $_REQUEST['action'] = 'step0';
     }
-}
+} else {
+    if (empty($_REQUEST['controller'])) {
+        $_REQUEST['controller'] = 'Home';
+    }
 
-if (empty($_REQUEST['controller'])) {
-    $_REQUEST['controller'] = 'Home';
-}
-
-if (empty($_REQUEST['action'])) {
-    $_REQUEST['action'] = 'index';
+    if (empty($_REQUEST['action'])) {
+        $_REQUEST['action'] = 'index';
+    }
 }
 
 spl_autoload_register(function ($class) {

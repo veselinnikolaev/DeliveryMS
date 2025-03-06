@@ -9,7 +9,7 @@
             <ul class="list-group list-group-flush mb-4">
                 <li class="list-group-item">Database connection details (hostname, username, password)</li>
                 <li class="list-group-item">Admin account information</li>
-                <li class="list-group-item">Mail server configuration</li>
+                <li class="list-group-item">Mail server configuration (Optional)</li>
             </ul>
             <p class="card-text">The installation process consists of 4 steps and should take about 5 minutes to complete.</p>
             <div class="d-grid gap-2">

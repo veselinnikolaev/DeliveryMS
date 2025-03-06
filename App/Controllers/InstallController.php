@@ -9,17 +9,27 @@ class InstallController extends Controller {
     var $layout = 'front';
 
     public function __construct() {
-        if (INSTALLED && MAIL_CONFIGURED) {
+        if (INSTALLED && MAIL_CONFIGURED && $_REQUEST['action'] != 'step4') {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
     }
 
     function step0() {
+        if (INSTALLED && !MAIL_CONFIGURED) {
+            header("Location: " . INSTALL_URL . '?controller=Install&action=step3', true, 301);
+            exit;
+        }
+
         $this->view($this->layout);
     }
 
     function step1() {
+        if (INSTALLED && !MAIL_CONFIGURED) {
+            header("Location: " . INSTALL_URL . '?controller=Install&action=step3', true, 301);
+            exit;
+        }
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hostname = $_POST['hostname'];
             $connectionUsername = $_POST['username'];
@@ -71,6 +81,11 @@ class InstallController extends Controller {
     }
 
     function step2() {
+        if (INSTALLED && !MAIL_CONFIGURED) {
+            header("Location: " . INSTALL_URL . '?controller=Install&action=step3', true, 301);
+            exit;
+        }
+
         $model = new \Core\Model();
         try {
             if (!$model->isDbMigrated(DEFAULT_DB)) {
@@ -174,6 +189,11 @@ class InstallController extends Controller {
     }
 
     function step4() {
+        if (INSTALLED && !MAIL_CONFIGURED) {
+            header("Location: " . INSTALL_URL . '?controller=Install&action=step3', true, 301);
+            exit;
+        }
+
         $model = new \Core\Model();
         try {
             if (!$model->isDbMigrated(DEFAULT_DB)) {
