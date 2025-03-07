@@ -115,16 +115,31 @@ class UserController extends Controller {
         $userModel = new \App\Models\User();
 
         if (!empty($_POST['id'])) {
+            $userModel->delete($_POST['id']);
             if ($_POST['id'] == $_SESSION['user']['id']) {
                 session_destroy();
                 header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
                 exit;
             }
-            $userModel->delete($_POST['id']);
         }
-        if ($_SESSION['user']['id'] == $_POST['id']) {
-            session_destroy();
+
+        $users = $userModel->getAll();
+        $this->view('ajax', ['users' => $users]);
+    }
+
+    function bulkDelete() {
+        $userModel = new \App\Models\User();
+
+        if (!empty($_POST['ids']) && is_array($_POST['ids'])) {
+            $inUserIds = implode(', ', $_POST['ids']);
+            $userModel->deleteBy(["id IN ($inUserIds) AND 1 " => '1']);
+            if (in_array($_SESSION['user']['id'], $_POST['ids'])) {
+                session_destroy();
+                header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
+                exit;
+            }
         }
+
         $users = $userModel->getAll();
         $this->view('ajax', ['users' => $users]);
     }

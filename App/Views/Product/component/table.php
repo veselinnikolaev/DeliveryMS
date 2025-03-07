@@ -1,13 +1,15 @@
 <table class="table select-table" id="product-table-id">
     <thead>
         <tr>
-            <th>
-                <div class="form-check form-check-flat mt-0">
-                    <label class="form-check-label">
-                        <input type="checkbox" class="form-check-input">
-                    </label>
-                </div>
-            </th>
+            <?php if ($_SESSION['user']['role'] == 'admin') { ?>
+                <th>
+                    <div class="form-check form-check-flat mt-0">
+                        <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input" id="select-all-products">
+                        </label>
+                    </div>
+                </th>
+            <?php } ?>
             <th>Product ID</th>
             <th>Product Name</th>
             <th>Product Description</th>
@@ -19,13 +21,15 @@
     <tbody>
         <?php foreach ($tpl['products'] as $product) { ?>
             <tr>
-                <td>
-                    <div class="form-check form-check-flat mt-0">
-                        <label class="form-check-label">
-                            <input type="checkbox" class="form-check-input">
-                        </label>
-                    </div>
-                </td>
+                <?php if ($_SESSION['user']['role'] == 'admin') { ?>
+                    <td>
+                        <div class="form-check form-check-flat mt-0">
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input product-checkbox" data-id="<?php echo $product['id']; ?>">
+                            </label>
+                        </div>
+                    </td>
+                <?php } ?>
                 <td><?php echo htmlspecialchars($product['id']); ?></td>
                 <td><?php echo htmlspecialchars($product['name']); ?></td>
                 <td><?php echo htmlspecialchars($product['description']); ?></td>

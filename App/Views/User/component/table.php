@@ -1,13 +1,15 @@
 <table class="table select-table" id="user-table-id">
     <thead>
         <tr>
-            <th>
-                <div class="form-check form-check-flat mt-0">
-                    <label class="form-check-label">
-                        <input type="checkbox" class="form-check-input">
-                    </label>
-                </div>
-            </th>
+            <?php if ($_SESSION['user']['role'] == 'admin') { ?>
+                <th>
+                    <div class="form-check form-check-flat mt-0">
+                        <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input" id="select-all-users">
+                        </label>
+                    </div>
+                </th>
+            <?php } ?>
             <th>User ID</th>
             <th>Name</th>
             <th>Email</th>
@@ -22,13 +24,15 @@
     <tbody>
         <?php foreach ($tpl['users'] as $user) { ?>
             <tr>
-                <td>
-                    <div class="form-check form-check-flat mt-0">
-                        <label class="form-check-label">
-                            <input type="checkbox" class="form-check-input">
-                        </label>
-                    </div>
-                </td>
+                <?php if ($_SESSION['user']['role'] == 'admin') { ?>
+                    <td>
+                        <div class="form-check form-check-flat mt-0">
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input user-checkbox" data-id="<?php echo $user['id'] ?>">
+                            </label>
+                        </div>
+                    </td>
+                <?php } ?>
                 <td><?php echo htmlspecialchars($user['id']); ?></td>
                 <td><?php echo htmlspecialchars($user['name']); ?></td>
                 <td><?php echo htmlspecialchars($user['email']); ?></td>
@@ -52,7 +56,7 @@
                             </a>
                         <?php } ?>
                     <?php } ?>
-                    
+
                     <a class="btn btn-danger btn-circle delete-user" href="#" data-id="<?php echo $user['id']; ?>">
                         <i class="fa fa-trash-o" aria-hidden="true"></i>
                     </a>

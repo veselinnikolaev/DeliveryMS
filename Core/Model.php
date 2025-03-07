@@ -320,6 +320,28 @@ class Model {
         return $this->executeQuery($query, [$id], 'i'); // 'i' за integer
     }
 
+    public function deleteBy($options = null) {
+// Изтриване на запис
+        $query = "DELETE FROM " . $this->getTable();
+        $params = [];
+
+        // Проверка дали има подаден масив с условия
+        if ($options && is_array($options)) {
+            $conditions = [];
+            foreach ($options as $field => $value) {
+// Изграждане на условията за WHERE
+                $conditions[] = "$field = '$value'";
+            }
+// Добавяне на WHERE частта към заявката
+            $query .= " WHERE " . implode(" AND ", $conditions);
+        } elseif ($options) {
+// Ако $options не е масив, добавяме директно
+            $query .= " WHERE " . $options;
+        }
+
+        return $this->executeQuery($query);
+    }
+
     public function updateBatch($data = null, $keyColumn = null) {
         $this->connect();
 // Проверка дали има подадени данни

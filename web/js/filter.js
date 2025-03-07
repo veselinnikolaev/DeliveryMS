@@ -124,9 +124,8 @@
                 region: $('#filter-region').val(),
                 orderDateFrom: $('#filter-date-from').val(),
                 orderDateTo: $('#filter-date-to').val(),
-                deliveryDate: $('#filter-delivery-date').val(),
-                minPrice: $('#filter-price-min').val(),
-                maxPrice: $('#filter-price-max').val()
+                minTotalPrice: $('#filter-price-min').val(),
+                maxTotalPrice: $('#filter-price-max').val()
             };
 
             $.ajax({
@@ -153,7 +152,6 @@
             $('#filter-region').val('');
             $('#filter-date-from').val('');
             $('#filter-date-to').val('');
-            $('#filter-delivery-date').val('');
             $('#filter-price-min').val('');
             $('#filter-price-max').val('');
 

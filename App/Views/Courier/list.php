@@ -10,7 +10,7 @@
                             <a href="#" class="btn btn-outline-dark align-items-center"><i class="icon-printer"></i>
                                 Print</a>
                             <a href="<?php echo INSTALL_URL; ?>?controller=Courier&action=create"
-                                class="btn btn-primary text-white me-0"><i class="icon-plus"></i> New Courier</a>
+                               class="btn btn-primary text-white me-0"><i class="icon-plus"></i> New Courier</a>
                         </div>
                     </div>
                 </div>
@@ -20,9 +20,9 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <h5 class="card-title mb-0 font-weight-bold text-primary">Advanced Filters</h5>
                                 <button type="button"
-                                    class="btn btn-primary btn-sm rounded-pill px-3 d-flex align-items-center"
-                                    data-bs-toggle="collapse" data-bs-target="#filters-container" aria-expanded="false"
-                                    aria-controls="filters-container">
+                                        class="btn btn-primary btn-sm rounded-pill px-3 d-flex align-items-center"
+                                        data-bs-toggle="collapse" data-bs-target="#filters-container" aria-expanded="false"
+                                        aria-controls="filters-container">
                                     <i class="fa fa-filter me-2"></i>
                                     <span>Toggle Filters</span>
                                 </button>
@@ -30,62 +30,93 @@
                         </div>
                         <div class="collapse show card-body" id="filters-container">
                             <form id="courier-filter-form">
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label for="filter-name" class="form-label">Courier Name</label>
-                                        <input type="text" class="form-control" id="filter-name"
-                                            placeholder="Search by name">
+                                <div class="card p-4">
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label for="filter-name" class="form-label">Courier Name</label>
+                                            <input type="text" class="form-control" id="filter-name"
+                                                   placeholder="Search by name">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="filter-phone" class="form-label">Phone Number</label>
+                                            <input type="text" class="form-control" id="filter-phone"
+                                                   placeholder="Search by phone">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="filter-email" class="form-label">Email</label>
+                                            <input type="text" class="form-control" id="filter-email"
+                                                   placeholder="Search by email">
+                                        </div>
                                     </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="filter-phone" class="form-label">Phone Number</label>
-                                        <input type="text" class="form-control" id="filter-phone"
-                                            placeholder="Search by phone">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <button type="button" class="btn btn-light" id="reset-filters-courier">
+                                            <i class="icon-refresh"></i> Reset
+                                        </button>
+                                        <button type="button" class="btn btn-primary" id="apply-filters-courier">
+                                            <i class="icon-search"></i> Apply Filters
+                                        </button>
                                     </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="filter-email" class="form-label">Email</label>
-                                        <input type="text" class="form-control" id="filter-email"
-                                            placeholder="Search by email">
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-end gap-2">
-                                    <button type="button" class="btn btn-light" id="reset-filters-courier">
-                                        <i class="icon-refresh"></i> Reset
-                                    </button>
-                                    <button type="button" class="btn btn-primary" id="apply-filters-courier">
-                                        <i class="icon-search"></i> Apply Filters
-                                    </button>
-                                </div>
                             </form>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <div class="table-responsive" id="container-courier-id">
-                            <?php
-                            include 'component/table.php';
-                            ?>
+                </div>
+                <div class="card-body">
+                    <?php if ($_SESSION['user']['role'] == 'admin') { ?>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <button id="bulk-delete-couriers-btn" class="btn btn-danger d-none">
+                                    <i class="fa fa-trash"></i> Delete Selected (<span id="selected-count-couriers">0</span>)
+                                </button>
+                            </div>
                         </div>
+                    <?php } ?>
+                    <div class="table-responsive" id="container-courier-id">
+                        <?php
+                        include 'component/table.php';
+                        ?>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+</div>
 
-    <div class="modal fade" id="deleteCourier" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Delete Courier</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to delete this courier?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-id="" id="delete-btn-courier-id">Delete</button>
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                </div>
+<div class="modal fade" id="deleteCourier" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Courier</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this courier?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-id="" id="delete-btn-courier-id">Delete</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteCouriers" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Couriers</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete these couriers?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-ids="" id="delete-btn-couriers-id">Delete</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>

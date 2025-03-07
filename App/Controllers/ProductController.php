@@ -8,13 +8,12 @@ use Core;
 use Core\View;
 use Core\Controller;
 
-class ProductController extends Controller
-{
+class ProductController extends Controller {
 
     var $layout = 'admin';
     var $settings;
-    public function __construct()
-    {
+
+    public function __construct() {
         if (empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
             exit;
@@ -26,8 +25,7 @@ class ProductController extends Controller
         $this->settings = $this->loadSettings();
     }
 
-    function loadSettings()
-    {
+    function loadSettings() {
         $settingModel = new \App\Models\Setting();
         $settings = $settingModel->getAll();
         $app_settings = [];
@@ -37,8 +35,7 @@ class ProductController extends Controller
         return $app_settings;
     }
 
-    function list($layout = 'admin')
-    {
+    function list($layout = 'admin') {
         $productModel = new \App\Models\Product();
 
         $opts = array();
@@ -68,13 +65,11 @@ class ProductController extends Controller
         $this->view($layout, ['products' => $products, 'currency' => $this->settings['currency_code']]);
     }
 
-    function filter()
-    {
+    function filter() {
         $this->list('ajax');
     }
 
-    function create()
-    {
+    function create() {
         // Create an instance of the Courier model
         $productModel = new \App\Models\Product();
 
@@ -102,8 +97,7 @@ class ProductController extends Controller
         $this->view($this->layout, $arr);
     }
 
-    function delete()
-    {
+    function delete() {
         $productModel = new \App\Models\Product();
 
         if (!empty($_POST['id'])) {
@@ -114,8 +108,19 @@ class ProductController extends Controller
         $this->view('ajax', ['products' => $products]);
     }
 
-    function edit()
-    {
+    function bulkDelete() {
+        $productModel = new \App\Models\Product();
+
+        if (!empty($_POST['ids']) && is_array($_POST['ids'])) {
+            $inProductIds = implode(', ', $_POST['ids']);
+            $productModel->deleteBy(["id IN ($inProductIds) AND 1 " => '1']);
+        }
+
+        $products = $productModel->getAll();
+        $this->view('ajax', ['products' => $products]);
+    }
+
+    function edit() {
         $productModel = new \App\Models\Product();
 
         $arr = $productModel->get($_GET['id']);

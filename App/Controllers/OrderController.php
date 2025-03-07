@@ -54,9 +54,6 @@ class OrderController extends Controller {
             if (!empty($_POST['orderDateTo'])) {
                 $opts["created_at <= '" . strtotime($_POST['orderDateTo']) . "'"] = "1";
             }
-            if (!empty($_POST['deliveryDate'])) {
-                $opts["delivery_date = '" . $_POST['deliveryDate'] . "'"] = "1";
-            }
             if (!empty($_POST['minTotalPrice'])) {
                 $opts["total_amount >= '" . $_POST['minTotalPrice'] . "'"] = "1";
             }
@@ -286,6 +283,44 @@ class OrderController extends Controller {
             $orderProductsModel->deleteBy($opts);
 
             $orderModel->delete($orderId);
+        }
+
+        // Retrieve all orders from the database
+        $orders = $orderModel->getAll();
+
+        // Format orders for display
+        foreach ($orders as &$order) {
+            $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
+            $order['name'] = $courierModel->get($order['courier_id'])['name'] ?? 'Unknown';
+            $order['delivery_date'] = date('Y-m-d', strtotime($order['delivery_date']));
+        }
+
+        $this->view('ajax', ['orders' => $orders, 'currency' => $this->settings['currency_code']]);
+    }
+
+    function bulkDelete() {
+        if (empty($_SESSION['user'])) {
+            header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
+            exit;
+        }
+        if ($_SESSION['user']['role'] != 'admin') {
+            header("Location: " . INSTALL_URL, true, 301);
+            exit;
+        }
+
+        $orderModel = new \App\Models\Order();
+        $orderProductsModel = new \App\Models\OrderProducts();
+        $userModel = new \App\Models\User();
+        $courierModel = new \App\Models\Courier();
+
+        if (!empty($_POST['ids']) && is_array($_POST['ids'])) {
+            $orderIds = $_POST['ids'];
+
+            $inOrderIds = implode(', ', $orderIds);
+            $optsForOrderProduct = ["order_id IN ($inOrderIds) AND 1 " => '1'];
+            $orderProductsModel->deleteBy($optsForOrderProduct);
+            $optsForOrder = ["id IN ($inOrderIds) AND 1 " => '1'];
+            $orderModel->deleteBy($optsForOrder);
         }
 
         // Retrieve all orders from the database
@@ -557,7 +592,7 @@ class OrderController extends Controller {
             <body>
                 <div class="email-container">
                     <div class="header">
-                        <?= htmlspecialchars($title) ?>
+        <?= htmlspecialchars($title) ?>
                     </div>
                     <div class="content">
                         <p style="font-size: 16px; color: #333;">Thank you for your order! Below are the details:</p>
@@ -588,14 +623,14 @@ class OrderController extends Controller {
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($products as $product) { ?>
+        <?php foreach ($products as $product) { ?>
                                     <tr>
                                         <td><?= htmlspecialchars($product['name']) ?></td>
                                         <td><?= htmlspecialchars($product['quantity']) ?></td>
                                         <td><?= \Utility::getDisplayableAmount(htmlspecialchars(number_format($product['price'], 2))) ?></td>
                                         <td><?= \Utility::getDisplayableAmount(htmlspecialchars(number_format($product['subtotal'], 2))) ?></td>
                                     </tr>
-                                <?php } ?>
+        <?php } ?>
                             </tbody>
                         </table>
                     </div>

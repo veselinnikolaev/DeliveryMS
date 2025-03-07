@@ -74,5 +74,6 @@
         <script src="web/js/passwordEye.js"></script>
         <script src="web/js/skipMailConfig.js"></script>
         <script src="web/js/autoCompleteUserData.js"></script>
+        <script src="web/js/bulkDelete.js"></script>
     </body>
 </html>

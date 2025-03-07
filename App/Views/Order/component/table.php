@@ -1,13 +1,15 @@
 <table class="table select-table" id="order-table-id">
     <thead>
         <tr>
-            <th>
-                <div class="form-check form-check-flat mt-0">
-                    <label class="form-check-label">
-                        <input type="checkbox" class="form-check-input">
-                    </label>
-                </div>
-            </th>
+            <?php if ($_SESSION['user']['role'] == 'admin') { ?>
+                <th>
+                    <div class="form-check form-check-flat mt-0">
+                        <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input" id="select-all-orders">
+                        </label>
+                    </div>
+                </th>
+            <?php } ?>
             <th>Order ID</th>
             <th>Tracking Number</th>
             <th>Customer</th>
@@ -24,13 +26,15 @@
     <tbody>
         <?php foreach ($tpl['orders'] as $order) { ?>
             <tr>
-                <td>
-                    <div class="form-check form-check-flat mt-0">
-                        <label class="form-check-label">
-                            <input type="checkbox" class="form-check-input">
-                        </label>
-                    </div>
-                </td>
+                <?php if ($_SESSION['user']['role'] == 'admin') { ?>
+                    <td>
+                        <div class="form-check form-check-flat mt-0">
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input order-checkbox" data-id="<?php echo $order['id']; ?>">
+                            </label>
+                        </div>
+                    </td>
+                <?php } ?>
                 <td><?php echo htmlspecialchars($order['id']); ?></td>
                 <td><?php echo htmlspecialchars($order['tracking_number']); ?></td>
                 <td><?php echo htmlspecialchars($order['customer_name']); ?></td>

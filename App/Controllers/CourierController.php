@@ -21,20 +21,20 @@ class CourierController extends Controller {
             exit;
         }
     }
-    
+
     function list($layout = 'admin') {
         $courierModel = new \App\Models\Courier();
 
         $opts = array();
-        if($_SERVER['REQUEST_METHOD'] === 'POST'){
-            if(!empty($_POST['name'])) {
-                $opts["name LIKE '%".$_POST['name']."%' AND 1 "] = "1";
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!empty($_POST['name'])) {
+                $opts["name LIKE '%" . $_POST['name'] . "%' AND 1 "] = "1";
             }
-            if(!empty($_POST['phone_number'])) {
-                $opts["phone_number LIKE '%".$_POST['phone_number']."%' AND 1 "] = "1";
+            if (!empty($_POST['phone_number'])) {
+                $opts["phone_number LIKE '%" . $_POST['phone_number'] . "%' AND 1 "] = "1";
             }
-            if(!empty($_POST['email'])) {
-                $opts["email LIKE '%".$_POST['email']."%' AND 1 "] = "1";
+            if (!empty($_POST['email'])) {
+                $opts["email LIKE '%" . $_POST['email'] . "%' AND 1 "] = "1";
             }
         }
         $couriers = $courierModel->getAll($opts);
@@ -42,7 +42,7 @@ class CourierController extends Controller {
         $this->view($layout, ['couriers' => $couriers]);
     }
 
-    function filter(){
+    function filter() {
         $this->list('ajax');
     }
 
@@ -83,15 +83,27 @@ class CourierController extends Controller {
         $couriers = $courierModel->getAll();
         $this->view('ajax', ['couriers' => $couriers]);
     }
-    
+
+    function bulkDelete() {
+        $courierModel = new \App\Models\Courier();
+
+        if (!empty($_POST['ids']) && is_array($_POST['ids'])) {
+            $inCourierIds = implode(', ', $_POST['ids']);
+            $courierModel->deleteBy(["id IN ($inCourierIds) AND 1 " => '1']);
+        }
+
+        $couriers = $courierModel->getAll();
+        $this->view('ajax', ['couriers' => $couriers]);
+    }
+
     function edit() {
         $courierModel = new \App\Models\Courier();
-        
+
         $arr = $courierModel->get($_GET['id']);
 
         // Check if the form has been submitted
         if (!empty($_POST['id'])) {
-            
+
             // Save the data using the Courier model
             if ($courierModel->update($_POST)) {
                 // Redirect to the list of couriers on successful creation
