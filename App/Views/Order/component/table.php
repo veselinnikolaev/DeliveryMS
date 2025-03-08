@@ -1,7 +1,7 @@
 <table class="table select-table" id="order-table-id">
     <thead>
         <tr>
-            <?php if ($_SESSION['user']['role'] == 'admin') { ?>
+            <?php if (in_array($_SESSION['user']['role'], ['admin', 'root'])) { ?>
                 <th>
                     <div class="form-check form-check-flat mt-0">
                         <label class="form-check-label">
@@ -26,7 +26,7 @@
     <tbody>
         <?php foreach ($tpl['orders'] as $order) { ?>
             <tr>
-                <?php if ($_SESSION['user']['role'] == 'admin') { ?>
+                <?php if (in_array($_SESSION['user']['role'], ['admin', 'root'])) { ?>
                     <td>
                         <div class="form-check form-check-flat mt-0">
                             <label class="form-check-label">
@@ -55,7 +55,7 @@
                     <a class="btn btn-light btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=Order&action=details&id=<?php echo $order['id'] ?>">
                         <i class="fa fa-eye" aria-hidden="true"></i>
                     </a>
-                    <?php if ($_SESSION['user']['role'] == 'admin') { ?>
+                    <?php if (in_array($_SESSION['user']['role'], ['admin', 'root'])) { ?>
                         <a class="btn btn-light btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=Order&action=edit&order_id=<?php echo $order['id'] ?>">
                             <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                         </a>

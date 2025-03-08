@@ -1,7 +1,7 @@
 <table class="table select-table" id="courier-table-id">
     <thead>
         <tr>
-            <?php if ($_SESSION['user']['role'] == 'admin') { ?>
+            <?php if (in_array($_SESSION['user']['role'], ['admin', 'root'])) { ?>
                 <th>
                     <div class="form-check form-check-flat mt-0">
                         <label class="form-check-label">
@@ -25,7 +25,7 @@
             foreach ($tpl['couriers'] as $courier) {
                 ?>
                 <tr>
-                    <?php if ($_SESSION['user']['role'] == 'admin') { ?>
+                    <?php if (in_array($_SESSION['user']['role'], ['admin', 'root'])) { ?>
                         <td>
                             <div class="form-check form-check-flat mt-0">
                                 <label class="form-check-label">

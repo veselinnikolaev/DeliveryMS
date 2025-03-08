@@ -48,6 +48,7 @@
                                                 <option value="">Select Role</option>
                                                 <option value="user">User</option>
                                                 <option value="admin">Admin</option>
+                                                <option value="root">Root</option>
                                             </select>
                                         </div>
                                         <div class="col-md-4 mb-3">
@@ -76,7 +77,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <?php if ($_SESSION['user']['role'] == 'admin') { ?>
+                    <?php if (in_array($_SESSION['user']['role'], ['admin', 'root'])) { ?>
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <button id="bulk-delete-users-btn" class="btn btn-danger d-none">
@@ -130,7 +131,7 @@
                 <p>Are you sure you want to delete these users?</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-ids="" id="delete-btn-users-id">Delete</button>
+                <button type="button" class="btn btn-danger" data-ids="" id="delete-btn-users-ids">Delete</button>
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
             </div>
         </div>

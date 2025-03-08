@@ -100,31 +100,31 @@ class InstallController extends Controller {
         $userModel = new \App\Models\User();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $adminName = $_POST['admin_name'];
-            $adminEmail = $_POST['admin_email'];
-            $adminPassword = $_POST['admin_password'];
-            $adminPasswordConfirm = $_POST['admin_password_confirm'];
+            $rootName = $_POST['root_name'];
+            $rootEmail = $_POST['root_email'];
+            $rootPassword = $_POST['root_password'];
+            $rootPasswordConfirm = $_POST['root_password_confirm'];
 
-            if ($adminPassword != $adminPasswordConfirm) {
+            if ($rootPassword != $rootPasswordConfirm) {
                 $errorMessage = 'Password do not match';
             }
 
             if (!isset($errorMessage)) {
-                $admin = $userModel->getFirstBy(['role' => 'admin']);
-                if (empty($admin)) {
+                $root = $userModel->getFirstBy(['role' => 'root']);
+                if (empty($root)) {
                     $userData = [
-                        'name' => $adminName,
-                        'email' => $adminEmail,
-                        'password_hash' => password_hash($adminPassword, PASSWORD_DEFAULT),
-                        'role' => 'admin'
+                        'name' => $rootName,
+                        'email' => $rootEmail,
+                        'password_hash' => password_hash($rootPassword, PASSWORD_DEFAULT),
+                        'role' => 'root'
                     ];
                     $userModel->save($userData);
                 } else {
                     $userData = [
-                        'id' => $admin['id'],
-                        'name' => $adminName,
-                        'email' => $adminEmail,
-                        'password_hash' => password_hash($adminPassword, PASSWORD_DEFAULT)
+                        'id' => $root['id'],
+                        'name' => $rootName,
+                        'email' => $rootEmail,
+                        'password_hash' => password_hash($rootPassword, PASSWORD_DEFAULT)
                     ];
                     $userModel->update($userData);
                 }
@@ -135,9 +135,9 @@ class InstallController extends Controller {
         }
 
         $arr['error_message'] = $errorMessage ?? null;
-        $admin = $userModel->getFirstBy(['role' => 'admin']);
-        if (!empty($admin)) {
-            $arr['admin'] = $admin;
+        $root = $userModel->getFirstBy(['role' => 'root']);
+        if (!empty($root)) {
+            $arr['root'] = $root;
         }
         $this->view($this->layout, $arr);
     }
@@ -207,7 +207,7 @@ class InstallController extends Controller {
 
         $userModel = new \App\Models\User();
         try {
-            if (empty($userModel->getFirstBy(['role' => 'admin']))) {
+            if (empty($userModel->getFirstBy(['role' => 'root']))) {
                 header("Location: " . INSTALL_URL . "?controller=Install&action=step2", true, 301);
                 exit;
             }

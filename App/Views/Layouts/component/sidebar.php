@@ -7,7 +7,7 @@
                     <span class="menu-title">Dashboard</span>
                 </a>
             </li>
-            <?php if ($_SESSION['user']['role'] === 'admin'): ?>
+            <?php if (in_array($_SESSION['user']['role'], ['admin', 'root'])): ?>
                 <li class="nav-item nav-category">Forms and Data</li>
                 <li class="nav-item">
                     <a class="nav-link" data-bs-toggle="collapse" href="#orders" aria-expanded="false" aria-controls="orders">

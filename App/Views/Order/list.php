@@ -7,7 +7,7 @@
                         <div class="btn-wrapper">
                             <a href="#" class="btn btn-outline-dark align-items-center"><i class="icon-share"></i> Share</a>
                             <a href="#" class="btn btn-outline-dark align-items-center"><i class="icon-printer"></i> Print</a>
-                            <?php if ($_SESSION['user']['role'] == 'admin') { ?>
+                            <?php if (in_array($_SESSION['user']['role'], ['admin', 'root'])) { ?>
                                 <a href="<?php echo INSTALL_URL; ?>?controller=Order&action=create" class="btn btn-primary text-white me-0"><i class="icon-plus"></i> New Order</a>
                             <?php } ?>
                         </div>
@@ -109,7 +109,7 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <?php if ($_SESSION['user']['role'] == 'admin') { ?>
+                        <?php if (in_array($_SESSION['user']['role'], ['admin', 'root'])) { ?>
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <button id="bulk-delete-orders-btn" class="btn btn-danger d-none">

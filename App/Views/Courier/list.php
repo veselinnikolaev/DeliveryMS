@@ -61,7 +61,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <?php if ($_SESSION['user']['role'] == 'admin') { ?>
+                    <?php if (in_array($_SESSION['user']['role'], ['admin', 'root'])) { ?>
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <button id="bulk-delete-couriers-btn" class="btn btn-danger d-none">
@@ -115,7 +115,7 @@
                 <p>Are you sure you want to delete these couriers?</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-ids="" id="delete-btn-couriers-id">Delete</button>
+                <button type="button" class="btn btn-danger" data-ids="" id="delete-btn-couriers-ids">Delete</button>
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
             </div>
         </div>

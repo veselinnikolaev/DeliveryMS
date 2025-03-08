@@ -14,7 +14,7 @@
 
             // Select/Deselect all checkboxes
             $(document).on("change", `#select-all-${entity}s`, function () {
-                $(`.${entity}-checkbox`).prop("checked", this.checked).trigger("change");
+                $(`.${entity}-checkbox:not(:disabled)`).prop("checked", this.checked).trigger("change");
             });
 
 

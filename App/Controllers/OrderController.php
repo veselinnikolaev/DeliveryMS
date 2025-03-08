@@ -94,7 +94,7 @@ class OrderController extends Controller {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
             exit;
         }
-        if ($_SESSION['user']['role'] != 'admin') {
+        if ($_SESSION['user']['role'] == 'user') {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
@@ -265,7 +265,7 @@ class OrderController extends Controller {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
             exit;
         }
-        if ($_SESSION['user']['role'] != 'admin') {
+        if ($_SESSION['user']['role'] == 'user') {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
@@ -303,7 +303,7 @@ class OrderController extends Controller {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
             exit;
         }
-        if ($_SESSION['user']['role'] != 'admin') {
+        if ($_SESSION['user']['role'] == 'root') {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
@@ -341,7 +341,7 @@ class OrderController extends Controller {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
             exit;
         }
-        if ($_SESSION['user']['role'] != 'admin') {
+        if ($_SESSION['user']['role'] == 'root') {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }

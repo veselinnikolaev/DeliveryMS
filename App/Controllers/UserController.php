@@ -16,14 +16,13 @@ class UserController extends Controller {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
             exit;
         }
-        if ($_SESSION['user']['role'] != 'admin') {
+        if ($_SESSION['user']['role'] == 'user') {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
     }
 
     function list($layout = 'admin') {
-
         $userModel = new \App\Models\User();
 
         $opts = array();
@@ -118,8 +117,6 @@ class UserController extends Controller {
             $userModel->delete($_POST['id']);
             if ($_POST['id'] == $_SESSION['user']['id']) {
                 session_destroy();
-                header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
-                exit;
             }
         }
 
@@ -131,12 +128,12 @@ class UserController extends Controller {
         $userModel = new \App\Models\User();
 
         if (!empty($_POST['ids']) && is_array($_POST['ids'])) {
-            $inUserIds = implode(', ', $_POST['ids']);
+            $userIds = $_POST['ids'];
+
+            $inUserIds = implode(', ', $userIds);
             $userModel->deleteBy(["id IN ($inUserIds) AND 1 " => '1']);
-            if (in_array($_SESSION['user']['id'], $_POST['ids'])) {
+            if (in_array($_SESSION['user']['id'], $userIds)) {
                 session_destroy();
-                header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
-                exit;
             }
         }
 

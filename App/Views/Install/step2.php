@@ -13,8 +13,8 @@
     </div>
     <div class="card shadow-sm">
         <div class="card-body">
-            <h2 class="card-title text-center mb-4">Create Admin Account</h2>
-            <p class="card-text mb-4">Please create an administrator account for the application:</p>
+            <h2 class="card-title text-center mb-4">Create Root Account</h2>
+            <p class="card-text mb-4">Please create a root account for the application:</p>
 
             <?php if (isset($tpl['error_message'])): ?>
                 <div class="alert alert-danger" role="alert">
@@ -24,36 +24,36 @@
 
             <form action="<?php echo INSTALL_URL; ?>?controller=Install&action=step2" method="POST">
                 <div class="mb-3">
-                    <label for="admin_name" class="form-label">Admin Name</label>
-                    <input type="text" class="form-control" id="adminName" name="admin_name"
+                    <label for="root_name" class="form-label">Root Name</label>
+                    <input type="text" class="form-control" id="rootName" name="root_name"
                            value="<?php
-                           if (!empty($tpl['admin']['name'])) {
-                               echo $tpl['admin']['name'];
+                           if (!empty($tpl['root']['name'])) {
+                               echo $tpl['root']['name'];
                            }
                            ?>" required>
                 </div>
                 <div class="mb-3">
-                    <label for="admin_email" class="form-label">Admin Email</label>
-                    <input type="email" class="form-control" id="adminEmail" name="admin_email" 
+                    <label for="root_email" class="form-label">Root Email</label>
+                    <input type="email" class="form-control" id="rootEmail" name="root_email" 
                            value="<?php
-                           if (!empty($tpl['admin']['email'])) {
-                               echo $tpl['admin']['email'];
+                           if (!empty($tpl['root']['email'])) {
+                               echo $tpl['root']['email'];
                            }
                            ?>" required>
                     <div class="form-text">This email will be used for login and important notifications</div>
                 </div>
                 <div class="mb-3">
-                    <label for="admin_password" class="form-label">Admin Password</label>
+                    <label for="root_password" class="form-label">Root Password</label>
                     <div class="position-relative">
-                        <input type="password" class="form-control" id="adminPassword" name="admin_password" required>
-                        <i class="password-toggle-icon fa fa-eye" data-target="adminPassword"></i>
+                        <input type="password" class="form-control" id="rootPassword" name="root_password" required>
+                        <i class="password-toggle-icon fa fa-eye" data-target="rootPassword"></i>
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label for="admin_password_confirm" class="form-label">Confirm Password</label>
+                    <label for="root_password_confirm" class="form-label">Confirm Password</label>
                     <div class="position-relative">
-                        <input type="password" class="form-control" id="adminPasswordConfirm" name="admin_password_confirm" required>
-                        <i class="password-toggle-icon fa fa-eye" data-target="adminPasswordConfirm"></i>
+                        <input type="password" class="form-control" id="rootPasswordConfirm" name="root_password_confirm" required>
+                        <i class="password-toggle-icon fa fa-eye" data-target="rootPasswordConfirm"></i>
                     </div>
                 </div>
 
@@ -65,6 +65,6 @@
         </div>
     </div>
     <div class="mt-4 text-center text-muted">
-        <small>Step 2 of 4 - Admin Account Creation</small>
+        <small>Step 2 of 4 - Root Account Creation</small>
     </div>
 </div>
