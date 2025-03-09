@@ -53,11 +53,9 @@ class InstallController extends Controller {
 
                 file_put_contents("config/constant.php", $file);
 
-                if (!$model->isDbMigrated($databaseName)) {
-                    $migrated = $model->migrate($databaseName);
-                    if (!$migrated['status']) {
-                        $errorMessage = $migrated['message'];
-                    }
+                $migrated = $model->migrate();
+                if (!$migrated['status']) {
+                    $errorMessage = $migrated['message'];
                 }
             }
 

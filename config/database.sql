@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `address` VARCHAR(255),
   `country` VARCHAR(255),
   `region` VARCHAR(255),
+  `photo_path` VARCHAR(255),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

@@ -1,13 +1,13 @@
 <?php
 
 namespace App\Models;
+
 use Core\Model;
 
 class User extends Model {
 
     var $primaryKey = 'id';
     var $table = 'users';
-
     var $schema = array(
         array('name' => 'id', 'type' => 'int', 'default' => ':NULL'),
         array('name' => 'name', 'type' => 'varchar', 'default' => ''),
@@ -18,7 +18,8 @@ class User extends Model {
         array('name' => 'role', 'type' => 'varchar', 'default' => ''),
         array('name' => 'address', 'type' => 'varchar', 'default' => ':NULL'),
         array('name' => 'country', 'type' => 'varchar', 'default' => ':NULL'),
-        array('name' => 'region', 'type' => 'varchar', 'default' => ':NULL')
+        array('name' => 'region', 'type' => 'varchar', 'default' => ':NULL'),
+        array('name' => 'photo_path', 'type' => 'varchar', 'default' => ':NULL')
     );
 }
 ?>

@@ -171,6 +171,54 @@ class UserController extends Controller {
         $this->view($this->layout, ['user' => $user]);
     }
 
+    function uploadProfilePicture() {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['profile_picture'])) {
+            $user_id = $_POST['user_id']; // Get user ID
+            $userModel = new \App\Models\User();
+            $fileName = basename($_FILES["profile_picture"]["name"]);
+            $fileExt = pathinfo($fileName, PATHINFO_EXTENSION);
+            $allowedTypes = ["jpg", "jpeg", "png", "gif"];
+
+            if (!in_array(strtolower($fileExt), $allowedTypes)) {
+                echo json_encode(['status' => 'error', 'message' => 'Invalid file format!']);
+                exit;
+            }
+
+            require 'App\Helpers\uploader\src\class.upload.php';
+
+            $handle = new \Verot\Upload\Upload($_FILES['profile_picture']);
+            if ($handle->uploaded) {
+                $handle->file_new_name_body = 'profile_' . $user_id . '_' . uniqid();
+                $handle->image_resize = true;
+                $handle->image_x = 300;
+                $handle->image_ratio_y = true;
+                $upload_path = 'web/upload';
+                $handle->process($upload_path);
+
+                if ($handle->processed) {
+                    $photoPath = $upload_path . $handle->file_dst_name;
+                    $handle->clean();
+
+                    // ✅ Update user photo in database
+                    $userModel->update(['id' => $user_id, 'photo_path' => $photoPath]);
+
+                    echo json_encode([
+                        'status' => 'success',
+                        'photo_path' => INSTALL_URL . '/' . $photoPath
+                    ]);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => $handle->error]);
+                }
+            } else {
+                echo json_encode(['status' => 'error', 'message' => 'File upload failed.']);
+            }
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid request.']);
+        }
+    }
+
     function editPassword() {
         $userModel = new \App\Models\User();
         $id = isset($_POST['id']) ? $_POST['id'] : (isset($_GET['id']) ? $_GET['id'] : null);

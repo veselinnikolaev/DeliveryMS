@@ -31,12 +31,15 @@
                         <div class="row">
                             <!-- Left column with photo -->
                             <div class="col-md-4 text-center mb-4 mb-md-0">
-                                <div class="profile-image-container mb-3">
+                                <div class="profile-image-container mb-3" id="profileImageWrapper">
+                                    <input type="file" id="profilePicInput" style="display: none;" accept="image/*">
+                                    <input type="hidden" id="user_id" value="<?php echo $tpl['user']['id']; ?>">
+
                                     <?php if (!empty($tpl['user']['photo_path'])): ?>
-                                        <img src="<?php echo INSTALL_URL . '/' . htmlspecialchars($tpl['user']['photo_path']); ?>" 
+                                        <img id="profileImage" src="<?php echo INSTALL_URL . '/' . htmlspecialchars($tpl['user']['photo_path']); ?>" 
                                              alt="Profile Photo" class="rounded-circle profile-img">
                                          <?php else: ?>
-                                        <div class="placeholder-image rounded-circle d-flex align-items-center justify-content-center bg-light">
+                                        <div id="profileImagePlaceholder" class="placeholder-image rounded-circle d-flex align-items-center justify-content-center bg-light">
                                             <i class="mdi mdi-account" style="font-size: 80px;"></i>
                                         </div>
                                     <?php endif; ?>
@@ -66,7 +69,7 @@
 
                                         <div class="row mb-3">
                                             <div class="col-md-4">
-                                                <p class="text-muted mb-0">Full Name</p>
+                                                <p class="text-muted mb-0">Name</p>
                                             </div>
                                             <div class="col-md-8">
                                                 <p class="mb-0"><?php echo htmlspecialchars($tpl['user']['name']); ?></p>
@@ -177,17 +180,29 @@
         height: 180px;
         margin: 0 auto;
         overflow: hidden;
+        border-radius: 50%; /* ✅ Прави контейнера кръгъл */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer; /* ✅ Позволява кликане */
+        background-color: #f8f9fa; /* ✅ Лек фон за placeholder */
     }
 
     .profile-img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        border-radius: 50%; /* ✅ Гарантира, че изображението също е кръгло */
     }
 
     .placeholder-image {
         width: 100%;
         height: 100%;
+        font-size: 80px; /* ✅ По-голяма икона */
         color: #6c757d;
+        border-radius: 50%; /* ✅ Placeholder-ът също става кръгъл */
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 </style>

@@ -75,5 +75,6 @@
         <script src="web/js/skipMailConfig.js"></script>
         <script src="web/js/autoCompleteUserData.js"></script>
         <script src="web/js/bulkDelete.js"></script>
+        <script src="web/js/uploadProfilePicture.js"></script>
     </body>
 </html>

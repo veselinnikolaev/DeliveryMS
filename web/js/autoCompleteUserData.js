@@ -1,6 +1,6 @@
 (function ($) {
     $(function () {
-        $('#userId').on('change', function () {
+        $(document).on('change', '#userId', function () {
             const selectedOption = $(this).find('option:selected');
 
             // Only proceed if an actual user is selected

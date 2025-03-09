@@ -78,8 +78,9 @@ class Model {
         ];
     }
 
-    public function migrate($databaseName, $filePath = 'config/database.sql') {
+    public function migrate($filePath = 'config/database.sql') {
         $this->connect();
+
         // Check if file exists
         if (!file_exists($filePath)) {
             return [
@@ -88,21 +89,18 @@ class Model {
             ];
         }
 
-// Read SQL file
+        // Read SQL file
         $sql = file_get_contents($filePath);
-
-        $sql = str_replace('{database_name}', $databaseName, $sql);
 
         try {
             // Execute the SQL script
             if ($this->mysqli->multi_query($sql)) {
-// Wait for all queries to finish
                 do {
-                    $result = $this->mysqli->store_result();
-                    if ($result) {
+                    // Изчистване на резултатите, дори и да няма такива
+                    if ($result = $this->mysqli->store_result()) {
                         $result->free();
                     }
-                } while ($this->mysqli->next_result());
+                } while ($this->mysqli->next_result()); // Изчаква всички заявки да завършат
 
                 return [
                     'status' => true,
@@ -114,10 +112,10 @@ class Model {
                     'message' => "Error executing script: " . $this->mysqli->error
                 ];
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [
                 'status' => false,
-                'message' => "Error executing script for migration"
+                'message' => "Error executing script for migration: " . $e->getMessage()
             ];
         }
     }
@@ -257,10 +255,14 @@ class Model {
         foreach ($this->schema as $field) {
             if (isset($data[$field['name']])) {
                 if (!is_array($data[$field['name']])) {
-                    $save["`" . $field['name'] . "`"] = $data[$field['name']];
+                    // Check if the value is an empty string and convert to NULL
+                    $value = $data[$field['name']];
+                    $save["`" . $field['name'] . "`"] = $value === '' ? null : $value;
                 } else {
                     if (isset($data[$field['name']][0])) {
-                        $save["`" . $field['name'] . "`"] = $data[$field['name']][0];
+                        // Check if the array value is an empty string and convert to NULL
+                        $value = $data[$field['name']][0];
+                        $save["`" . $field['name'] . "`"] = $value === '' ? null : $value;
                     }
                 }
             }
