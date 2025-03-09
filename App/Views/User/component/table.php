@@ -42,8 +42,11 @@
                 <td><?php echo htmlspecialchars($user['country'] ?? 'N/A'); ?></td>
                 <td><?php echo htmlspecialchars($user['region'] ?? 'N/A'); ?></td>
                 <td style="text-align: right;">
+                    <a class="btn btn-light btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=User&action=profile&id=<?php echo $user['id']; ?>">
+                        <i class="fa fa-eye" aria-hidden="true"></i>
+                    </a>
                     <?php if ($user['role'] !== 'root' || $_SESSION['user']['role'] === 'root') { ?>
-                        <a class="btn btn-light btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=User&action=edit&id=<?php echo $user['id'] ?>">
+                        <a class="btn btn-info btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=User&action=edit&id=<?php echo $user['id']; ?>">
                             <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                         </a>
                     <?php } ?>

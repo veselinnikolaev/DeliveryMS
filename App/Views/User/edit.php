@@ -9,8 +9,8 @@
                         <div class="alert alert-danger"><?php echo $error_message; ?></div>
                     <?php endif; ?>
 
-                    <form class="forms-sample" method="POST" action="<?php echo INSTALL_URL; ?>?controller=Auth&action=register">
-                        <input type="hidden" name="send" value="1" />
+                    <form class="forms-sample" method="POST" action="<?php echo INSTALL_URL; ?>?controller=User&action=edit">
+                        <input type="hidden" name="id" value="<?php echo $tpl['id']; ?>"/>
 
                         <div class="row">
                             <div class="form-group col-md-6 mb-3">

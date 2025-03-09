@@ -158,14 +158,33 @@
                 </li>
                 <li class="nav-item dropdown d-none d-lg-block user-dropdown">
                     <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img class="img-xs rounded-circle" src="web/assets/images/faces/face8.jpg" alt="Profile image"> </a>
+                        <?php if (!empty($tpl['user']['photo_path'])): ?>
+                            <img src="<?php echo INSTALL_URL . '/' . htmlspecialchars($tpl['user']['photo_path']); ?>" 
+                                 alt="Profile Photo" class="img-xs rounded-circle">
+                             <?php else: ?>
+                            <div class="img-xs rounded-circle d-flex align-items-center justify-content-center bg-light" 
+                                 style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                                <i class="mdi mdi-account" style="font-size: 16px; color: #6c757d;"></i>
+                            </div>
+                        <?php endif; ?>
+
+                    </a>
                     <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
-                        <div class="dropdown-header text-center">
-                            <img class="img-md rounded-circle" src="web/assets/images/faces/face8.jpg" alt="Profile image">
+                        <div class="dropdown-header text-center d-flex flex-column align-items-center">
+                            <?php if (!empty($tpl['user']['photo_path'])): ?>
+                                <img src="<?php echo INSTALL_URL . '/' . htmlspecialchars($tpl['user']['photo_path']); ?>" 
+                                     alt="Profile Photo" class="img-md rounded-circle">
+                                 <?php else: ?>
+                                <div class="d-flex align-items-center justify-content-center bg-light rounded-circle" 
+                                     style="width: 64px; height: 64px;">
+                                    <i class="mdi mdi-account" style="font-size: 32px; color: #6c757d;"></i>
+                                </div>
+                            <?php endif; ?>
                             <p class="mb-1 mt-3 font-weight-semibold"><?php echo $_SESSION['user']['name']; ?></p>
                             <p class="fw-light text-muted mb-0"><?php echo $_SESSION['user']['email']; ?></p>
                         </div>
-                        <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-account-outline text-primary me-2"></i> My Profile <span class="badge badge-pill badge-danger">1</span></a>
+
+                        <a class="dropdown-item" href="<?php echo INSTALL_URL; ?>?controller=User&action=profile&id=<?php echo $_SESSION['user']['id']; ?>"><i class="dropdown-item-icon mdi mdi-account-outline text-primary me-2"></i> My Profile</a>
                         <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-message-text-outline text-primary me-2"></i> Messages</a>
                         <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-calendar-check-outline text-primary me-2"></i> Activity</a>
                         <a class="dropdown-item"><i class="dropdown-item-icon mdi mdi-help-circle-outline text-primary me-2"></i> FAQ</a>

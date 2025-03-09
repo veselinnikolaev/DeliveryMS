@@ -36,7 +36,7 @@
                 <td><?php echo Utility::getDisplayableAmount(htmlspecialchars($product['price'])); ?></td>
                 <td><?php echo htmlspecialchars($product['stock']); ?></td>
                 <td style="text-align: right;">
-                    <a class="btn btn-light btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=Product&action=edit&id=<?php echo $product['id'] ?>">
+                    <a class="btn btn-info btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=Product&action=edit&id=<?php echo $product['id'] ?>">
                         <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                     </a>
                     <a class="btn btn-danger btn-circle delete-product" href="#" data-id="<?php echo $product['id']; ?>">

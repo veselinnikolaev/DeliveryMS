@@ -56,7 +56,7 @@
                         <i class="fa fa-eye" aria-hidden="true"></i>
                     </a>
                     <?php if (in_array($_SESSION['user']['role'], ['admin', 'root'])) { ?>
-                        <a class="btn btn-light btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=Order&action=edit&order_id=<?php echo $order['id'] ?>">
+                        <a class="btn btn-info btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=Order&action=edit&order_id=<?php echo $order['id'] ?>">
                             <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                         </a>
                         <a class="btn btn-danger btn-circle delete-order" href="#" data-id="<?php echo $order['id']; ?>">

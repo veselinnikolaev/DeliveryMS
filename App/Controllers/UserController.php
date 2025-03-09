@@ -144,23 +144,54 @@ class UserController extends Controller {
     function edit() {
         $userModel = new \App\Models\User();
 
-        $arr = $userModel->get($_GET['id']);
+        $id = isset($_POST['id']) ? $_POST['id'] : (isset($_GET['id']) ? $_GET['id'] : null);
+        $arr = $userModel->get($id);
 
         // Check if the form has been submitted
         if (!empty($_POST['id'])) {
-            if ($userModel->existsBy(['email' => $_POST['email']])) {
-                $arr['error_message'] = "User with this email already exists.";
-            } else if (!$userModel->update($_POST)) {
-                // If saving fails, set an error message
-                $arr['error_message'] = "Failed to create the courier. Please try again.";
-            } else {
+            if ($userModel->update($_POST)) {
                 // Redirect to the list of users on successful creation
                 header("Location: " . INSTALL_URL . "?controller=User&action=list", true, 301);
                 exit;
             }
+
+            // If saving fails, set an error message
+            $arr['error_message'] = "Failed to create the courier. Please try again.";
         }
 
         // Load the view and pass the data to it
         $this->view($this->layout, $arr);
+    }
+
+    function profile() {
+        $userModel = new \App\Models\User();
+
+        $user = $userModel->get($_GET['id']);
+
+        $this->view($this->layout, ['user' => $user]);
+    }
+
+    function editPassword() {
+        $userModel = new \App\Models\User();
+        $id = isset($_POST['id']) ? $_POST['id'] : (isset($_GET['id']) ? $_GET['id'] : null);
+
+        if (!empty($_POST['id'])) {
+            $newPassword = $_POST['password'];
+            $repeatNewPassword = $_POST['repeat_password'];
+
+            if ($newPassword != $repeatNewPassword) {
+                $errorMessage = 'Passwords do NOT match';
+            }
+
+            if (!isset($errorMessage)) {
+                if ($userModel->update(['id' => $id, 'password_hash' => password_hash($newPassword, PASSWORD_DEFAULT)])) {
+                    header("Location: " . INSTALL_URL . "?controller=User&action=profile&id=$id", true, 301);
+                    exit;
+                }
+                $errorMessage = 'Error updating password';
+            }
+        }
+
+        $this->view($this->layout, ['id' => $id, 'error_message' => $errorMessage ?? null]);
     }
 }

@@ -39,7 +39,7 @@
                     <td><?php echo htmlspecialchars($courier['phone_number']); ?></td>
                     <td><?php echo htmlspecialchars($courier['email']); ?></td>
                     <td style="text-align: right;">
-                        <a class="btn btn-light btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=Courier&action=edit&id=<?php echo $courier['id'] ?>">
+                        <a class="btn btn-info btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=Courier&action=edit&id=<?php echo $courier['id'] ?>">
                             <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
                         </a>
                         <a class="btn btn-danger btn-circle delete-courier" href="#" data-id="<?php echo $courier['id']; ?>">
