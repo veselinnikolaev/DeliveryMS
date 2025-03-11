@@ -592,7 +592,7 @@ class OrderController extends Controller {
             <body>
                 <div class="email-container">
                     <div class="header">
-        <?= htmlspecialchars($title) ?>
+                        <?= htmlspecialchars($title) ?>
                     </div>
                     <div class="content">
                         <p style="font-size: 16px; color: #333;">Thank you for your order! Below are the details:</p>
@@ -623,14 +623,14 @@ class OrderController extends Controller {
                                 </tr>
                             </thead>
                             <tbody>
-        <?php foreach ($products as $product) { ?>
+                                <?php foreach ($products as $product) { ?>
                                     <tr>
                                         <td><?= htmlspecialchars($product['name']) ?></td>
                                         <td><?= htmlspecialchars($product['quantity']) ?></td>
                                         <td><?= \Utility::getDisplayableAmount(htmlspecialchars(number_format($product['price'], 2))) ?></td>
                                         <td><?= \Utility::getDisplayableAmount(htmlspecialchars(number_format($product['subtotal'], 2))) ?></td>
                                     </tr>
-        <?php } ?>
+                                <?php } ?>
                             </tbody>
                         </table>
                     </div>

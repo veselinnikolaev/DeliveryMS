@@ -194,7 +194,7 @@ class UserController extends Controller {
                 $handle->image_resize = true;
                 $handle->image_x = 300;
                 $handle->image_ratio_y = true;
-                $upload_path = 'web/upload';
+                $upload_path = 'web/upload/';
                 $handle->process($upload_path);
 
                 if ($handle->processed) {
@@ -206,7 +206,7 @@ class UserController extends Controller {
 
                     echo json_encode([
                         'status' => 'success',
-                        'photo_path' => INSTALL_URL . '/' . $photoPath
+                        'photo_path' => $photoPath
                     ]);
                 } else {
                     echo json_encode(['status' => 'error', 'message' => $handle->error]);

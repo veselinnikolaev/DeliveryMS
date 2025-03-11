@@ -31,12 +31,11 @@
                         <div class="row">
                             <!-- Left column with photo -->
                             <div class="col-md-4 text-center mb-4 mb-md-0">
+                                <input type="file" id="profilePicInput" style="display: none;" accept="image/*">
+                                <input type="hidden" id="user_id" value="<?php echo $tpl['user']['id']; ?>">
                                 <div class="profile-image-container mb-3" id="profileImageWrapper">
-                                    <input type="file" id="profilePicInput" style="display: none;" accept="image/*">
-                                    <input type="hidden" id="user_id" value="<?php echo $tpl['user']['id']; ?>">
-
                                     <?php if (!empty($tpl['user']['photo_path'])): ?>
-                                        <img id="profileImage" src="<?php echo INSTALL_URL . '/' . htmlspecialchars($tpl['user']['photo_path']); ?>" 
+                                        <img id="profileImage" src="<?php echo htmlspecialchars($tpl['user']['photo_path']); ?>" 
                                              alt="Profile Photo" class="rounded-circle profile-img">
                                          <?php else: ?>
                                         <div id="profileImagePlaceholder" class="placeholder-image rounded-circle d-flex align-items-center justify-content-center bg-light">

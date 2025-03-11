@@ -78,7 +78,7 @@
                                     <label for="productPrice" class="form-label">Product Price</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><?php echo $tpl['currency']; ?></span>
-                                        <input type="number" step="0.01" min="0" class="form-control" id="productPrice" name="product_price" readonly>
+                                        <input type="text" class="form-control" id="productPrice" name="product_price" readonly>
                                     </div>
                                 </div>
                                 <div class="mb-3">
