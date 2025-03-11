@@ -61,6 +61,10 @@ class UserController extends Controller {
         $this->list('ajax');
     }
 
+    function print() {
+        $this->list('ajax');
+    }
+
     public function changeRole() {
         $userModel = new \App\Models\User();
 

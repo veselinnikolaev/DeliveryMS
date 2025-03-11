@@ -5,8 +5,8 @@
                 <div class="d-sm-flex align-items-center justify-content-between border-bottom">
                     <div>
                         <div class="btn-wrapper">
-                            <a href="#" class="btn btn-outline-dark align-items-center"><i class="icon-share"></i> Share</a>
-                            <a href="#" class="btn btn-outline-dark align-items-center"><i class="icon-printer"></i> Print</a>
+                            <a id="share-orders" class="btn btn-outline-dark align-items-center"><i class="icon-share"></i> Share</a>
+                            <a id="print-orders" class="btn btn-outline-dark align-items-center"><i class="icon-printer"></i> Print</a>
                             <?php if (in_array($_SESSION['user']['role'], ['admin', 'root'])) { ?>
                                 <a href="<?php echo INSTALL_URL; ?>?controller=Order&action=create" class="btn btn-primary text-white me-0"><i class="icon-plus"></i> New Order</a>
                             <?php } ?>

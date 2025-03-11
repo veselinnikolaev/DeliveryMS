@@ -46,6 +46,10 @@ class CourierController extends Controller {
         $this->list('ajax');
     }
 
+    function print() {
+        $this->list('ajax');
+    }
+
     function create() {
         // Create an instance of the Courier model
         $courierModel = new \App\Models\Courier();

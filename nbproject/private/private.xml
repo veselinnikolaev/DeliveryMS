@@ -11,16 +11,22 @@
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Home/index.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/OrderController.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/User/filter.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/export.js</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/User/print.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/tables.js</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Order/bulkDelete.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Product/filter.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/filter.js</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/index.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Layouts/admin.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Product/edit.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/ProductController.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/bulkDelete.js</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Courier/component/table.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Layouts/component/sidebar.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/User/create.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Product/create.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Courier/print.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Order/create.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/config/constant_original.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/CourierController.php</file>
@@ -30,9 +36,11 @@
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Models/User.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/User/component/table.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Product/list.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Order/print.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/UserController.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Settings/index.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Product/bulkDelete.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Product/print.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Install/step0.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/config/constant.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/config/function.php</file>
@@ -43,6 +51,7 @@
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/User/bulkDelete.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Install/step1.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/User/editPassword.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/print.js</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/priceCalculation.js</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/Core/Model.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/User/edit.php</file>
@@ -54,6 +63,7 @@
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Order/edit.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Layouts/front.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/SettingsController.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Models/Product.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/deleteActions.js</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/InstallController.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Order/details.php</file>

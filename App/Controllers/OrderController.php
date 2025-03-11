@@ -336,6 +336,10 @@ class OrderController extends Controller {
         $this->view('ajax', ['orders' => $orders, 'currency' => $this->settings['currency_code']]);
     }
 
+    function print() {
+        $this->list('ajax');
+    }
+
     function edit() {
         if (empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);

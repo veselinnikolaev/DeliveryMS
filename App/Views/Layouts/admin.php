@@ -76,5 +76,7 @@
         <script src="web/js/autoCompleteUserData.js"></script>
         <script src="web/js/bulkDelete.js"></script>
         <script src="web/js/uploadProfilePicture.js"></script>
+        <script src="web/js/export.js"></script>
+        <script src="web/js/print.js"></script>
     </body>
 </html>

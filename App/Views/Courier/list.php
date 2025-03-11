@@ -5,9 +5,9 @@
                 <div class="d-sm-flex align-items-center justify-content-between border-bottom">
                     <div>
                         <div class="btn-wrapper">
-                            <a href="#" class="btn btn-outline-dark align-items-center"><i class="icon-share"></i>
+                            <a id="share-couriers" class="btn btn-outline-dark align-items-center"><i class="icon-share"></i>
                                 Share</a>
-                            <a href="#" class="btn btn-outline-dark align-items-center"><i class="icon-printer"></i>
+                            <a id="print-couriers" class="btn btn-outline-dark align-items-center"><i class="icon-printer"></i>
                                 Print</a>
                             <a href="<?php echo INSTALL_URL; ?>?controller=Courier&action=create"
                                class="btn btn-primary text-white me-0"><i class="icon-plus"></i> New Courier</a>
