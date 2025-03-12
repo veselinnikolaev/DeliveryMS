@@ -8,6 +8,19 @@
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/ProductController.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/index.php</file>
             <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/UserController.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/export.js</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Product/list.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/print.js</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/User/list.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Order/list.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Courier/list.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/User/component/table.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/CourierController.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Courier/component/table.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/OrderController.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Order/component/table.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Product/print.php</file>
+            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Order/print.php</file>
         </group>
     </open-files>
 </project-private>

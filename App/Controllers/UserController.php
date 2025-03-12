@@ -246,4 +246,209 @@ class UserController extends Controller {
 
         $this->view($this->layout, ['id' => $id, 'error_message' => $errorMessage ?? null]);
     }
+
+    function export() {
+        // Check if userData is provided
+        if (isset($_POST['userData'])) {
+            // Decode the JSON data
+            $users = json_decode($_POST['userData'], true);
+
+            if (!$users || empty($users)) {
+                echo "No users to export";
+                exit;
+            }
+        } else {
+            // Fallback to original filter-based method
+            $userModel = new \App\Models\User();
+
+            $opts = array();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                if (!empty($_POST['name'])) {
+                    $opts["name LIKE '%" . $_POST['name'] . "%' AND 1 "] = "1";
+                }
+                if (!empty($_POST['email'])) {
+                    $opts["email LIKE '%" . $_POST['email'] . "%' AND 1 "] = "1";
+                }
+                if (!empty($_POST['role'])) {
+                    $opts["role = '" . $_POST['role'] . "' AND 1 "] = "1";
+                }
+                if (!empty($_POST['phone_number'])) {
+                    $opts["phone_number LIKE '%" . $_POST['phone_number'] . "%' AND 1 "] = "1";
+                }
+                if (!empty($_POST['country'])) {
+                    $opts["country LIKE '%" . $_POST['country'] . "%' AND 1 "] = "1";
+                }
+                if (!empty($_POST['region'])) {
+                    $opts["region LIKE '%" . $_POST['region'] . "%' AND 1 "] = "1";
+                }
+            }
+
+            $users = $userModel->getAll($opts);
+        }
+
+        $format = isset($_POST['format']) ? $_POST['format'] : 'pdf';
+
+        // Export based on format
+        switch ($format) {
+            case 'pdf':
+                $this->exportAsPDF($users);
+                break;
+            case 'excel':
+                $this->exportAsExcel($users);
+                break;
+            case 'csv':
+                $this->exportAsCSV($users);
+                break;
+            default:
+                echo "Invalid export format";
+                exit;
+        }
+    }
+
+    private function exportAsPDF($users) {
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        require_once(__DIR__ . '/../Helpers/export/tcpdf/tcpdf.php');
+
+        $pdf = new \TCPDF('L', 'mm', 'A4', true, 'UTF-8');
+        $pdf->SetCreator('Your App');
+        $pdf->SetTitle('Users Export');
+        $pdf->SetHeaderData('', 0, 'Users List', '');
+        $pdf->setHeaderFont(Array('helvetica', '', 12));
+        $pdf->setFooterFont(Array('helvetica', '', 10));
+        $pdf->SetDefaultMonospacedFont('courier');
+        $pdf->SetMargins(15, 15, 15);
+        $pdf->SetAutoPageBreak(TRUE, 15);
+
+        $pdf->AddPage();
+
+        // Generate HTML table with dynamic headers
+        $html = $this->generateDynamicUserTable($users);
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        // Output PDF
+        $pdf->Output('users_export.pdf', 'D');
+        exit;
+    }
+
+    private function generateDynamicUserTable($users) {
+        // Start HTML table
+        $html = '<table border="1" cellpadding="5">
+<thead>
+    <tr>';
+
+        // If we have users, use their keys as headers
+        if (!empty($users) && is_array($users[0])) {
+            $headers = array_keys($users[0]);
+
+            // Add headers to table
+            foreach ($headers as $header) {
+                $displayHeader = ucwords(str_replace('_', ' ', $header));
+                $html .= '<th>' . $displayHeader . '</th>';
+            }
+
+            $html .= '</tr>
+    </thead>
+    <tbody>';
+
+            // Add user data
+            foreach ($users as $user) {
+                $html .= '<tr>';
+                foreach ($user as $key => $value) {
+                    // Handle empty values
+                    if (empty($value) && $value !== 0) {
+                        $value = 'N/A';
+                    }
+                    // Sanitize output
+                    $html .= '<td>' . htmlspecialchars($value) . '</td>';
+                }
+                $html .= '</tr>';
+            }
+        } else {
+            // Fallback for no data
+            $html .= '<th>No Data Available</th></tr></thead><tbody><tr><td>No users found</td></tr>';
+        }
+
+        $html .= '</tbody></table>';
+
+        return $html;
+    }
+
+    private function exportAsExcel($users) {
+        // Include SimpleXLSXGen
+        require(__DIR__ . '/../Helpers/export/simplexlsxgen/src/SimpleXLSXGen.php');
+
+        // Prepare data
+        $data = [];
+
+        // First user in array determines headers
+        if (!empty($users) && is_array($users[0])) {
+            // Use keys from first user for headers, ensuring proper capitalization
+            $headers = array_keys($users[0]);
+            $headerRow = [];
+
+            foreach ($headers as $header) {
+                // Convert user_id to User ID, etc.
+                $headerRow[] = ucwords(str_replace('_', ' ', $header));
+            }
+
+            $data[] = $headerRow;
+
+            // Add users
+            foreach ($users as $user) {
+                $row = [];
+                foreach ($user as $value) {
+                    // Handle empty values
+                    $row[] = (empty($value) && $value !== 0) ? 'N/A' : $value;
+                }
+                $data[] = $row;
+            }
+        } else {
+            // Fallback for no data
+            $data[] = ['No Data Available'];
+            $data[] = ['No users found'];
+        }
+
+        // Create and send file
+        \Shuchkin\SimpleXLSXGen::fromArray($data)->downloadAs('users_export.xlsx');
+        exit;
+    }
+
+    private function exportAsCSV($users) {
+        // Set headers for CSV download
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="users_export.csv"');
+
+        // Open output stream
+        $output = fopen('php://output', 'w');
+
+        // Determine headers dynamically from the first user
+        if (!empty($users) && is_array($users[0])) {
+            $headers = array_keys($users[0]);
+            // Convert keys to readable headers (e.g., user_id to User ID)
+            $readableHeaders = array_map(function ($header) {
+                return ucwords(str_replace('_', ' ', $header));
+            }, $headers);
+
+            // Add headers
+            fputcsv($output, $readableHeaders);
+
+            // Add data using the actual keys from the data
+            foreach ($users as $user) {
+                $row = [];
+                foreach ($user as $value) {
+                    // Handle empty values
+                    $row[] = (empty($value) && $value !== 0) ? 'N/A' : $value;
+                }
+                fputcsv($output, $row);
+            }
+        } else {
+            // Fallback for empty data
+            fputcsv($output, ['No data available']);
+        }
+
+        fclose($output);
+        exit;
+    }
 }

@@ -121,3 +121,31 @@
         </div>
     </div>
 </div>
+
+<!-- Share Modal -->
+<div class="modal fade" id="couriersShareModal" tabindex="-1" role="dialog" aria-labelledby="shareModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Export Products</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-grid gap-3">
+                    <button type="button" class="btn btn-outline-primary export-format" data-format="pdf">
+                        <i class="icon-file-pdf"></i> Export as PDF
+                    </button>
+                    <button type="button" class="btn btn-outline-success export-format" data-format="excel">
+                        <i class="icon-file-excel"></i> Export as Excel
+                    </button>
+                    <button type="button" class="btn btn-outline-info export-format" data-format="csv">
+                        <i class="icon-file-text"></i> Export as CSV
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

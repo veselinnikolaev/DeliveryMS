@@ -514,6 +514,341 @@ class OrderController extends Controller {
         ];
     }
 
+    function export() {
+        // Check if orderData is provided
+        if (isset($_POST['orderData'])) {
+            // Decode the JSON data
+            $orders = json_decode($_POST['orderData'], true);
+
+            if (!$orders || empty($orders)) {
+                echo "No orders to export";
+                exit;
+            }
+        } else {
+            // Fallback to original filter-based method
+            $orderModel = new \App\Models\Order();
+            $userModel = new \App\Models\User();
+            $courierModel = new \App\Models\Courier();
+
+            $opts = array();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                if (!empty($_POST['customerName'])) {
+                    $opts["user_id IN (SELECT id FROM users WHERE name LIKE '%" . $_POST['customerName'] . "%')"] = "1";
+                }
+                if (!empty($_POST['courierName'])) {
+                    $opts["courier_id IN (SELECT id FROM couriers WHERE name LIKE '%" . $_POST['courierName'] . "%')"] = "1";
+                }
+                if (!empty($_POST['status'])) {
+                    $opts["status LIKE '%" . $_POST['status'] . "%' AND 1 "] = "1";
+                }
+                if (!empty($_POST['trackingNumber'])) {
+                    $opts["tracking_number LIKE '%" . $_POST['trackingNumber'] . "%' AND 1 "] = "1";
+                }
+                if (!empty($_POST['country'])) {
+                    $opts["country LIKE '%" . $_POST['country'] . "%' AND 1 "] = "1";
+                }
+                if (!empty($_POST['region'])) {
+                    $opts["region LIKE '%" . $_POST['region'] . "%' AND 1 "] = "1";
+                }
+                if (!empty($_POST['orderDateFrom'])) {
+                    $opts["created_at >= '" . strtotime($_POST['orderDateFrom']) . "'"] = "1";
+                }
+                if (!empty($_POST['orderDateTo'])) {
+                    $opts["created_at <= '" . strtotime($_POST['orderDateTo']) . "'"] = "1";
+                }
+                if (!empty($_POST['minTotalPrice'])) {
+                    $opts["total_amount >= '" . $_POST['minTotalPrice'] . "'"] = "1";
+                }
+                if (!empty($_POST['maxTotalPrice'])) {
+                    $opts["total_amount <= '" . $_POST['maxTotalPrice'] . "'"] = "1";
+                }
+            }
+
+            // User role checking orders
+            if (!empty($_GET['user_id']) && $_GET['user_id'] == $_SESSION['user']['id']) {
+                $opts['user_id'] = $_GET['user_id'];
+            }
+
+            $orders = $orderModel->getAll($opts);
+
+            // Format orders for display
+            foreach ($orders as &$order) {
+                $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
+                $order['courier_name'] = $courierModel->get($order['courier_id'])['name'] ?? 'Unknown';
+                $order['delivery_date'] = date('Y-m-d', strtotime($order['delivery_date']));
+
+                // Format status for export
+                if (isset(Utility::$order_status[$order['status']])) {
+                    $order['status_text'] = Utility::$order_status[$order['status']];
+                } else {
+                    $order['status_text'] = $order['status'];
+                }
+
+                // Format total amount for export
+                $order['formatted_total'] = Utility::getDisplayableAmount($order['total_amount']);
+            }
+        }
+
+        $format = isset($_POST['format']) ? $_POST['format'] : 'pdf';
+
+        // Export based on format
+        switch ($format) {
+            case 'pdf':
+                $this->exportAsPDF($orders);
+                break;
+            case 'excel':
+                $this->exportAsExcel($orders);
+                break;
+            case 'csv':
+                $this->exportAsCSV($orders);
+                break;
+            default:
+                echo "Invalid export format";
+                exit;
+        }
+    }
+
+    private function exportAsPDF($orders) {
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        require_once(__DIR__ . '/../Helpers/export/tcpdf/tcpdf.php');
+
+        $pdf = new \TCPDF('L', 'mm', 'A4', true, 'UTF-8');
+        $pdf->SetCreator('Your App');
+        $pdf->SetTitle('Orders Export');
+        $pdf->SetHeaderData('', 0, 'Orders List', '');
+        $pdf->setHeaderFont(Array('helvetica', '', 12));
+        $pdf->setFooterFont(Array('helvetica', '', 10));
+        $pdf->SetDefaultMonospacedFont('courier');
+        $pdf->SetMargins(15, 15, 15);
+        $pdf->SetAutoPageBreak(TRUE, 15);
+
+        $pdf->AddPage();
+
+        // Generate HTML table with dynamic headers
+        $html = $this->generateDynamicOrderTable($orders);
+        $pdf->writeHTML($html, true, false, true, false, '');
+
+        // Output PDF
+        $pdf->Output('orders_export.pdf', 'D');
+        exit;
+    }
+
+    private function generateDynamicOrderTable($orders) {
+        // Start HTML table
+        $html = '<table border="1" cellpadding="5">
+<thead>
+    <tr>';
+
+        // Define preferred header order
+        $preferredHeaders = [
+            'id' => 'Order ID',
+            'tracking_number' => 'Tracking Number',
+            'customer_name' => 'Customer',
+            'courier_name' => 'Courier',
+            'delivery_date' => 'Delivery Date',
+            'formatted_total' => 'Total Price',
+            'address' => 'Address',
+            'country' => 'Country',
+            'region' => 'Region',
+            'status_text' => 'Status'
+        ];
+
+        if (!empty($orders) && is_array($orders[0])) {
+            $availableKeys = array_keys($orders[0]);
+
+            // First add preferred headers that exist in the data
+            foreach ($preferredHeaders as $key => $displayName) {
+                if (in_array($key, $availableKeys)) {
+                    $html .= '<th>' . $displayName . '</th>';
+                }
+            }
+
+            // Then add any other headers that weren't in our preferred list
+            foreach ($availableKeys as $header) {
+                if (!array_key_exists($header, $preferredHeaders) &&
+                        !in_array($header, ['user_id', 'courier_id', 'status', 'total_amount'])) {
+                    $displayHeader = ucwords(str_replace('_', ' ', $header));
+                    $html .= '<th>' . $displayHeader . '</th>';
+                }
+            }
+
+            $html .= '</tr>
+    </thead>
+    <tbody>';
+
+            // Add order data
+            foreach ($orders as $order) {
+                $html .= '<tr>';
+
+                // First add preferred fields that exist in the data
+                foreach ($preferredHeaders as $key => $displayName) {
+                    if (array_key_exists($key, $order)) {
+                        $value = $order[$key];
+                        if (empty($value) && $value !== 0) {
+                            $value = 'N/A';
+                        }
+                        $html .= '<td>' . htmlspecialchars($value) . '</td>';
+                    }
+                }
+
+                // Then add any other fields that weren't in our preferred list
+                foreach ($availableKeys as $key) {
+                    if (!array_key_exists($key, $preferredHeaders) &&
+                            !in_array($key, ['user_id', 'courier_id', 'status', 'total_amount'])) {
+                        $value = $order[$key];
+                        if (empty($value) && $value !== 0) {
+                            $value = 'N/A';
+                        }
+                        $html .= '<td>' . htmlspecialchars($value) . '</td>';
+                    }
+                }
+
+                $html .= '</tr>';
+            }
+        } else {
+            // Fallback for no data
+            $html .= '<th>No Data Available</th></tr></thead><tbody><tr><td>No orders found</td></tr>';
+        }
+
+        $html .= '</tbody></table>';
+
+        return $html;
+    }
+
+    private function exportAsExcel($orders) {
+        // Include SimpleXLSXGen
+        require(__DIR__ . '/../Helpers/export/simplexlsxgen/src/SimpleXLSXGen.php');
+
+        // Prepare data
+        $data = [];
+
+        // Define preferred header order
+        $preferredHeaders = [
+            'id' => 'Order ID',
+            'tracking_number' => 'Tracking Number',
+            'customer_name' => 'Customer',
+            'courier_name' => 'Courier',
+            'delivery_date' => 'Delivery Date',
+            'formatted_total' => 'Total Price',
+            'address' => 'Address',
+            'country' => 'Country',
+            'region' => 'Region',
+            'status_text' => 'Status'
+        ];
+
+        if (!empty($orders) && is_array($orders[0])) {
+            $availableKeys = array_keys($orders[0]);
+            $headerRow = [];
+            $columnOrder = [];
+
+            // First add preferred headers that exist in the data
+            foreach ($preferredHeaders as $key => $displayName) {
+                if (in_array($key, $availableKeys)) {
+                    $headerRow[] = $displayName;
+                    $columnOrder[] = $key;
+                }
+            }
+
+            // Then add any other headers that weren't in our preferred list
+            foreach ($availableKeys as $header) {
+                if (!array_key_exists($header, $preferredHeaders) &&
+                        !in_array($header, ['user_id', 'courier_id', 'status', 'total_amount'])) {
+                    $displayHeader = ucwords(str_replace('_', ' ', $header));
+                    $headerRow[] = $displayHeader;
+                    $columnOrder[] = $header;
+                }
+            }
+
+            $data[] = $headerRow;
+
+            // Add orders data following the column order
+            foreach ($orders as $order) {
+                $row = [];
+                foreach ($columnOrder as $key) {
+                    $value = $order[$key] ?? '';
+                    $row[] = (empty($value) && $value !== 0) ? 'N/A' : $value;
+                }
+                $data[] = $row;
+            }
+        } else {
+            // Fallback for no data
+            $data[] = ['No Data Available'];
+            $data[] = ['No orders found'];
+        }
+
+        // Create and send file
+        \Shuchkin\SimpleXLSXGen::fromArray($data)->downloadAs('orders_export.xlsx');
+        exit;
+    }
+
+    private function exportAsCSV($orders) {
+        // Set headers for CSV download
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="orders_export.csv"');
+
+        // Open output stream
+        $output = fopen('php://output', 'w');
+
+        // Define preferred header order
+        $preferredHeaders = [
+            'id' => 'Order ID',
+            'tracking_number' => 'Tracking Number',
+            'customer_name' => 'Customer',
+            'courier_name' => 'Courier',
+            'delivery_date' => 'Delivery Date',
+            'formatted_total' => 'Total Price',
+            'address' => 'Address',
+            'country' => 'Country',
+            'region' => 'Region',
+            'status_text' => 'Status'
+        ];
+
+        if (!empty($orders) && is_array($orders[0])) {
+            $availableKeys = array_keys($orders[0]);
+            $headerRow = [];
+            $columnOrder = [];
+
+            // First add preferred headers that exist in the data
+            foreach ($preferredHeaders as $key => $displayName) {
+                if (in_array($key, $availableKeys)) {
+                    $headerRow[] = $displayName;
+                    $columnOrder[] = $key;
+                }
+            }
+
+            // Then add any other headers that weren't in our preferred list
+            foreach ($availableKeys as $header) {
+                if (!array_key_exists($header, $preferredHeaders) &&
+                        !in_array($header, ['user_id', 'courier_id', 'status', 'total_amount'])) {
+                    $displayHeader = ucwords(str_replace('_', ' ', $header));
+                    $headerRow[] = $displayHeader;
+                    $columnOrder[] = $header;
+                }
+            }
+
+            // Add headers
+            fputcsv($output, $headerRow);
+
+            // Add order data following the column order
+            foreach ($orders as $order) {
+                $row = [];
+                foreach ($columnOrder as $key) {
+                    $value = $order[$key] ?? '';
+                    $row[] = (empty($value) && $value !== 0) ? 'N/A' : $value;
+                }
+                fputcsv($output, $row);
+            }
+        } else {
+            // Fallback for empty data
+            fputcsv($output, ['No data available']);
+        }
+
+        fclose($output);
+        exit;
+    }
+
     private function generateOrderEmail($order, $customer, $courier, $products, $title) {
         ob_start();
         ?>
