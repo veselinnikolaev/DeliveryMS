@@ -8,45 +8,76 @@ $(document).ready(function () {
     // Export format selection
     $('.export-format').on('click', function () {
         var format = $(this).data('format');
-        exportProducts(format);
+        exportDisplayedProducts(format);
         $('#shareModal').modal('hide');
     });
 
-    // Function to handle exporting
-    function exportProducts(format) {
-        // Get current filters
-        var filters = getProductFilters();
-        filters.format = format;
+    // Function to export the currently displayed products
+    function exportDisplayedProducts(format) {
+        // Extract column headers from the table
+        var headers = [];
+        $('#product-table-id thead th').each(function (index, th) {
+            var headerText = $(th).text().trim();
+            // Skip checkbox column and empty action column
+            if (!$(th).find('input[type="checkbox"]').length && headerText !== '') {
+                // Convert header text to lowercase key with underscores
+                var key = headerText.toLowerCase().replace(/\s+/g, '_');
+                headers.push({
+                    text: headerText,
+                    key: key
+                });
+            }
+        });
 
-        // Create form for POST submission
+        // Extract data from rows
+        var products = [];
+        $('#product-table-id tbody tr').each(function () {
+            var product = {};
+            var cellIndex = 0;
+
+            $(this).find('td').each(function (index, td) {
+                // Skip checkbox column
+                if (!$(td).find('input[type="checkbox"]').length) {
+                    // Skip the action column (last column)
+                    if (index < $(this).parent().find('td').length - 1 && cellIndex < headers.length) {
+                        var cellValue = $(td).text().trim();
+                        product[headers[cellIndex].key] = cellValue;
+                        cellIndex++;
+                    }
+                }
+            });
+
+            // Only add if we have valid data
+            if (Object.keys(product).length > 0) {
+                products.push(product);
+            }
+        });
+
+        // Debug - log the data structure
+        console.log("Products to export:", products);
+
+        // Create form for POST submission with the extracted data
         var $form = $('<form>', {
             'method': 'POST',
             'action': 'index.php?controller=Product&action=export',
             'target': '_blank'
         });
 
-        // Add filter parameters as hidden inputs
-        $.each(filters, function (key, value) {
-            $('<input>').attr({
-                type: 'hidden',
-                name: key,
-                value: value
-            }).appendTo($form);
-        });
+        // Add product data as JSON
+        $('<input>').attr({
+            type: 'hidden',
+            name: 'productData',
+            value: JSON.stringify(products)
+        }).appendTo($form);
+
+        // Add format
+        $('<input>').attr({
+            type: 'hidden',
+            name: 'format',
+            value: format
+        }).appendTo($form);
 
         // Append form to body, submit it, and remove it
         $form.appendTo('body').submit().remove();
-    }
-
-    // Function to get current product filters
-    function getProductFilters() {
-        return {
-            name: $('#filter-name').val(),
-            description: $('#filter-description').val(),
-            price_min: $('#filter-price-min').val(),
-            price_max: $('#filter-price-max').val(),
-            stock_min: $('#filter-stock-min').val(),
-            stock_max: $('#filter-stock-max').val()
-        };
     }
 });

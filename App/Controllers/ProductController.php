@@ -151,31 +151,43 @@ class ProductController extends Controller {
     }
 
     function export() {
-        $productModel = new \App\Models\Product();
+        // Check if productData is provided
+        if (isset($_POST['productData'])) {
+            // Decode the JSON data
+            $products = json_decode($_POST['productData'], true);
 
-        $opts = array();
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (!empty($_POST['name'])) {
-                $opts["name LIKE '%" . $_POST['name'] . "%' AND 1 "] = "1";
+            if (!$products || empty($products)) {
+                echo "No products to export";
+                exit;
             }
-            if (!empty($_POST['description'])) {
-                $opts["description LIKE '%" . $_POST['description'] . "%' AND 1 "] = "1";
+        } else {
+            // Fallback to original filter-based method
+            $productModel = new \App\Models\Product();
+
+            $opts = array();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                if (!empty($_POST['name'])) {
+                    $opts["name LIKE '%" . $_POST['name'] . "%' AND 1 "] = "1";
+                }
+                if (!empty($_POST['description'])) {
+                    $opts["description LIKE '%" . $_POST['description'] . "%' AND 1 "] = "1";
+                }
+                if (!empty($_POST['minPrice'])) {
+                    $opts["price >= " . $_POST['minPrice'] . " AND 1 "] = "1";
+                }
+                if (!empty($_POST['maxPrice'])) {
+                    $opts["price <= " . $_POST['maxPrice'] . " AND 1 "] = "1";
+                }
+                if (!empty($_POST['minStock'])) {
+                    $opts["stock >= " . $_POST['minStock'] . " AND 1 "] = "1";
+                }
+                if (!empty($_POST['maxStock'])) {
+                    $opts["stock <= " . $_POST['maxStock'] . " AND 1 "] = "1";
+                }
             }
-            if (!empty($_POST['minPrice'])) {
-                $opts["price >= " . $_POST['minPrice'] . " AND 1 "] = "1";
-            }
-            if (!empty($_POST['maxPrice'])) {
-                $opts["price <= " . $_POST['maxPrice'] . " AND 1 "] = "1";
-            }
-            if (!empty($_POST['minStock'])) {
-                $opts["stock >= " . $_POST['minStock'] . " AND 1 "] = "1";
-            }
-            if (!empty($_POST['maxStock'])) {
-                $opts["stock <= " . $_POST['maxStock'] . " AND 1 "] = "1";
-            }
+
+            $products = $productModel->getAll($opts);
         }
-
-        $products = $productModel->getAll($opts);
 
         $format = isset($_POST['format']) ? $_POST['format'] : 'pdf';
 
@@ -214,8 +226,8 @@ class ProductController extends Controller {
 
         $pdf->AddPage();
 
-        // Add content
-        $html = $this->generateProductTable($products);
+        // Generate HTML table with dynamic headers
+        $html = $this->generateDynamicProductTable($products);
         $pdf->writeHTML($html, true, false, true, false, '');
 
         // Output PDF
@@ -223,28 +235,75 @@ class ProductController extends Controller {
         exit;
     }
 
-    private function exportAsExcel($products) {
-        // Включване на SimpleXLSXGen
-        require(__DIR__ . '/../Helpers/export/simplexlsxgen/src/SimpleXLSXGen.php');
+    private function generateDynamicProductTable($products) {
+        // Start HTML table
+        $html = '<table border="1" cellpadding="5">
+    <thead>
+        <tr>';
 
-        // Подготовка на данните
-        $data = [];
+        // If we have products, use their keys as headers
+        if (!empty($products) && is_array($products[0])) {
+            $headers = array_keys($products[0]);
 
-        // Добавяне на заглавния ред
-        $data[] = ['ID', 'Name', 'Description', 'Price', 'Stock'];
+            // Add headers to table
+            foreach ($headers as $header) {
+                $displayHeader = ucwords(str_replace('_', ' ', $header));
+                $html .= '<th>' . $displayHeader . '</th>';
+            }
 
-        // Добавяне на продуктите
-        foreach ($products as $product) {
-            $data[] = [
-                $product['id'],
-                $product['name'],
-                $product['description'],
-                $product['price'],
-                $product['stock']
-            ];
+            $html .= '</tr>
+        </thead>
+        <tbody>';
+
+            // Add product data
+            foreach ($products as $product) {
+                $html .= '<tr>';
+                foreach ($product as $value) {
+                    $html .= '<td>' . htmlspecialchars($value) . '</td>';
+                }
+                $html .= '</tr>';
+            }
+        } else {
+            // Fallback for no data
+            $html .= '<th>No Data Available</th></tr></thead><tbody><tr><td>No products found</td></tr>';
         }
 
-        // Създаване и изпращане на файла
+        $html .= '</tbody></table>';
+
+        return $html;
+    }
+
+    private function exportAsExcel($products) {
+        // Include SimpleXLSXGen
+        require(__DIR__ . '/../Helpers/export/simplexlsxgen/src/SimpleXLSXGen.php');
+
+        // Prepare data
+        $data = [];
+
+        // First product in array determines headers
+        if (!empty($products) && is_array($products[0])) {
+            // Use keys from first product for headers, ensuring proper capitalization
+            $headers = array_keys($products[0]);
+            $headerRow = [];
+
+            foreach ($headers as $header) {
+                // Convert product_id to Product ID, etc.
+                $headerRow[] = ucwords(str_replace('_', ' ', $header));
+            }
+
+            $data[] = $headerRow;
+
+            // Add products
+            foreach ($products as $product) {
+                $data[] = array_values($product);
+            }
+        } else {
+            // Fallback for no data
+            $data[] = ['No Data Available'];
+            $data[] = ['No products found'];
+        }
+
+        // Create and send file
         \Shuchkin\SimpleXLSXGen::fromArray($data)->downloadAs('products_export.xlsx');
         exit;
     }
@@ -257,50 +316,27 @@ class ProductController extends Controller {
         // Open output stream
         $output = fopen('php://output', 'w');
 
-        // Add headers
-        fputcsv($output, ['ID', 'Name', 'Description', 'Price', 'Stock']);
+        // Determine headers dynamically from the first product
+        if (!empty($products) && is_array($products[0])) {
+            $headers = array_keys($products[0]);
+            // Convert keys to readable headers (e.g., product_id to Product ID)
+            $readableHeaders = array_map(function ($header) {
+                return ucwords(str_replace('_', ' ', $header));
+            }, $headers);
 
-        // Add data
-        foreach ($products as $product) {
-            fputcsv($output, [
-                $product['id'],
-                $product['name'],
-                $product['description'],
-                $product['price'],
-                $product['stock']
-            ]);
+            // Add headers
+            fputcsv($output, $readableHeaders);
+
+            // Add data using the actual keys from the data
+            foreach ($products as $product) {
+                fputcsv($output, array_values($product));
+            }
+        } else {
+            // Fallback for empty data
+            fputcsv($output, ['No data available']);
         }
 
         fclose($output);
         exit;
-    }
-
-    private function generateProductTable($products) {
-        // Generate HTML table for PDF export
-        $html = '<table border="1" cellpadding="5">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Price</th>
-                <th>Stock</th>
-            </tr>
-        </thead>
-        <tbody>';
-
-        foreach ($products as $product) {
-            $html .= '<tr>
-            <td>' . $product['id'] . '</td>
-            <td>' . htmlspecialchars($product['name']) . '</td>
-            <td>' . htmlspecialchars($product['description']) . '</td>
-            <td>' . htmlspecialchars($product['price']) . '</td>
-            <td>' . htmlspecialchars($product['stock']) . '</td>
-        </tr>';
-        }
-
-        $html .= '</tbody></table>';
-
-        return $html;
     }
 }
