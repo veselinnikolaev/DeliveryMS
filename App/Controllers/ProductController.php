@@ -152,20 +152,32 @@ class ProductController extends Controller {
 
     function export() {
         $productModel = new \App\Models\Product();
-        // Get filter and format parameters from POST
-        $filters = [
-            'name' => isset($_POST['name']) ? $_POST['name'] : '',
-            'description' => isset($_POST['description']) ? $_POST['description'] : '',
-            'price_min' => isset($_POST['price_min']) ? $_POST['price_min'] : null,
-            'price_max' => isset($_POST['price_max']) ? $_POST['price_max'] : null,
-            'stock_min' => isset($_POST['stock_min']) ? $_POST['stock_min'] : null,
-            'stock_max' => isset($_POST['stock_max']) ? $_POST['stock_max'] : null
-        ];
+
+        $opts = array();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!empty($_POST['name'])) {
+                $opts["name LIKE '%" . $_POST['name'] . "%' AND 1 "] = "1";
+            }
+            if (!empty($_POST['description'])) {
+                $opts["description LIKE '%" . $_POST['description'] . "%' AND 1 "] = "1";
+            }
+            if (!empty($_POST['minPrice'])) {
+                $opts["price >= " . $_POST['minPrice'] . " AND 1 "] = "1";
+            }
+            if (!empty($_POST['maxPrice'])) {
+                $opts["price <= " . $_POST['maxPrice'] . " AND 1 "] = "1";
+            }
+            if (!empty($_POST['minStock'])) {
+                $opts["stock >= " . $_POST['minStock'] . " AND 1 "] = "1";
+            }
+            if (!empty($_POST['maxStock'])) {
+                $opts["stock <= " . $_POST['maxStock'] . " AND 1 "] = "1";
+            }
+        }
+
+        $products = $productModel->getAll($opts);
 
         $format = isset($_POST['format']) ? $_POST['format'] : 'pdf';
-
-        // Get filtered products
-        $products = $productModel->getAll($filters);
 
         // Export based on format
         switch ($format) {
@@ -185,11 +197,12 @@ class ProductController extends Controller {
     }
 
     private function exportAsPDF($products) {
-        // Implement PDF export (using a library like FPDF, TCPDF, etc.)
-        // Example with TCPDF:
-        require_once('/App/Helpers/export/tcpdf/tcpdf.php');
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        require_once(__DIR__ . '/../Helpers/export/tcpdf/tcpdf.php');
 
-        $pdf = new TCPDF('L', 'mm', 'A4', true, 'UTF-8');
+        $pdf = new \TCPDF('L', 'mm', 'A4', true, 'UTF-8');
         $pdf->SetCreator('Your App');
         $pdf->SetTitle('Products Export');
         $pdf->SetHeaderData('', 0, 'Products List', '');
@@ -211,39 +224,45 @@ class ProductController extends Controller {
     }
 
     private function exportAsExcel($products) {
-        // Implement Excel export (using a library like PhpSpreadsheet)
-        // Example with PhpSpreadsheet:
-        require 'vendor/autoload.php'; // Include Composer autoloader
+        // Manually include the Spout classes
+        require(__DIR__ . '/../Helpers/export/spout/src/Spout/Autoloader/autoload.php');
 
-        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
+        // Create a new XLSX writer
+        $writer = \Box\Spout\Writer\Common\Creator\WriterEntityFactory::createXLSXWriter();
 
-        // Add headers
-        $sheet->setCellValue('A1', 'ID');
-        $sheet->setCellValue('B1', 'Name');
-        $sheet->setCellValue('C1', 'Description');
-        $sheet->setCellValue('D1', 'Price');
-        $sheet->setCellValue('E1', 'Stock');
-
-        // Add data
-        $row = 2;
-        foreach ($products as $product) {
-            $sheet->setCellValue('A' . $row, $product['id']);
-            $sheet->setCellValue('B' . $row, $product['name']);
-            $sheet->setCellValue('C' . $row, $product['description']);
-            $sheet->setCellValue('D' . $row, $product['price']);
-            $sheet->setCellValue('E' . $row, $product['stock']);
-            $row++;
-        }
-
-        // Create writer and output file
-        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
-
+        // Configure the writer
+        $writer->openToOutput(); // Write to php://output
+        // Set headers for browser download
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="products_export.xlsx"');
         header('Cache-Control: max-age=0');
 
-        $writer->save('php://output');
+        // Create header style (optional - bold text)
+        $headerStyle = (new \Box\Spout\Writer\Common\Creator\Style\StyleBuilder())
+                ->setFontBold()
+                ->build();
+
+        // Add headers
+        $headerRow = \Box\Spout\Writer\Common\Creator\WriterEntityFactory::createRowFromArray(
+                ['ID', 'Name', 'Description', 'Price', 'Stock'],
+                $headerStyle
+        );
+        $writer->addRow($headerRow);
+
+        // Add data rows
+        foreach ($products as $product) {
+            $dataRow = \Box\Spout\Writer\Common\Creator\WriterEntityFactory::createRowFromArray([
+                $product['id'],
+                $product['name'],
+                $product['description'],
+                $product['price'],
+                $product['stock']
+            ]);
+            $writer->addRow($dataRow);
+        }
+
+        // Close the writer
+        $writer->close();
         exit;
     }
 
