@@ -224,45 +224,28 @@ class ProductController extends Controller {
     }
 
     private function exportAsExcel($products) {
-        // Manually include the Spout classes
-        require(__DIR__ . '/../Helpers/export/spout/src/Spout/Autoloader/autoload.php');
+        // Включване на SimpleXLSXGen
+        require(__DIR__ . '/../Helpers/export/simplexlsxgen/src/SimpleXLSXGen.php');
 
-        // Create a new XLSX writer
-        $writer = \Box\Spout\Writer\Common\Creator\WriterEntityFactory::createXLSXWriter();
+        // Подготовка на данните
+        $data = [];
 
-        // Configure the writer
-        $writer->openToOutput(); // Write to php://output
-        // Set headers for browser download
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="products_export.xlsx"');
-        header('Cache-Control: max-age=0');
+        // Добавяне на заглавния ред
+        $data[] = ['ID', 'Name', 'Description', 'Price', 'Stock'];
 
-        // Create header style (optional - bold text)
-        $headerStyle = (new \Box\Spout\Writer\Common\Creator\Style\StyleBuilder())
-                ->setFontBold()
-                ->build();
-
-        // Add headers
-        $headerRow = \Box\Spout\Writer\Common\Creator\WriterEntityFactory::createRowFromArray(
-                ['ID', 'Name', 'Description', 'Price', 'Stock'],
-                $headerStyle
-        );
-        $writer->addRow($headerRow);
-
-        // Add data rows
+        // Добавяне на продуктите
         foreach ($products as $product) {
-            $dataRow = \Box\Spout\Writer\Common\Creator\WriterEntityFactory::createRowFromArray([
+            $data[] = [
                 $product['id'],
                 $product['name'],
                 $product['description'],
                 $product['price'],
                 $product['stock']
-            ]);
-            $writer->addRow($dataRow);
+            ];
         }
 
-        // Close the writer
-        $writer->close();
+        // Създаване и изпращане на файла
+        \Shuchkin\SimpleXLSXGen::fromArray($data)->downloadAs('products_export.xlsx');
         exit;
     }
 
