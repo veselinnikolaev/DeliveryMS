@@ -47,7 +47,18 @@ class CourierController extends Controller {
     }
 
     function print() {
-        $this->list('ajax');
+        // Check if courierData is provided
+        if (isset($_POST['courierData'])) {
+            // Decode the JSON data
+            $couriers = json_decode($_POST['courierData'], true);
+
+            if (!$couriers || empty($couriers)) {
+                echo "No couriers to print";
+                exit;
+            }
+        }
+
+        $this->view('ajax', ['couriers' => $couriers]);
     }
 
     function create() {
@@ -133,24 +144,6 @@ class CourierController extends Controller {
                 echo "No couriers to export";
                 exit;
             }
-        } else {
-            // Fallback to original filter-based method
-            $courierModel = new \App\Models\Courier();
-
-            $opts = array();
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                if (!empty($_POST['name'])) {
-                    $opts["name LIKE '%" . $_POST['name'] . "%' AND 1 "] = "1";
-                }
-                if (!empty($_POST['email'])) {
-                    $opts["email LIKE '%" . $_POST['email'] . "%' AND 1 "] = "1";
-                }
-                if (!empty($_POST['phone_number'])) {
-                    $opts["phone_number LIKE '%" . $_POST['phone_number'] . "%' AND 1 "] = "1";
-                }
-            }
-
-            $couriers = $courierModel->getAll($opts);
         }
 
         $format = isset($_POST['format']) ? $_POST['format'] : 'pdf';

@@ -66,8 +66,9 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="deliveryDate" class="form-label">Delivery Date</label>
-                                    <input type="text" class="form-control" id="deliveryDate" name="delivery_date" value="<?php echo date('Y-m-d', strtotime($order['delivery_date'])); ?>" required>
-                                </div>
+                                    <input type="date" class="form-control" id="deliveryDate" name="delivery_date" 
+                                           value="<?php echo date('Y-m-d', $order['delivery_date']); ?>" required>
+                                </div>  
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">

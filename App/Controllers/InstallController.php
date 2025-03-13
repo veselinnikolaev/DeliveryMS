@@ -147,7 +147,7 @@ class InstallController extends Controller {
                 try {
                     $settingModel = new \App\Models\Setting();
                     $emailSendingSetting = $settingModel->getFirstBy(['key' => 'email_sending']);
-                    $emailSendingSetting['value'] = false;
+                    $emailSendingSetting['value'] = 'disabled';
                     $settingModel->update($emailSendingSetting);
                 } catch (\Throwable) {
                     echo json_encode(["error" => "Failed to update settings."]);

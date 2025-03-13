@@ -62,7 +62,17 @@ class UserController extends Controller {
     }
 
     function print() {
-        $this->list('ajax');
+        if (isset($_POST['userData'])) {
+            // Decode the JSON data
+            $users = json_decode($_POST['userData'], true);
+
+            if (!$users || empty($users)) {
+                echo "No users to print";
+                exit;
+            }
+        }
+
+        $this->view('ajax', ['users' => $users]);
     }
 
     public function changeRole() {
@@ -257,33 +267,6 @@ class UserController extends Controller {
                 echo "No users to export";
                 exit;
             }
-        } else {
-            // Fallback to original filter-based method
-            $userModel = new \App\Models\User();
-
-            $opts = array();
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                if (!empty($_POST['name'])) {
-                    $opts["name LIKE '%" . $_POST['name'] . "%' AND 1 "] = "1";
-                }
-                if (!empty($_POST['email'])) {
-                    $opts["email LIKE '%" . $_POST['email'] . "%' AND 1 "] = "1";
-                }
-                if (!empty($_POST['role'])) {
-                    $opts["role = '" . $_POST['role'] . "' AND 1 "] = "1";
-                }
-                if (!empty($_POST['phone_number'])) {
-                    $opts["phone_number LIKE '%" . $_POST['phone_number'] . "%' AND 1 "] = "1";
-                }
-                if (!empty($_POST['country'])) {
-                    $opts["country LIKE '%" . $_POST['country'] . "%' AND 1 "] = "1";
-                }
-                if (!empty($_POST['region'])) {
-                    $opts["region LIKE '%" . $_POST['region'] . "%' AND 1 "] = "1";
-                }
-            }
-
-            $users = $userModel->getAll($opts);
         }
 
         $format = isset($_POST['format']) ? $_POST['format'] : 'pdf';

@@ -7,10 +7,10 @@
                 $(`#${entity}sShareModal`).modal('show');
             });
             // Export format selection
-            $('.export-format').on('click', function () {
+            $(`.export-format-${entity}s`).on('click', function () {
                 var format = $(this).data('format');
                 exportDisplayedEntities(format);
-                $(`#${entity}sshareModal`).modal('hide');
+                $(`#${entity}sShareModal`).modal('hide');
             });
             // Function to export the currently displayed products
             function exportDisplayedEntities(format) {
@@ -49,6 +49,13 @@
                         entities.push(entityObj);
                     }
                 });
+
+                // Show alert if there are no entities to export
+                if (entities.length === 0) {
+                    alert('No entities to export.');
+                    return;
+                }
+
                 // Create form for POST submission with the extracted data
                 var $form = $('<form>', {
                     'method': 'POST',

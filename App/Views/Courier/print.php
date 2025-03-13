@@ -55,8 +55,8 @@
             <tbody>
                 <?php foreach ($tpl['couriers'] as $courier): ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($courier['id']); ?></td>
-                        <td><?php echo htmlspecialchars($courier['name']); ?></td>
+                        <td><?php echo htmlspecialchars($courier['courier_id']); ?></td>
+                        <td><?php echo htmlspecialchars($courier['courier_name']); ?></td>
                         <td><?php echo htmlspecialchars($courier['phone_number']); ?></td>
                         <td><?php echo htmlspecialchars($courier['email']); ?></td>
                     </tr>

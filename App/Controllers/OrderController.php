@@ -49,10 +49,10 @@ class OrderController extends Controller {
                 $opts["region LIKE '%" . $_POST['region'] . "%' AND 1 "] = "1";
             }
             if (!empty($_POST['orderDateFrom'])) {
-                $opts["created_at >= '" . strtotime($_POST['orderDateFrom']) . "'"] = "1";
+                $opts["delivery_date >= '" . strtotime($_POST['orderDateFrom']) . "'"] = "1";
             }
             if (!empty($_POST['orderDateTo'])) {
-                $opts["created_at <= '" . strtotime($_POST['orderDateTo']) . "'"] = "1";
+                $opts["delivery_date <= '" . strtotime($_POST['orderDateTo']) . "'"] = "1";
             }
             if (!empty($_POST['minTotalPrice'])) {
                 $opts["total_amount >= '" . $_POST['minTotalPrice'] . "'"] = "1";
@@ -73,7 +73,7 @@ class OrderController extends Controller {
         foreach ($orders as &$order) {
             $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
             $order['courier_name'] = $courierModel->get($order['courier_id'])['name'] ?? 'Unknown';
-            $order['delivery_date'] = date('Y-m-d', strtotime($order['delivery_date']));
+            $order['delivery_date'] = date('m/d/Y', $order['delivery_date']);
         }
 
         // Pass the data to the view
@@ -303,7 +303,7 @@ class OrderController extends Controller {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
             exit;
         }
-        if ($_SESSION['user']['role'] == 'root') {
+        if ($_SESSION['user']['role'] == 'user') {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
@@ -337,7 +337,17 @@ class OrderController extends Controller {
     }
 
     function print() {
-        $this->list('ajax');
+        if (isset($_POST['orderData'])) {
+            // Decode the JSON data
+            $orders = json_decode($_POST['orderData'], true);
+
+            if (!$orders || empty($orders)) {
+                echo "No orders to print";
+                exit;
+            }
+        }
+
+        $this->view('ajax', ['orders' => $orders]);
     }
 
     function edit() {
@@ -345,7 +355,7 @@ class OrderController extends Controller {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
             exit;
         }
-        if ($_SESSION['user']['role'] == 'root') {
+        if ($_SESSION['user']['role'] == 'user') {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
@@ -524,69 +534,6 @@ class OrderController extends Controller {
                 echo "No orders to export";
                 exit;
             }
-        } else {
-            // Fallback to original filter-based method
-            $orderModel = new \App\Models\Order();
-            $userModel = new \App\Models\User();
-            $courierModel = new \App\Models\Courier();
-
-            $opts = array();
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                if (!empty($_POST['customerName'])) {
-                    $opts["user_id IN (SELECT id FROM users WHERE name LIKE '%" . $_POST['customerName'] . "%')"] = "1";
-                }
-                if (!empty($_POST['courierName'])) {
-                    $opts["courier_id IN (SELECT id FROM couriers WHERE name LIKE '%" . $_POST['courierName'] . "%')"] = "1";
-                }
-                if (!empty($_POST['status'])) {
-                    $opts["status LIKE '%" . $_POST['status'] . "%' AND 1 "] = "1";
-                }
-                if (!empty($_POST['trackingNumber'])) {
-                    $opts["tracking_number LIKE '%" . $_POST['trackingNumber'] . "%' AND 1 "] = "1";
-                }
-                if (!empty($_POST['country'])) {
-                    $opts["country LIKE '%" . $_POST['country'] . "%' AND 1 "] = "1";
-                }
-                if (!empty($_POST['region'])) {
-                    $opts["region LIKE '%" . $_POST['region'] . "%' AND 1 "] = "1";
-                }
-                if (!empty($_POST['orderDateFrom'])) {
-                    $opts["created_at >= '" . strtotime($_POST['orderDateFrom']) . "'"] = "1";
-                }
-                if (!empty($_POST['orderDateTo'])) {
-                    $opts["created_at <= '" . strtotime($_POST['orderDateTo']) . "'"] = "1";
-                }
-                if (!empty($_POST['minTotalPrice'])) {
-                    $opts["total_amount >= '" . $_POST['minTotalPrice'] . "'"] = "1";
-                }
-                if (!empty($_POST['maxTotalPrice'])) {
-                    $opts["total_amount <= '" . $_POST['maxTotalPrice'] . "'"] = "1";
-                }
-            }
-
-            // User role checking orders
-            if (!empty($_GET['user_id']) && $_GET['user_id'] == $_SESSION['user']['id']) {
-                $opts['user_id'] = $_GET['user_id'];
-            }
-
-            $orders = $orderModel->getAll($opts);
-
-            // Format orders for display
-            foreach ($orders as &$order) {
-                $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
-                $order['courier_name'] = $courierModel->get($order['courier_id'])['name'] ?? 'Unknown';
-                $order['delivery_date'] = date('Y-m-d', strtotime($order['delivery_date']));
-
-                // Format status for export
-                if (isset(Utility::$order_status[$order['status']])) {
-                    $order['status_text'] = Utility::$order_status[$order['status']];
-                } else {
-                    $order['status_text'] = $order['status'];
-                }
-
-                // Format total amount for export
-                $order['formatted_total'] = Utility::getDisplayableAmount($order['total_amount']);
-            }
         }
 
         $format = isset($_POST['format']) ? $_POST['format'] : 'pdf';
@@ -641,7 +588,7 @@ class OrderController extends Controller {
 <thead>
     <tr>';
 
-        // Define preferred header order
+        // Define preferred header names
         $preferredHeaders = [
             'id' => 'Order ID',
             'tracking_number' => 'Tracking Number',
@@ -656,21 +603,12 @@ class OrderController extends Controller {
         ];
 
         if (!empty($orders) && is_array($orders[0])) {
-            $availableKeys = array_keys($orders[0]);
-
-            // First add preferred headers that exist in the data
-            foreach ($preferredHeaders as $key => $displayName) {
-                if (in_array($key, $availableKeys)) {
-                    $html .= '<th>' . $displayName . '</th>';
-                }
-            }
-
-            // Then add any other headers that weren't in our preferred list
-            foreach ($availableKeys as $header) {
-                if (!array_key_exists($header, $preferredHeaders) &&
-                        !in_array($header, ['user_id', 'courier_id', 'status', 'total_amount'])) {
-                    $displayHeader = ucwords(str_replace('_', ' ', $header));
-                    $html .= '<th>' . $displayHeader . '</th>';
+            $orderedKeys = array_keys($orders[0]); // Get the exact order from first item
+            // Generate headers in the exact same order as the first item in $orders
+            foreach ($orderedKeys as $key) {
+                if (!in_array($key, ['user_id', 'courier_id', 'status', 'total_amount'])) {
+                    $displayName = $preferredHeaders[$key] ?? ucwords(str_replace('_', ' ', $key));
+                    $html .= '<th>' . htmlspecialchars($displayName) . '</th>';
                 }
             }
 
@@ -682,25 +620,9 @@ class OrderController extends Controller {
             foreach ($orders as $order) {
                 $html .= '<tr>';
 
-                // First add preferred fields that exist in the data
-                foreach ($preferredHeaders as $key => $displayName) {
-                    if (array_key_exists($key, $order)) {
-                        $value = $order[$key];
-                        if (empty($value) && $value !== 0) {
-                            $value = 'N/A';
-                        }
-                        $html .= '<td>' . htmlspecialchars($value) . '</td>';
-                    }
-                }
-
-                // Then add any other fields that weren't in our preferred list
-                foreach ($availableKeys as $key) {
-                    if (!array_key_exists($key, $preferredHeaders) &&
-                            !in_array($key, ['user_id', 'courier_id', 'status', 'total_amount'])) {
-                        $value = $order[$key];
-                        if (empty($value) && $value !== 0) {
-                            $value = 'N/A';
-                        }
+                foreach ($orderedKeys as $key) {
+                    if (!in_array($key, ['user_id', 'courier_id', 'status', 'total_amount'])) {
+                        $value = $order[$key] ?? 'N/A';
                         $html .= '<td>' . htmlspecialchars($value) . '</td>';
                     }
                 }
@@ -718,130 +640,42 @@ class OrderController extends Controller {
     }
 
     private function exportAsExcel($orders) {
-        // Include SimpleXLSXGen
         require(__DIR__ . '/../Helpers/export/simplexlsxgen/src/SimpleXLSXGen.php');
 
-        // Prepare data
         $data = [];
 
-        // Define preferred header order
-        $preferredHeaders = [
-            'id' => 'Order ID',
-            'tracking_number' => 'Tracking Number',
-            'customer_name' => 'Customer',
-            'courier_name' => 'Courier',
-            'delivery_date' => 'Delivery Date',
-            'formatted_total' => 'Total Price',
-            'address' => 'Address',
-            'country' => 'Country',
-            'region' => 'Region',
-            'status_text' => 'Status'
-        ];
-
         if (!empty($orders) && is_array($orders[0])) {
-            $availableKeys = array_keys($orders[0]);
-            $headerRow = [];
-            $columnOrder = [];
+            // Вземи оригиналния ред на колоните от първия елемент
+            $headerRow = array_keys($orders[0]);
+            $data[] = array_map(fn($h) => ucwords(str_replace('_', ' ', $h)), $headerRow);
 
-            // First add preferred headers that exist in the data
-            foreach ($preferredHeaders as $key => $displayName) {
-                if (in_array($key, $availableKeys)) {
-                    $headerRow[] = $displayName;
-                    $columnOrder[] = $key;
-                }
-            }
-
-            // Then add any other headers that weren't in our preferred list
-            foreach ($availableKeys as $header) {
-                if (!array_key_exists($header, $preferredHeaders) &&
-                        !in_array($header, ['user_id', 'courier_id', 'status', 'total_amount'])) {
-                    $displayHeader = ucwords(str_replace('_', ' ', $header));
-                    $headerRow[] = $displayHeader;
-                    $columnOrder[] = $header;
-                }
-            }
-
-            $data[] = $headerRow;
-
-            // Add orders data following the column order
+            // Добави данните в същия ред
             foreach ($orders as $order) {
-                $row = [];
-                foreach ($columnOrder as $key) {
-                    $value = $order[$key] ?? '';
-                    $row[] = (empty($value) && $value !== 0) ? 'N/A' : $value;
-                }
-                $data[] = $row;
+                $data[] = array_map(fn($key) => $order[$key] ?? 'N/A', $headerRow);
             }
         } else {
-            // Fallback for no data
             $data[] = ['No Data Available'];
-            $data[] = ['No orders found'];
         }
 
-        // Create and send file
         \Shuchkin\SimpleXLSXGen::fromArray($data)->downloadAs('orders_export.xlsx');
         exit;
     }
 
     private function exportAsCSV($orders) {
-        // Set headers for CSV download
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="orders_export.csv"');
 
-        // Open output stream
         $output = fopen('php://output', 'w');
 
-        // Define preferred header order
-        $preferredHeaders = [
-            'id' => 'Order ID',
-            'tracking_number' => 'Tracking Number',
-            'customer_name' => 'Customer',
-            'courier_name' => 'Courier',
-            'delivery_date' => 'Delivery Date',
-            'formatted_total' => 'Total Price',
-            'address' => 'Address',
-            'country' => 'Country',
-            'region' => 'Region',
-            'status_text' => 'Status'
-        ];
-
         if (!empty($orders) && is_array($orders[0])) {
-            $availableKeys = array_keys($orders[0]);
-            $headerRow = [];
-            $columnOrder = [];
+            // Вземи оригиналния ред на колоните
+            $headerRow = array_keys($orders[0]);
+            fputcsv($output, array_map(fn($h) => ucwords(str_replace('_', ' ', $h)), $headerRow));
 
-            // First add preferred headers that exist in the data
-            foreach ($preferredHeaders as $key => $displayName) {
-                if (in_array($key, $availableKeys)) {
-                    $headerRow[] = $displayName;
-                    $columnOrder[] = $key;
-                }
-            }
-
-            // Then add any other headers that weren't in our preferred list
-            foreach ($availableKeys as $header) {
-                if (!array_key_exists($header, $preferredHeaders) &&
-                        !in_array($header, ['user_id', 'courier_id', 'status', 'total_amount'])) {
-                    $displayHeader = ucwords(str_replace('_', ' ', $header));
-                    $headerRow[] = $displayHeader;
-                    $columnOrder[] = $header;
-                }
-            }
-
-            // Add headers
-            fputcsv($output, $headerRow);
-
-            // Add order data following the column order
             foreach ($orders as $order) {
-                $row = [];
-                foreach ($columnOrder as $key) {
-                    $value = $order[$key] ?? '';
-                    $row[] = (empty($value) && $value !== 0) ? 'N/A' : $value;
-                }
-                fputcsv($output, $row);
+                fputcsv($output, array_map(fn($key) => $order[$key] ?? 'N/A', $headerRow));
             }
         } else {
-            // Fallback for empty data
             fputcsv($output, ['No data available']);
         }
 

@@ -39,7 +39,7 @@
                 <td><?php echo htmlspecialchars($order['tracking_number']); ?></td>
                 <td><?php echo htmlspecialchars($order['customer_name']); ?></td>
                 <td><?php echo htmlspecialchars($order['courier_name']); ?></td>
-                <td><?php echo htmlspecialchars(date('Y-m-d', strtotime($order['delivery_date']))); ?></td>
+                <td><?php echo htmlspecialchars($order['delivery_date']); ?></td>
                 <td><?php echo Utility::getDisplayableAmount(htmlspecialchars($order['total_amount'])); ?></td>
                 <td><?php echo htmlspecialchars($order['address']); ?></td>
                 <td><?php echo htmlspecialchars($order['country']); ?></td>

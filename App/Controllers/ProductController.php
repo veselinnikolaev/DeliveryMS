@@ -155,35 +155,8 @@ class ProductController extends Controller {
                 echo "No products to export";
                 exit;
             }
-        } else {
-            // Fallback to original filter-based method
-            $productModel = new \App\Models\Product();
-
-            $opts = array();
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                if (!empty($_POST['name'])) {
-                    $opts["name LIKE '%" . $_POST['name'] . "%' AND 1 "] = "1";
-                }
-                if (!empty($_POST['description'])) {
-                    $opts["description LIKE '%" . $_POST['description'] . "%' AND 1 "] = "1";
-                }
-                if (!empty($_POST['minPrice'])) {
-                    $opts["price >= " . $_POST['minPrice'] . " AND 1 "] = "1";
-                }
-                if (!empty($_POST['maxPrice'])) {
-                    $opts["price <= " . $_POST['maxPrice'] . " AND 1 "] = "1";
-                }
-                if (!empty($_POST['minStock'])) {
-                    $opts["stock >= " . $_POST['minStock'] . " AND 1 "] = "1";
-                }
-                if (!empty($_POST['maxStock'])) {
-                    $opts["stock <= " . $_POST['maxStock'] . " AND 1 "] = "1";
-                }
-            }
-
-            $products = $productModel->getAll($opts);
         }
-
+        
         $this->view('ajax', ['products' => $products]);
     }
 
@@ -197,33 +170,6 @@ class ProductController extends Controller {
                 echo "No products to export";
                 exit;
             }
-        } else {
-            // Fallback to original filter-based method
-            $productModel = new \App\Models\Product();
-
-            $opts = array();
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                if (!empty($_POST['name'])) {
-                    $opts["name LIKE '%" . $_POST['name'] . "%' AND 1 "] = "1";
-                }
-                if (!empty($_POST['description'])) {
-                    $opts["description LIKE '%" . $_POST['description'] . "%' AND 1 "] = "1";
-                }
-                if (!empty($_POST['minPrice'])) {
-                    $opts["price >= " . $_POST['minPrice'] . " AND 1 "] = "1";
-                }
-                if (!empty($_POST['maxPrice'])) {
-                    $opts["price <= " . $_POST['maxPrice'] . " AND 1 "] = "1";
-                }
-                if (!empty($_POST['minStock'])) {
-                    $opts["stock >= " . $_POST['minStock'] . " AND 1 "] = "1";
-                }
-                if (!empty($_POST['maxStock'])) {
-                    $opts["stock <= " . $_POST['maxStock'] . " AND 1 "] = "1";
-                }
-            }
-
-            $products = $productModel->getAll($opts);
         }
 
         $format = isset($_POST['format']) ? $_POST['format'] : 'pdf';

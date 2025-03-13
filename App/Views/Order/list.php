@@ -71,7 +71,7 @@
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label for="filter-date-from" class="form-label">Delivery Date From (inclusive)</label>
-                                            <input type="date" class="form-control" id="filter-date-from">
+                                            <input type="date" class="form-control" id="filter-date-from" >
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label for="filter-date-to" class="form-label">Delivery Date To (inclusive)</label>
@@ -177,13 +177,13 @@
             </div>
             <div class="modal-body">
                 <div class="d-grid gap-3">
-                    <button type="button" class="btn btn-outline-primary export-format" data-format="pdf">
+                    <button type="button" class="btn btn-outline-primary export-format-orders" data-format="pdf">
                         <i class="icon-file-pdf"></i> Export as PDF
                     </button>
-                    <button type="button" class="btn btn-outline-success export-format" data-format="excel">
+                    <button type="button" class="btn btn-outline-success export-format-orders" data-format="excel">
                         <i class="icon-file-excel"></i> Export as Excel
                     </button>
-                    <button type="button" class="btn btn-outline-info export-format" data-format="csv">
+                    <button type="button" class="btn btn-outline-info export-format-orders" data-format="csv">
                         <i class="icon-file-text"></i> Export as CSV
                     </button>
                 </div>

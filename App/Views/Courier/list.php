@@ -132,13 +132,13 @@
             </div>
             <div class="modal-body">
                 <div class="d-grid gap-3">
-                    <button type="button" class="btn btn-outline-primary export-format" data-format="pdf">
+                    <button type="button" class="btn btn-outline-primary export-format-couriers" data-format="pdf">
                         <i class="icon-file-pdf"></i> Export as PDF
                     </button>
-                    <button type="button" class="btn btn-outline-success export-format" data-format="excel">
+                    <button type="button" class="btn btn-outline-success export-format-couriers" data-format="excel">
                         <i class="icon-file-excel"></i> Export as Excel
                     </button>
-                    <button type="button" class="btn btn-outline-info export-format" data-format="csv">
+                    <button type="button" class="btn btn-outline-info export-format-couriers" data-format="csv">
                         <i class="icon-file-text"></i> Export as CSV
                     </button>
                 </div>

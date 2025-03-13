@@ -70,7 +70,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="deliveryDate" class="form-label">Delivery Date</label>
-                                    <input type="text" class="form-control" id="deliveryDate" name="delivery_date" value="">
+                                    <input type="date" class="form-control" id="deliveryDate" name="delivery_date" value="">
                                 </div>
                             </div>
                             <div class="col-md-6">

@@ -56,10 +56,10 @@
             <tbody>
                 <?php foreach ($tpl['products'] as $product): ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($product['id']); ?></td>
-                        <td><?php echo htmlspecialchars($product['name']); ?></td>
-                        <td><?php echo htmlspecialchars($product['description']); ?></td>
-                        <td><?php echo Utility::getDisplayableAmount($product['price']); ?></td>
+                        <td><?php echo htmlspecialchars($product['product_id']); ?></td>
+                        <td><?php echo htmlspecialchars($product['product_name']); ?></td>
+                        <td><?php echo htmlspecialchars($product['product_description']); ?></td>
+                        <td><?php echo htmlspecialchars($product['price']); ?></td>
                         <td><?php echo htmlspecialchars($product['stock']); ?></td>
                     </tr>
                 <?php endforeach; ?>

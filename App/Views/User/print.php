@@ -59,7 +59,7 @@
             <tbody>
                 <?php foreach ($tpl['users'] as $user): ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($user['id']); ?></td>
+                        <td><?php echo htmlspecialchars($user['user_id']); ?></td>
                         <td><?php echo htmlspecialchars($user['name']); ?></td>
                         <td><?php echo htmlspecialchars($user['email']); ?></td>
                         <td><?php echo htmlspecialchars($user['role']); ?></td>

@@ -61,12 +61,12 @@
             <tbody>
                 <?php foreach ($tpl['orders'] as $order): ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td><?php echo htmlspecialchars($order['order_id']); ?></td>
                         <td><?php echo htmlspecialchars($order['tracking_number']); ?></td>
-                        <td><?php echo htmlspecialchars($order['customer_name']); ?></td>
-                        <td><?php echo htmlspecialchars($order['courier_name']); ?></td>
-                        <td><?php echo htmlspecialchars(date('Y-m-d', strtotime($order['delivery_date']))); ?></td>
-                        <td><?php echo Utility::getDisplayableAmount(htmlspecialchars($order['total_amount'])); ?></td>
+                        <td><?php echo htmlspecialchars($order['customer']); ?></td>
+                        <td><?php echo htmlspecialchars($order['courier']); ?></td>
+                        <td><?php echo htmlspecialchars($order['delivery_date']); ?></td>
+                        <td><?php echo htmlspecialchars($order['total_price']); ?></td>
                         <td><?php echo htmlspecialchars($order['address']); ?></td>
                         <td><?php echo htmlspecialchars($order['country']); ?></td>
                         <td><?php echo htmlspecialchars($order['region']); ?></td>
