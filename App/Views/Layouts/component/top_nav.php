@@ -158,8 +158,8 @@
                 </li>
                 <li class="nav-item dropdown d-none d-lg-block user-dropdown">
                     <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-                        <?php if (!empty($tpl['user']['photo_path'])): ?>
-                            <img id="profileImage" src="<?php echo htmlspecialchars($tpl['user']['photo_path']); ?>" 
+                        <?php if (!empty($_SESSION['user']['photo_path'])): ?>
+                            <img id="profileImage" src="<?php echo htmlspecialchars($_SESSION['user']['photo_path']); ?>" 
                                  alt="Profile Photo" class="img-xs rounded-circle">
                              <?php else: ?>
                             <div class="img-xs rounded-circle d-flex align-items-center justify-content-center bg-light" 
@@ -171,8 +171,8 @@
                     </a>
                     <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
                         <div class="dropdown-header text-center d-flex flex-column align-items-center">
-                            <?php if (!empty($tpl['user']['photo_path'])): ?>
-                                <img id="profileImage" src="<?php echo htmlspecialchars($tpl['user']['photo_path']); ?>" 
+                            <?php if (!empty($_SESSION['user']['photo_path'])): ?>
+                                <img id="profileImage" src="<?php echo htmlspecialchars($_SESSION['user']['photo_path']); ?>" 
                                      alt="Profile Photo" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
                                  <?php else: ?>
                                 <div class="d-flex align-items-center justify-content-center bg-light rounded-circle" 

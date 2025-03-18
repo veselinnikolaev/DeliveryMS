@@ -217,6 +217,7 @@ class UserController extends Controller {
 
                     // ✅ Update user photo in database
                     $userModel->update(['id' => $user_id, 'photo_path' => $photoPath]);
+                    $_SESSION['user']['photo_path'] = $photoPath;
 
                     echo json_encode([
                         'status' => 'success',

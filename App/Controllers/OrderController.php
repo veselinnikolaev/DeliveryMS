@@ -2,18 +2,22 @@
 
 namespace App\Controllers;
 
+use App\Models\Order;
 use Core\Controller;
 
-class OrderController extends Controller {
+class OrderController extends Controller
+{
 
     var $layout = 'admin';
     var $settings;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->settings = $this->loadSettings();
     }
 
-    function loadSettings() {
+    function loadSettings()
+    {
         $settingModel = new \App\Models\Setting();
         $settings = $settingModel->getAll();
         $app_settings = [];
@@ -23,7 +27,8 @@ class OrderController extends Controller {
         return $app_settings;
     }
 
-    function list($layout = 'admin') {
+    function list($layout = 'admin')
+    {
         $orderModel = new \App\Models\Order();
         $userModel = new \App\Models\User();
         $courierModel = new \App\Models\Courier();
@@ -85,11 +90,13 @@ class OrderController extends Controller {
         $this->view($layout, $arr);
     }
 
-    function filter() {
+    function filter()
+    {
         $this->list('ajax');
     }
 
-    function create() {
+    function create()
+    {
         if (empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
             exit;
@@ -203,7 +210,8 @@ class OrderController extends Controller {
         $this->view($this->layout, $arr);
     }
 
-    function details() {
+    function details()
+    {
         $orderModel = new \App\Models\Order();
         $orderProductsModel = new \App\Models\OrderProducts();
         $productModel = new \App\Models\Product();
@@ -260,7 +268,8 @@ class OrderController extends Controller {
         $this->view($this->layout, $data);
     }
 
-    function delete() {
+    function delete()
+    {
         if (empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
             exit;
@@ -298,7 +307,28 @@ class OrderController extends Controller {
         $this->view('ajax', ['orders' => $orders, 'currency' => $this->settings['currency_code']]);
     }
 
-    function bulkDelete() {
+    function pay()
+    {
+        if (!empty($_GET['order_id'])) {
+            $orderId = $_GET['order_id'];
+            $orderModel = new \App\Models\Order();
+            $userModel = new \App\Models\User();
+            $orderProductsModel = new \App\Models\OrderProducts();
+
+            $order = $orderModel->get($orderId);
+            $user = $userModel->get($order['user_id']);
+            $orderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
+
+            $this->view($this->layout, [
+                'currency_code' => $this->settings['currency_code'], 
+                'order' => $order, 'user' => $user, 
+                'order_products' => $orderProducts
+            ]);
+        }
+    }
+
+    function bulkDelete()
+    {
         if (empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
             exit;
@@ -336,7 +366,8 @@ class OrderController extends Controller {
         $this->view('ajax', ['orders' => $orders, 'currency' => $this->settings['currency_code']]);
     }
 
-    function print() {
+    function print()
+    {
         if (isset($_POST['orderData'])) {
             // Decode the JSON data
             $orders = json_decode($_POST['orderData'], true);
@@ -350,7 +381,8 @@ class OrderController extends Controller {
         $this->view('ajax', ['orders' => $orders]);
     }
 
-    function edit() {
+    function edit()
+    {
         if (empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
             exit;
@@ -496,14 +528,16 @@ class OrderController extends Controller {
         $this->view($this->layout, $arr);
     }
 
-    function calculatePrice() {
+    function calculatePrice()
+    {
         $price_arr = $this->calculateOrderTotal($_POST['product_id'], $_POST['quantity']);
         header('Content-Type: application/json');
 
         echo json_encode($price_arr);
     }
 
-    private function calculateOrderTotal(array $productIds, array $quantities): array {
+    private function calculateOrderTotal(array $productIds, array $quantities): array
+    {
         $productModel = new \App\Models\Product();
         $productPrice = 0;
 
@@ -524,7 +558,8 @@ class OrderController extends Controller {
         ];
     }
 
-    function export() {
+    function export()
+    {
         // Check if orderData is provided
         if (isset($_POST['orderData'])) {
             // Decode the JSON data
@@ -555,7 +590,8 @@ class OrderController extends Controller {
         }
     }
 
-    private function exportAsPDF($orders) {
+    private function exportAsPDF($orders)
+    {
         if (ob_get_level()) {
             ob_end_clean();
         }
@@ -565,8 +601,8 @@ class OrderController extends Controller {
         $pdf->SetCreator('Your App');
         $pdf->SetTitle('Orders Export');
         $pdf->SetHeaderData('', 0, 'Orders List', '');
-        $pdf->setHeaderFont(Array('helvetica', '', 12));
-        $pdf->setFooterFont(Array('helvetica', '', 10));
+        $pdf->setHeaderFont(array('helvetica', '', 12));
+        $pdf->setFooterFont(array('helvetica', '', 10));
         $pdf->SetDefaultMonospacedFont('courier');
         $pdf->SetMargins(15, 15, 15);
         $pdf->SetAutoPageBreak(TRUE, 15);
@@ -582,7 +618,8 @@ class OrderController extends Controller {
         exit;
     }
 
-    private function generateDynamicOrderTable($orders) {
+    private function generateDynamicOrderTable($orders)
+    {
         // Start HTML table
         $html = '<table border="1" cellpadding="5">
 <thead>
@@ -639,7 +676,8 @@ class OrderController extends Controller {
         return $html;
     }
 
-    private function exportAsExcel($orders) {
+    private function exportAsExcel($orders)
+    {
         require(__DIR__ . '/../Helpers/export/simplexlsxgen/src/SimpleXLSXGen.php');
 
         $data = [];
@@ -661,7 +699,8 @@ class OrderController extends Controller {
         exit;
     }
 
-    private function exportAsCSV($orders) {
+    private function exportAsCSV($orders)
+    {
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="orders_export.csv"');
 
@@ -683,136 +722,157 @@ class OrderController extends Controller {
         exit;
     }
 
-    private function generateOrderEmail($order, $customer, $courier, $products, $title) {
+    private function generateOrderEmail($order, $customer, $courier, $products, $title)
+    {
         ob_start();
         ?>
         <!DOCTYPE html>
         <html>
-            <head>
-                <meta charset="utf-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1">
-                <title>Order Confirmation</title>
-                <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        background-color: #f4f4f4;
-                        margin: 0;
-                        padding: 0;
-                    }
-                    .email-container {
-                        max-width: 600px;
-                        margin: 20px auto;
-                        background: #ffffff;
-                        border-radius: 10px;
-                        overflow: hidden;
-                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-                    }
-                    .header {
-                        background: #0073e6;
-                        color: #ffffff;
-                        text-align: center;
-                        padding: 20px;
-                        font-size: 24px;
-                    }
-                    .content {
-                        padding: 20px;
-                    }
+
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>Order Confirmation</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    background-color: #f4f4f4;
+                    margin: 0;
+                    padding: 0;
+                }
+
+                .email-container {
+                    max-width: 600px;
+                    margin: 20px auto;
+                    background: #ffffff;
+                    border-radius: 10px;
+                    overflow: hidden;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                }
+
+                .header {
+                    background: #0073e6;
+                    color: #ffffff;
+                    text-align: center;
+                    padding: 20px;
+                    font-size: 24px;
+                }
+
+                .content {
+                    padding: 20px;
+                }
+
+                .order-details {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 20px;
+                    margin-bottom: 20px;
+                }
+
+                .detail-column {
+                    flex: 1 1 45%;
+                }
+
+                .detail-column p {
+                    margin: 5px 0;
+                    font-size: 14px;
+                }
+
+                .products-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 20px;
+                }
+
+                .products-table th,
+                .products-table td {
+                    padding: 12px;
+                    border: 1px solid #ddd;
+                    text-align: left;
+                }
+
+                .products-table th {
+                    background: #0073e6;
+                    color: white;
+                    font-weight: bold;
+                }
+
+                .footer {
+                    text-align: center;
+                    padding: 15px;
+                    background: #f8f8f8;
+                    font-size: 12px;
+                    color: #666;
+                }
+
+                @media screen and (max-width: 600px) {
                     .order-details {
-                        display: flex;
-                        flex-wrap: wrap;
-                        gap: 20px;
-                        margin-bottom: 20px;
+                        flex-direction: column;
                     }
+
                     .detail-column {
-                        flex: 1 1 45%;
-                    }
-                    .detail-column p {
-                        margin: 5px 0;
-                        font-size: 14px;
-                    }
-                    .products-table {
                         width: 100%;
-                        border-collapse: collapse;
-                        margin-top: 20px;
                     }
-                    .products-table th, .products-table td {
-                        padding: 12px;
-                        border: 1px solid #ddd;
-                        text-align: left;
-                    }
-                    .products-table th {
-                        background: #0073e6;
-                        color: white;
-                        font-weight: bold;
-                    }
-                    .footer {
-                        text-align: center;
-                        padding: 15px;
-                        background: #f8f8f8;
-                        font-size: 12px;
-                        color: #666;
-                    }
-                    @media screen and (max-width: 600px) {
-                        .order-details {
-                            flex-direction: column;
-                        }
-                        .detail-column {
-                            width: 100%;
-                        }
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="email-container">
-                    <div class="header">
-                        <?= htmlspecialchars($title) ?>
-                    </div>
-                    <div class="content">
-                        <p style="font-size: 16px; color: #333;">Thank you for your order! Below are the details:</p>
-                        <div class="order-details">
-                            <div class="detail-column">
-                                <p><strong>Order ID:</strong> <?= htmlspecialchars($order['id']) ?></p>
-                                <p><strong>Customer:</strong> <?= htmlspecialchars($customer['name']) ?></p>
-                                <p><strong>Address:</strong> <?= htmlspecialchars($order['address']) ?></p>
-                                <p><strong>Country:</strong> <?= htmlspecialchars($order['country']) ?></p>
-                                <p><strong>Region:</strong> <?= htmlspecialchars($order['region']) ?></p>
-                            </div>
-                            <div class="detail-column">
-                                <p><strong>Tracking Number:</strong> <?php echo htmlspecialchars($order['tracking_number']); ?></p>
-                                <p><strong>Courier:</strong> <?= htmlspecialchars($courier['name']) ?></p>
-                                <p><strong>Delivery Date:</strong> <?= date('Y-m-d', strtotime($order['delivery_date'])) ?></p>
-                                <p><strong>Status:</strong> <?= \Utility::$order_status[$order['status']] ?? 'Unknown' ?></p>
-                                <p><strong>Total Price:</strong> <?= \Utility::getDisplayableAmount(htmlspecialchars(number_format($order['total_amount'], 2))) ?></p>
-                            </div>
-                        </div>
-                        <h3 style="color: #0073e6; margin-top: 20px;">Order Summary</h3>
-                        <table class="products-table">
-                            <thead>
-                                <tr>
-                                    <th>Product</th>
-                                    <th>Qty</th>
-                                    <th>Price</th>
-                                    <th>Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($products as $product) { ?>
-                                    <tr>
-                                        <td><?= htmlspecialchars($product['name']) ?></td>
-                                        <td><?= htmlspecialchars($product['quantity']) ?></td>
-                                        <td><?= \Utility::getDisplayableAmount(htmlspecialchars(number_format($product['price'], 2))) ?></td>
-                                        <td><?= \Utility::getDisplayableAmount(htmlspecialchars(number_format($product['subtotal'], 2))) ?></td>
-                                    </tr>
-                                <?php } ?>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="footer">
-                        <p>If you have any questions, please contact our customer service.</p>
-                        <p>This is an automated email, please do not reply.</p>
-                    </div>
+                }
+            </style>
+        </head>
+
+        <body>
+            <div class="email-container">
+                <div class="header">
+                    <?= htmlspecialchars($title) ?>
                 </div>
-            </body>
+                <div class="content">
+                    <p style="font-size: 16px; color: #333;">Thank you for your order! Below are the details:</p>
+                    <div class="order-details">
+                        <div class="detail-column">
+                            <p><strong>Order ID:</strong> <?= htmlspecialchars($order['id']) ?></p>
+                            <p><strong>Customer:</strong> <?= htmlspecialchars($customer['name']) ?></p>
+                            <p><strong>Address:</strong> <?= htmlspecialchars($order['address']) ?></p>
+                            <p><strong>Country:</strong> <?= htmlspecialchars($order['country']) ?></p>
+                            <p><strong>Region:</strong> <?= htmlspecialchars($order['region']) ?></p>
+                        </div>
+                        <div class="detail-column">
+                            <p><strong>Tracking Number:</strong> <?php echo htmlspecialchars($order['tracking_number']); ?></p>
+                            <p><strong>Courier:</strong> <?= htmlspecialchars($courier['name']) ?></p>
+                            <p><strong>Delivery Date:</strong> <?= date('Y-m-d', strtotime($order['delivery_date'])) ?></p>
+                            <p><strong>Status:</strong> <?= \Utility::$order_status[$order['status']] ?? 'Unknown' ?></p>
+                            <p><strong>Total Price:</strong>
+                                <?= \Utility::getDisplayableAmount(htmlspecialchars(number_format($order['total_amount'], 2))) ?>
+                            </p>
+                        </div>
+                    </div>
+                    <h3 style="color: #0073e6; margin-top: 20px;">Order Summary</h3>
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($products as $product) { ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($product['name']) ?></td>
+                                    <td><?= htmlspecialchars($product['quantity']) ?></td>
+                                    <td><?= \Utility::getDisplayableAmount(htmlspecialchars(number_format($product['price'], 2))) ?>
+                                    </td>
+                                    <td><?= \Utility::getDisplayableAmount(htmlspecialchars(number_format($product['subtotal'], 2))) ?>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="footer">
+                    <p>If you have any questions, please contact our customer service.</p>
+                    <p>This is an automated email, please do not reply.</p>
+                </div>
+            </div>
+        </body>
+
         </html>
         <?php
         return ob_get_clean();
