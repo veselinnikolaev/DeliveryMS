@@ -255,6 +255,7 @@
             </svg>
             Secure payment
         </div>
+        
         <div style="text-align: center; margin-top: 20px;">
             <a href="<?php echo INSTALL_URL; ?>?controller=Order&action=details&id=<?php echo $tpl['order']['id']; ?>"
                 style="display: inline-block; padding: 12px 20px; border-radius: 5px; text-decoration: none; 
@@ -262,6 +263,7 @@
                 ← Back to Order Details
             </a>
         </div>
+        
         <div class="footer">
             Thank you for your order. If you have any questions, please contact our support team.
         </div>
