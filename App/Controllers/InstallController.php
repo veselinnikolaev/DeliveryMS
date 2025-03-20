@@ -9,7 +9,7 @@ class InstallController extends Controller {
     var $layout = 'front';
 
     public function __construct() {
-        if (INSTALLED && MAIL_CONFIGURED && $_REQUEST['action'] != 'step4') {
+        if (INSTALLED && MAIL_CONFIGURED && $_REQUEST['action'] != 'step5') {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
@@ -17,7 +17,7 @@ class InstallController extends Controller {
 
     function step0() {
         if (INSTALLED && !MAIL_CONFIGURED) {
-            header("Location: " . INSTALL_URL . '?controller=Install&action=step3', true, 301);
+            header("Location: " . INSTALL_URL . '?controller=Install&action=step4', true, 301);
             exit;
         }
 
@@ -26,7 +26,7 @@ class InstallController extends Controller {
 
     function step1() {
         if (INSTALLED && !MAIL_CONFIGURED) {
-            header("Location: " . INSTALL_URL . '?controller=Install&action=step3', true, 301);
+            header("Location: " . INSTALL_URL . '?controller=Install&action=step4', true, 301);
             exit;
         }
 
@@ -80,7 +80,7 @@ class InstallController extends Controller {
 
     function step2() {
         if (INSTALLED && !MAIL_CONFIGURED) {
-            header("Location: " . INSTALL_URL . '?controller=Install&action=step3', true, 301);
+            header("Location: " . INSTALL_URL . '?controller=Install&action=step4', true, 301);
             exit;
         }
 
@@ -141,6 +141,25 @@ class InstallController extends Controller {
     }
 
     function step3() {
+        if (INSTALLED && !MAIL_CONFIGURED) {
+            header("Location: " . INSTALL_URL . '?controller=Install&action=step4', true, 301);
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $file = file_get_contents("config/constant.php");
+            $paypalEmail = $_POST['paypal_email'];
+            $file = str_replace('{paypal_email}', $paypalEmail, $file);
+            file_put_contents("config/constant.php", $file);
+
+            header("Location: " . INSTALL_URL . "?controller=Install&action=step4", true, 301);
+            exit;
+        }
+
+        $this->view($this->layout);
+    }
+
+    function step4() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $file = file_get_contents("config/constant.php");
             if (!empty($_POST['skip_mail']) && $_POST['skip_mail']) {
@@ -179,16 +198,16 @@ class InstallController extends Controller {
 
                 file_put_contents("config/constant.php", $file);
 
-                header("Location: " . INSTALL_URL . "?controller=Install&action=step4", true, 301);
+                header("Location: " . INSTALL_URL . "?controller=Install&action=step5", true, 301);
                 exit;
             }
         }
         $this->view($this->layout, ['error_message' => $errorMessage ?? null]);
     }
 
-    function step4() {
+    function step5() {
         if (INSTALLED && !MAIL_CONFIGURED) {
-            header("Location: " . INSTALL_URL . '?controller=Install&action=step3', true, 301);
+            header("Location: " . INSTALL_URL . '?controller=Install&action=step4', true, 301);
             exit;
         }
 

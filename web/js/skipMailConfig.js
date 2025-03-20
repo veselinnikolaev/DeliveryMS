@@ -11,12 +11,12 @@
                 e.preventDefault();
 
                 $.ajax({
-                    url: "index.php?controller=Install&action=step3", // Target step3
+                    url: "index.php?controller=Install&action=step4", // Target step3
                     type: "POST",
                     data: {skip_mail: true}, // Sending a flag to indicate skipping
                     success: function (response) {
                         // Redirect to step4 after successful processing
-                        window.location.href = "index.php?controller=Install&action=step4";
+                        window.location.href = "index.php?controller=Install&action=step5";
                     },
                     error: function () {
                         alert("An error occurred while skipping mail configuration.");

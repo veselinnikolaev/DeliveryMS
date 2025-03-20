@@ -10,12 +10,6 @@
                         <a class="nav-link active ps-0" href="<?php echo INSTALL_URL; ?>?controller=Order&action=create">Create Order</a>
                     </li>
                 </ul>
-                <div>
-                    <div class="btn-wrapper">
-                        <a href="#" class="btn btn-otline-dark align-items-center"><i class="icon-share"></i> Share</a>
-                        <a href="#" class="btn btn-otline-dark"><i class="icon-printer"></i> Print</a>
-                    </div>
-                </div>
             </div>
 
             <div class="card card-rounded mt-3">
@@ -145,7 +139,7 @@
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary text-white me-0">Create Order</button>
                                 <a href="javascript:" id="calculate-price-btn-id" class="btn btn-primary text-white me-0">Calculate Price</a>
-                                <a href="<?php echo INSTALL_URL; ?>?controller=Order&action=list" class="btn btn-outline-dark">Cancel</a>
+                                <a href="<?php echo $_SERVER['HTTP_REFERER']; ?>" class="btn btn-outline-dark">Cancel</a>
                             </div>
                         </div>
                     </form>

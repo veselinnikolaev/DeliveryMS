@@ -7,41 +7,92 @@
         <div class="step-line completed"></div>
         <div class="step completed">2</div>
         <div class="step-line completed"></div>
-        <div class="step completed">3</div>
+        <div class="step completed">2</div>
         <div class="step-line completed"></div>
-        <div class="step completed">4</div>
+        <div class="step active">4</div>
+        <div class="step-line"></div>
+        <div class="step">5</div>
     </div>
     <div class="card shadow-sm">
-        <div class="card-body text-center">
-            <div class="check-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-check-circle" viewBox="0 0 16 16">
-                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                    <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
-                </svg>
-            </div>
-            <h2 class="card-title text-center mb-3">Installation Complete!</h2>
-            <p class="card-text mb-4">Your application has been successfully installed and configured. You are all set!</p>
+        <div class="card-body">
+            <h2 class="card-title text-center mb-4">Mail Configuration</h2>
+            <p class="card-text mb-4">Please enter your mail server details below:</p>
 
-            <div class="alert alert-success mb-4" role="alert">
-                <h4 class="alert-heading">Configuration files created</h4>
-                <p>All configuration files have been created and saved successfully. Your database and mail server connections are properly set up.</p>
-            </div>
+            <?php if (isset($tpl['error_message'])): ?>
+                <div class="alert alert-danger" role="alert">
+                    <?php echo $tpl['error_message']; ?>
+                </div>
+            <?php endif; ?>
 
-            <div class="mb-4">
-                <h5>Next Steps</h5>
-                <ul class="list-group list-group-flush text-start">
-                    <li class="list-group-item bg-transparent">Login to your admin dashboard using your email and password</li>
-                    <li class="list-group-item bg-transparent">Configure your application settings</li>
-                    <li class="list-group-item bg-transparent">Start adding content to your site</li>
-                </ul>
-            </div>
+            <form action="<?php echo INSTALL_URL; ?>?controller=Install&action=step3" method="POST">
+                <div class="mb-3">
+                    <label for="mail_host" class="form-label">Mail Host</label>
+                    <input type="text" class="form-control" id="mailHost" name="mail_host" placeholder="smtp.example.com" 
+                           value="<?php
+                           if (MAIL_HOST != '{mail_host}') {
+                               echo MAIL_HOST;
+                           }
+                           ?>"  required>
+                </div>
+                <div class="mb-3">
+                    <label for="mail_port" class="form-label">Mail Port</label>
+                    <input type="number" class="form-control" id="mailPort" name="mail_port" placeholder="587"
+                           value="<?php
+                           if (MAIL_PORT != '{mail_port}') {
+                               echo MAIL_PORT;
+                           }
+                           ?>" required>
+                    <div class="form-text">Common ports: 25, 465, 587, 2525</div>
+                </div>
+                <div class="mb-3">
+                    <label for="mail_username" class="form-label">Mail Username</label>
+                    <input type="text" class="form-control" id="mailUsername" name="mail_username" 
+                           value="<?php
+                           if (MAIL_USERNAME != '{mail_username}') {
+                               echo MAIL_USERNAME;
+                           }
+                           ?>" required>
+                </div>
+                <div class="mb-3">
+                    <label for="mail_password" class="form-label">Mail Password</label>
+                    <div class="position-relative">
+                        <input type="password" class="form-control" id="mailPassword" name="mail_password" required>
+                        <i class="password-toggle-icon fa fa-eye" data-target="mailPassword"></i>
+                    </div>
+                </div>
 
-            <div class="d-grid gap-2">
-                <a href="<?php echo INSTALL_URL; ?>" class="btn btn-primary btn-lg">Visit site</a>
-            </div>
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="<?php echo $_SERVER['HTTP_REFERER']; ?>" class="btn btn-secondary">Back</a>
+                       <?php
+                       if (!INSTALLED) {
+                           echo '<a class="btn btn-warning skip-mail-config">Skip</a>';
+                       }
+                       ?>
+                    <button type="submit" class="btn btn-primary">Next Step</button>
+                </div>
+            </form>
         </div>
     </div>
     <div class="mt-4 text-center text-muted">
-        <small>Installation completed successfully! Thank you for choosing our application.</small>
+        <small>Step 3 of 5 - Mail Configuration</small>
+    </div>
+</div>
+
+<div class="modal fade" id="skipMailConfig" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Skip Mail Configuration</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to skip mail configuration?</p>
+                <p>This means you won’t be able to send system emails until configured later.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" id="skip-mail-config-button">Skip</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
 </div>

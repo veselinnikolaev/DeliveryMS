@@ -33,7 +33,7 @@
                                         </select>
 
                                         <?php if (!MAIL_CONFIGURED): ?>
-                                            <a href="<?php echo INSTALL_URL; ?>?controller=Install&action=step3" class="btn btn-warning mt-2">Configure Email</a>
+                                            <a href="<?php echo INSTALL_URL; ?>?controller=Install&action=step4" class="btn btn-warning mt-2">Configure Email</a>
                                         <?php endif; ?>
                                     <?php else: ?>
                                         <input type="text" class="form-control settings-input" id="<?php echo $setting['key']; ?>" name="settings[<?php echo $setting['key']; ?>]" value="<?php echo $setting['value']; ?>" required>

@@ -4,8 +4,8 @@
             <div class="card card-rounded mt-3">
                 <div class="card-body">
                     <h4 class="card-title">Create New Courier</h4>
-                    
-                    <?php if(isset($error_message)): ?>
+
+                    <?php if (isset($error_message)): ?>
                         <div class="alert alert-danger"><?php echo $error_message; ?></div>
                     <?php endif; ?>
 
@@ -32,7 +32,7 @@
                         <div class="row">
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary text-white me-0">Create Courier</button>
-                                <a href="<?php echo INSTALL_URL; ?>?controller=Courier&action=list" class="btn btn-outline-dark">Cancel</a>
+                                <a href="<?php echo $_SERVER['HTTP_REFERER']; ?>" class="btn btn-outline-dark">Cancel</a>
                             </div>
                         </div>
                     </form>

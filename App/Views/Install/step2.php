@@ -10,6 +10,8 @@
         <div class="step">3</div>
         <div class="step-line"></div>
         <div class="step">4</div>
+        <div class="step-line"></div>
+        <div class="step">5</div>
     </div>
     <div class="card shadow-sm">
         <div class="card-body">
@@ -65,6 +67,6 @@
         </div>
     </div>
     <div class="mt-4 text-center text-muted">
-        <small>Step 2 of 4 - Root Account Creation</small>
+        <small>Step 2 of 5 - Root Account Creation</small>
     </div>
 </div>

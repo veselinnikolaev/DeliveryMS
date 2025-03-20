@@ -7,13 +7,11 @@ use Core;
 use Core\View;
 use Core\Controller;
 
-class AuthController extends Controller
-{
+class AuthController extends Controller {
 
     var $layout = 'admin';
 
-    function register()
-    {
+    function register() {
         if (!empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
@@ -47,8 +45,7 @@ class AuthController extends Controller
         $this->view($this->layout, $arr);
     }
 
-    function login()
-    {
+    function login() {
         if (!empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
@@ -61,7 +58,7 @@ class AuthController extends Controller
 
             if ($user && password_verify($_POST['password'], $user['password_hash'])) {
                 $_SESSION['user'] = $user;
-                header("Location: " . INSTALL_URL . "?controller=Home&action=index", true, 301);
+                header("Location: " . $_SERVER['HTTP_REFERER'], true, 301);
                 exit;
             } else {
                 $error_message = "Invalid email or password.";
@@ -76,8 +73,7 @@ class AuthController extends Controller
         $this->view($this->layout, $arr);
     }
 
-    function logout()
-    {
+    function logout() {
         if (empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL, true, 301);
             exit;

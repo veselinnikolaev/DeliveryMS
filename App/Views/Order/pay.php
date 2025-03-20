@@ -238,26 +238,12 @@
                 ?>
                 <!-- PayPal Button -->
                 <form action="<?php echo $url; ?>" method="post" target="_top">
-                    <input type="hidden" name="cmd" value="_cart">
-                    <input type="hidden" name="business" value="vslnnikolaev@gmail.com">
+                    <input type="hidden" name="cmd" value="_xclick">
+                    <input type="hidden" name="business" value="<?php echo PAYPAL_EMAIL; ?>">
                     <input type="hidden" name="custom" value="<?php echo $tpl['order']['id']; ?>">
-                    <input type="hidden" name="item_name_1" value="Order #<?php echo $tpl['order']['id']; ?>">
-                    <input type="hidden" name="item_number_1" value="<?php echo $tpl['order']['id']; ?>">
-                    <input type="hidden" name="amount_1" value="<?php echo str_replace(',', '', $tpl['order']['total_amount']); ?>">
-                    <input type="hidden" name="quantity_1" value="1" />
+                    <input type="hidden" name="item_name" value="Order #<?php echo $tpl['order']['id']; ?>">
+                    <input type="hidden" name="amount" value="<?php echo str_replace(',', '', $tpl['order']['total_amount']); ?>">
                     <input type="hidden" name="currency_code" value="<?php echo Utility::getCurrencyCode($tpl['currency_code']); ?>">
-
-                    <input type="hidden" name="first_name" value="<?php echo $tpl['user']['name']; ?>" />
-                    <input type="hidden" name="last_name" value="<?php echo $tpl['user']['name']; ?>" />
-                    <input type="hidden" name="address1" value="<?php echo $tpl['order']['address']; ?>" />
-                    <input type="hidden" name="address2" value="<?php echo $tpl['order']['address']; ?>" />
-                    <input type="hidden" name="city" value="<?php echo $tpl['order']['country']; ?>" />
-                    <input type="hidden" name="state" value="<?php echo $tpl['order']['region']; ?>" />
-                    <input type="hidden" name="zip" value="<?php echo $tpl['order']['address']; ?>" />
-                    <input type="hidden" name="email" value="<?php echo $tpl['user']['email']; ?>" />
-
-                    <input type="hidden" name="rm" value="2">
-                    <input type="hidden" name="cbt" value="Return to The Store">
 
                     <input type="hidden" name="return"
                            value="<?php echo INSTALL_URL; ?>?controller=Order&action=pay_success&order_id=<?php echo $tpl['order']['id']; ?>">

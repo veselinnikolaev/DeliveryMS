@@ -10,6 +10,8 @@
         <div class="step">3</div>
         <div class="step-line"></div>
         <div class="step">4</div>
+        <div class="step-line"></div>
+        <div class="step">5</div>
     </div>
     <div class="card shadow-sm">
         <div class="card-body">
@@ -67,6 +69,6 @@
         </div>
     </div>
     <div class="mt-4 text-center text-muted">
-        <small>Step 1 of 4 - Database Configuration</small>
+        <small>Step 1 of 5 - Database Configuration</small>
     </div>
 </div>

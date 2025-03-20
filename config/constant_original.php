@@ -4,6 +4,7 @@ define("DEFAULT_HOST", "{hostname}");
 define("DEFAULT_USER", "{host_username}");
 define("DEFAULT_PASS", "{host_password}");
 define("DEFAULT_DB", "{database_name}");
+define("PAYPAL_EMAIL", "{paypal_email}");
 define("MAIL_HOST", "{mail_host}");
 define("MAIL_PORT", "{mail_port}");
 define("MAIL_USERNAME", "{mail_username}");
