@@ -82,14 +82,14 @@
                                     <label for="tax" class="form-label">Tax</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><?php echo $tpl['currency']; ?></span>
-                                        <input type="number" step="0.01" min="0" class="form-control" id="tax" name="tax" value="<?php echo $order['tax']; ?>" required>
+                                        <input type="text" class="form-control" id="tax" name="tax" value="<?php echo $order['tax']; ?>" required readonly>
                                     </div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="shippingPrice" class="form-label">Shipping Price</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><?php echo $tpl['currency']; ?></span>
-                                        <input type="number" step="0.01" min="0" class="form-control" id="shippingPrice"  name="shipping_price" value="<?php echo $order['shipping_price']; ?>" required>
+                                        <input type="теьт" class="form-control" id="shippingPrice"  name="shipping_price" value="<?php echo $order['shipping_price']; ?>" required readonly>
                                     </div>
                                 </div> 
                                 <div class="mb-3">

@@ -1,4 +1,5 @@
 <?php
+
 use App\Models\Setting;
 
 class Utility {
@@ -11,7 +12,6 @@ class Utility {
         'cancelled' => 'Cancelled',
         'returned' => 'Returned'
     ];
-
     static $currencies = [
         '$' => 'USD',
         '€' => 'EUR',
@@ -30,12 +30,21 @@ class Utility {
 
     static function getDisplayableAmount($amount) {
         $settingModel = new Setting();
-        $formattedAmount = number_format($amount, 2);
-
         $currency = $settingModel->getFirstBy(['key' => 'currency_code'])['value'];
+
         // Currencies that go before the amount
         $prefixCurrencies = ['$', '£', '¥', '₣'];
 
+        // Remove any commas and cast to float
+        $amount = floatval(str_replace(',', '', $amount));
+
+        $formattedAmount = number_format($amount, 2);
+
         return in_array($currency, $prefixCurrencies) ? "{$currency}{$formattedAmount}" : "{$formattedAmount} {$currency}";
     }
+
+    static function getCurrencyCode($currency = '$') {
+        return self::$currencies[$currency];
+    }
+
 }
