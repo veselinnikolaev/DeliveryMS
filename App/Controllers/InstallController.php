@@ -165,9 +165,7 @@ class InstallController extends Controller {
             if (!empty($_POST['skip_mail']) && $_POST['skip_mail']) {
                 try {
                     $settingModel = new \App\Models\Setting();
-                    $emailSendingSetting = $settingModel->getFirstBy(['key' => 'email_sending']);
-                    $emailSendingSetting['value'] = 'disabled';
-                    $settingModel->update($emailSendingSetting);
+                    $settingModel->update(['value' => 'disabled'], ['key' => 'email_sending']);
                 } catch (\Throwable) {
                     echo json_encode(["error" => "Failed to update settings."]);
                     exit();

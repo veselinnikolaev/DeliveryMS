@@ -1,3 +1,4 @@
+<?php $unread_count = count(array_filter($tpl['notifications'], fn($n) => !$n['is_seen'])); ?>
 <nav class="navbar default-layout col-lg-12 col-12 p-0 d-flex align-items-top flex-row fixed-top">
     <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-start">
         <div class="me-3">
@@ -116,44 +117,44 @@
                         </a>
                     </div>
                 </li>
-                <li class="nav-item dropdown"> 
+                <li class="nav-item dropdown">
                     <a class="nav-link count-indicator" id="countDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="icon-bell"></i>
-                        <span class="count"></span>
+                        <?php if ($unread_count > 0):
+                            ?>
+                            <span class="count"><?= $unread_count ?></span> <!-- Show count of unread -->
+                        <?php endif; ?>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0" aria-labelledby="countDropdown">
                         <a class="dropdown-item py-3">
-                            <p class="mb-0 font-weight-medium float-left">You have 7 unread mails </p>
+                            <p class="mb-0 font-weight-medium float-left">
+                                You have <?= $unread_count ?> unread notifications
+                            </p>
                             <span class="badge badge-pill badge-primary float-right">View all</span>
                         </a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item preview-item">
-                            <div class="preview-thumbnail">
-                                <img src="web/assets/images/faces/face10.jpg" alt="image" class="img-sm profile-pic">
-                            </div>
-                            <div class="preview-item-content flex-grow py-2">
-                                <p class="preview-subject ellipsis font-weight-medium text-dark">Marian Garner </p>
-                                <p class="fw-light small-text mb-0"> The meeting is cancelled </p>
-                            </div>
-                        </a>
-                        <a class="dropdown-item preview-item">
-                            <div class="preview-thumbnail">
-                                <img src="web/assets/images/faces/face12.jpg" alt="image" class="img-sm profile-pic">
-                            </div>
-                            <div class="preview-item-content flex-grow py-2">
-                                <p class="preview-subject ellipsis font-weight-medium text-dark">David Grey </p>
-                                <p class="fw-light small-text mb-0"> The meeting is cancelled </p>
-                            </div>
-                        </a>
-                        <a class="dropdown-item preview-item">
-                            <div class="preview-thumbnail">
-                                <img src="web/assets/images/faces/face1.jpg" alt="image" class="img-sm profile-pic">
-                            </div>
-                            <div class="preview-item-content flex-grow py-2">
-                                <p class="preview-subject ellipsis font-weight-medium text-dark">Travis Jenkins </p>
-                                <p class="fw-light small-text mb-0"> The meeting is cancelled </p>
-                            </div>
-                        </a>
+
+                        <?php if (count($tpl['notifications']) > 0): ?>
+                            <?php foreach ($tpl['notifications'] as $notif): ?>
+                                <a class="dropdown-item preview-item notification-item" 
+                                   data-id="<?= $notif['id'] ?>" 
+                                   href="<?= $notif['link'] ?? '#' ?>">
+                                    <div class="preview-thumbnail">
+                                        <img src="web/assets/images/faces/face1.jpg" alt="image" class="img-sm profile-pic">
+                                    </div>
+                                    <div class="preview-item-content flex-grow py-2">
+                                        <p class="preview-subject ellipsis font-weight-medium text-dark">
+                                            <?= htmlspecialchars($notif['message']) ?>
+                                        </p>
+                                        <p class="fw-light small-text mb-0">
+                                            <?= date("m/d/Y", $notif['created_at']) ?>
+                                        </p>
+                                    </div>
+                                </a>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p class="dropdown-item text-center text-muted">No new notifications</p>
+                        <?php endif; ?>
                     </div>
                 </li>
                 <li class="nav-item dropdown d-none d-lg-block user-dropdown">

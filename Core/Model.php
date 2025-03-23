@@ -315,6 +315,66 @@ class Model {
         return $this->executeQuery($query, $values, str_repeat('s', count($values) - 1) . 'i'); // Добавяме 'i' за integer
     }
 
+    public function updateBy($data, $options = null) {
+        // Prepare an array of fields/values to update based on the defined schema
+        $save = [];
+        foreach ($this->schema as $field) {
+            $name = $field['name'];
+            if (isset($data[$name])) {
+                // If the field value is not an array, use it directly.
+                if (!is_array($data[$name])) {
+                    $save["`$name`"] = $data[$name];
+                } else {
+                    // If the field value is an array, take the first element
+                    if (isset($data[$name][0])) {
+                        $save["`$name`"] = $data[$name][0];
+                    }
+                }
+            }
+        }
+
+        // If there are no fields to update, return false
+        if (empty($save)) {
+            return false;
+        }
+
+        // Extract the field names and values for binding
+        $fields = array_keys($save);
+        $values = array_values($save);
+
+        // Build the SET part of the query with placeholders
+        $set = [];
+        foreach ($fields as $field) {
+            $set[] = "$field = ?";
+        }
+
+        // Start building the query
+        $query = "UPDATE " . $this->getTable() . " SET " . implode(',', $set);
+
+        // If conditions ($options) are provided, append them to the WHERE clause
+        if ($options && is_array($options)) {
+            $conditions = [];
+            foreach ($options as $field => $value) {
+                $conditions[] = "$field = ?";
+                // Append the extra condition value to the values array
+                $values[] = $value;
+            }
+            $query .= " WHERE " . implode(" AND ", $conditions);
+        } elseif ($options) {
+            // If $options is provided as a string, append it directly
+            $query .= " WHERE " . $options;
+        } else {
+            // If no conditions are provided, prevent accidental full table updates
+            return false;
+        }
+
+        // Build the types string for binding parameters (assuming all are strings)
+        $types = str_repeat('s', count($values));
+
+        // Execute the query using your custom executeQuery method
+        return $this->executeQuery($query, $values, $types);
+    }
+
     public function delete($id) {
 // Изтриване на запис
         $primaryKeyName = $this->primaryKey ?: 'id';

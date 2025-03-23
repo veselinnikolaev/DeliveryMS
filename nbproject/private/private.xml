@@ -2,25 +2,6 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/C:/xampp/htdocs/DeliveryMS/config/constant_original.php</file>
-            <file>file:/C:/xampp/htdocs/DeliveryMS/config/constant.php</file>
-            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/ProductController.php</file>
-            <file>file:/C:/xampp/htdocs/DeliveryMS/index.php</file>
-            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/UserController.php</file>
-            <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/export.js</file>
-            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Product/list.php</file>
-            <file>file:/C:/xampp/htdocs/DeliveryMS/web/js/print.js</file>
-            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/User/list.php</file>
-            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Order/list.php</file>
-            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Courier/list.php</file>
-            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/User/component/table.php</file>
-            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/CourierController.php</file>
-            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Courier/component/table.php</file>
-            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Controllers/OrderController.php</file>
-            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Order/component/table.php</file>
-            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Product/print.php</file>
-            <file>file:/C:/xampp/htdocs/DeliveryMS/App/Views/Order/print.php</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>

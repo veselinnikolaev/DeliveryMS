@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS `orders`;
 DROP TABLE IF EXISTS `order_products`;
 DROP TABLE IF EXISTS `couriers`;
 DROP TABLE IF EXISTS `settings`;
+DROP TABLE IF EXISTS `notifications`;
 
 -- Create the `users` table
 CREATE TABLE IF NOT EXISTS `users` (
@@ -78,6 +79,16 @@ CREATE TABLE IF NOT EXISTS `settings` (
   `key` VARCHAR(255) NOT NULL,
   `value` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Create the `notifications` table
+CREATE TABLE `notifications` (
+    `id` INT(11) NOT NULL AUTO_INCREMENT,
+    `user_id` INT(11) NOT NULL,
+    `message` TEXT NOT NULL,
+    `link` VARCHAR(255) NULL, -- Optional, to open a specific page
+    `is_seen` TINYINT(1) DEFAULT 0, -- 0 = unseen, 1 = seen
+    `created_at` BIGINT DEFAULT CURRENT_TIMESTAMP,
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `settings` (`key`, `value`) 

@@ -10,6 +10,12 @@
             <?php if (in_array($_SESSION['user']['role'], ['admin', 'root'])): ?>
                 <li class="nav-item nav-category">Forms and Data</li>
                 <li class="nav-item">
+                    <a class="nav-link" href="<?php INSTALL_URL; ?>?controller=Order&action=list&user_id=<?php echo $_SESSION['user']['id']; ?>">
+                        <i class="menu-icon mdi mdi-clipboard-list"></i>
+                        <span class="menu-title">My Orders</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" data-bs-toggle="collapse" href="#orders" aria-expanded="false" aria-controls="orders">
                         <i class="menu-icon mdi mdi-cart-outline"></i>
                         <span class="menu-title">Orders</span>

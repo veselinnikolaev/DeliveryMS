@@ -19,6 +19,9 @@ class View {
             echo "View '{$viewPath}' not found.";
             return;
         }
+        //Notifications
+        $notificationModel = new \App\Models\Notification();
+        $tpl['notifications'] = $notificationModel->getAll(['user_id' => $_SESSION['user']['id']]);
 
         // Извличане на променливите
         extract($tpl);

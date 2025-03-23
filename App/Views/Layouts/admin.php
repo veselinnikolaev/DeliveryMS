@@ -78,5 +78,6 @@
         <script src="web/js/uploadProfilePicture.js"></script>
         <script src="web/js/export.js"></script>
         <script src="web/js/print.js"></script>
+        <script src="web/js/markNotificationAsSeen.js"></script>
     </body>
 </html>

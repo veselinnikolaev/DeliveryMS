@@ -105,6 +105,7 @@ class OrderController extends Controller {
         $productModel = new \App\Models\Product();
         $userModel = new \App\Models\User();
         $courierModel = new \App\Models\Courier();
+        $notificationModel = new \App\Models\Notification();
         $mailer = new \App\Helpers\mailer\Mailer();
         $currency = $this->settings['currency_code'];
 
@@ -170,6 +171,11 @@ class OrderController extends Controller {
                     }
 
                     if (!isset($error_message)) {
+                        $notificationModel->save([
+                            'user_id' => $_POST['user_id'],
+                            'message' => "Your order #$orderId has been created successfully!",
+                            'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId"
+                        ]);
                         if ($this->settings['email_sending'] == 'enabled') {
                             $order = $orderModel->get($orderId);
                             $customer = $userModel->get($order['user_id']);
@@ -338,7 +344,7 @@ class OrderController extends Controller {
         // If the order exists and the payment was successful, mark it as paid
         if ($order) {
             // Update the order status as paid
-            $order['status'] = 'paid';
+            $order['status'] = 'shipped';
             $orderModel->save($order);
 
             // Show a success message or redirect to a success page
@@ -434,6 +440,7 @@ class OrderController extends Controller {
         $productModel = new \App\Models\Product();
         $userModel = new \App\Models\User();
         $courierModel = new \App\Models\Courier();
+        $notificationModel = new \App\Models\Notification();
         $mailer = new \App\Helpers\mailer\Mailer();
         $currency = $this->settings['currency_code'];
 
@@ -519,6 +526,11 @@ class OrderController extends Controller {
             }
 
             if (!isset($error_message)) {
+                $notificationModel->save([
+                    'user_id' => $_POST['user_id'],
+                    'message' => "Your order #$orderId has been edited successfully!",
+                    'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId"
+                ]);
                 if ($this->settings['email_sending'] == 'enabled') {
                     $order = $orderModel->get($orderId);
                     $customer = $userModel->get($order['user_id']);
@@ -930,5 +942,4 @@ class OrderController extends Controller {
         <?php
         return ob_get_clean();
     }
-
 }
