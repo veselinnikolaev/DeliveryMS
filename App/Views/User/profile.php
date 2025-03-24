@@ -98,7 +98,7 @@
                                                 <p class="text-muted mb-0">Member Since</p>
                                             </div>
                                             <div class="col-md-8">
-                                                <p class="mb-0"><?php echo date('F j, Y', $tpl['user']['created_at']); ?></p>
+                                                <p class="mb-0"><?php echo date($tpl['date_format'], $tpl['user']['created_at']); ?></p>
                                             </div>
                                         </div>
                                     </div>

@@ -71,3 +71,253 @@ select.form-select option {
     margin-bottom: 30px;
     text-align: center;
 }
+
+:root {
+    --primary-color: #4a6de5;
+    --secondary-color: #f8f9fa;
+    --accent-color: #6c757d;
+    --success-color: #28a745;
+    --text-color: #343a40;
+    --light-border: #e9ecef;
+    --error-color: #dc3545;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fa;
+    color: var(--text-color);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--light-border);
+}
+
+.header h1 {
+    color: var(--primary-color);
+    margin: 0;
+    font-size: 32px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.header-error h1 {
+    color: var(--error-color);
+    font-size: 32px;
+    font-weight: 600;
+    text-align: center;
+    position: relative;
+    top: -10px;
+}
+
+
+.order-details {
+    background-color: var(--secondary-color);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.order-details-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.order-details-row:last-child {
+    margin-bottom: 0;
+    padding-top: 15px;
+    border-top: 1px dashed var(--light-border);
+}
+
+.order-details-label {
+    font-weight: 600;
+    color: var(--accent-color);
+}
+
+.order-details-value {
+    font-weight: 700;
+}
+
+.total-amount {
+    font-size: 1.2em;
+    color: var(--primary-color);
+}
+
+.total-amount-error {
+    font-size: 1.2em;
+    color: var(--error-color);
+}
+
+.payment-methods {
+    margin-top: 30px;
+}
+
+.payment-method-title {
+    text-align: center;
+    margin-bottom: 20px;
+    color: var(--accent-color);
+    font-size: 18px;
+}
+
+.payment-button {
+    width: 100%;
+    padding: 15px;
+    background-color: #0070ba;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.payment-button:hover {
+    background-color: #005ea6;
+}
+
+.button-content {
+    display: flex;
+    align-items: center;
+    /* Ensure items are vertically aligned */
+    gap: 8px;
+    /* Ensures spacing between the icon and text */
+}
+
+.button-content svg {
+    width: 20px;
+    /* Set a fixed width for consistency */
+    height: 20px;
+    vertical-align: middle;
+    /* Helps align it properly with text */
+}
+
+.footer {
+    text-align: center;
+    margin-top: 40px;
+    color: var(--accent-color);
+    font-size: 14px;
+}
+
+.secure-badge {
+    display: flex;
+    align-items: center;
+    /* Ensures vertical alignment */
+    justify-content: center;
+    /* Centers content horizontally */
+    margin-top: 20px;
+    color: var(--success-color);
+    font-weight: 600;
+    gap: 8px;
+    /* Space between icon and text */
+}
+
+.secure-badge svg {
+    width: 20px;
+    /* Set consistent size for icon */
+    height: 20px;
+    vertical-align: middle;
+    /* Aligns icon with text */
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 20px;
+        margin: 20px;
+    }
+}
+
+.retry-payment {
+    display: inline-block;
+    padding: 12px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    margin: 20px 10px;
+    transition: background-color 0.3s;
+}
+
+.retry-payment:hover {
+    background-color: #3955c8;
+}
+
+.back-button {
+    display: inline-block;
+    padding: 12px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    background-color: var(--accent-color);
+    color: white;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.back-button:hover {
+    background-color: #5a6268;
+}
+
+.footer {
+    text-align: center;
+    margin-top: 40px;
+    color: var(--accent-color);
+    font-size: 14px;
+}
+
+.message-container {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.message-icon {
+    color: var(--error-color);
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+.message-text {
+    font-size: 18px;
+    color: var(--text-color);
+    margin-bottom: 25px;
+}
+
+.retry-payment {
+    display: inline-block;
+    padding: 12px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    margin: 20px 10px;
+    transition: background-color 0.3s;
+}
+
+.retry-payment:hover {
+    background-color: #3955c8;
+}
+
+.unseen {
+    background-color: #f8d7da; /* Light red background */
+    font-weight: bold; /* Bold text */
+}

@@ -35,8 +35,8 @@
 
         <div style="text-align: center; margin-top: 20px;">
             <a href="<?php echo INSTALL_URL; ?>?controller=Order&action=details&id=<?php echo $tpl['order']['id']; ?>"
-                style="display: inline-block; padding: 12px 20px; border-radius: 5px; text-decoration: none; 
-                    background-color: var(--accent-color); color: white; font-weight: 600;">
+               style="display: inline-block; padding: 12px 20px; border-radius: 5px; text-decoration: none;
+               background-color: var(--accent-color); color: white; font-weight: 600;">
                 ← Back to Order Details
             </a>
         </div>

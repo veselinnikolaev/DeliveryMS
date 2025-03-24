@@ -8,12 +8,18 @@
         <li class="list-group-item d-flex justify-content-between align-items-center 
             <?= $notif['is_seen'] ? 'list-group-item-light' : 'list-group-item-warning' ?>">
             <div>
-                <strong><?= htmlspecialchars($notif['message']) ?></strong><br>
-                <small class="text-muted"><?= date("m/d/Y", $notif['created_at']) ?></small>
+                <strong><?= htmlspecialchars($notif['message']) ?></strong>
+                <?php
+                if (!empty($notif['link'])) {
+                    echo "<a href=\"{$notif['link']}\">link</a>";
+                }
+                ?>
+                <br>
+                <small class="text-muted"><?= date($tpl['date_format'] . ' H:i', $notif['created_at']) ?></small>
             </div>
             <div>
                 <?php if (!$notif['is_seen']): ?>
-                    <button class="btn btn-sm btn-success mark-seen notification-item" data-id="<?= $notif['id'] ?>">Mark as Seen</button>
+                    <button class="btn btn-sm btn-success mark-seen" data-id="<?= $notif['id'] ?>">Mark as Seen</button>
                 <?php endif; ?>
             </div>
         </li>

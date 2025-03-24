@@ -74,7 +74,7 @@ class OrderController extends Controller {
         foreach ($orders as &$order) {
             $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
             $order['courier_name'] = $courierModel->get($order['courier_id'])['name'] ?? 'Unknown';
-            $order['delivery_date'] = date('m/d/Y', $order['delivery_date']);
+            $order['delivery_date'] = date($this->settings['date_format'], $order['delivery_date']);
         }
 
         // Pass the data to the view
@@ -174,7 +174,8 @@ class OrderController extends Controller {
                         $notificationModel->save([
                             'user_id' => $_POST['user_id'],
                             'message' => "Your order #$orderId has been created successfully!",
-                            'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId"
+                            'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
+                            'created_at' => time()
                         ]);
                         if ($this->settings['email_sending'] == 'enabled') {
                             $order = $orderModel->get($orderId);
@@ -304,7 +305,7 @@ class OrderController extends Controller {
         foreach ($orders as &$order) {
             $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
             $order['name'] = $courierModel->get($order['courier_id'])['name'] ?? 'Unknown';
-            $order['delivery_date'] = date('Y-m-d', strtotime($order['delivery_date']));
+            $order['delivery_date'] = date($this->settings['date_format'], $order['delivery_date']);
         }
 
         $this->view('ajax', ['orders' => $orders, 'currency' => $this->settings['currency_code']]);
@@ -343,10 +344,6 @@ class OrderController extends Controller {
 
         // If the order exists and the payment was successful, mark it as paid
         if ($order) {
-            // Update the order status as paid
-            $order['status'] = 'shipped';
-            $orderModel->save($order);
-
             // Show a success message or redirect to a success page
             $this->view($this->layout, ['order' => $order, 'user' => $user]);
         }
@@ -364,12 +361,62 @@ class OrderController extends Controller {
         $user = $userModel->getFirstBy(['id' => $order['user_id']]);
 
         if ($order) {
-            // Handle the cancel logic (e.g., set the order as 'cancelled')
-            $order['status'] = 'cancelled';
-            $orderModel->save($order);
-
             // Show a cancellation message or redirect to a cancellation page
             $this->view($this->layout, ['order' => $order, 'user' => $user]);
+        }
+    }
+
+    function paypal_ipn() {
+        // PayPal verifies the IPN message
+        $orderModel = new \App\Models\Order();
+        $notificationModel = new \App\Models\Notification();
+        $userModel = new \App\Models\User();
+        $orderId = $_POST['custom']; // Get the order ID from PayPal's "custom" field
+        $order = $orderModel->get($orderId);
+        $user = $userModel->getFirstBy(['id' => $order['user_id']]);
+
+        // Step 1: Verify IPN message with PayPal (to avoid fraud)
+        $url = 'https://www.paypal.com/cgi-bin/webscr';
+        $data = array(
+            'cmd' => '_notify-validate',
+            'tx' => $_POST['txn_id'], // PayPal transaction ID
+            'amt' => $_POST['mc_gross'], // Total amount paid
+            'currency_code' => $_POST['mc_currency'], // Currency code
+        );
+
+        // Send the IPN data back to PayPal for validation
+        $response = file_get_contents($url . '?' . http_build_query($data));
+
+        // Step 2: If PayPal confirms the payment is valid
+        if ($response == "VERIFIED") {
+            // Update the order status based on payment confirmation
+            if ($_POST['payment_status'] == 'Completed') {
+                // Payment is successful, update order status
+                $order['status'] = 'shipped';
+                $orderModel->update($order);
+                $notificationModel->save([
+                    'user_id' => $user['id'],
+                    'message' => "Your order #$orderId has been paid successfully!",
+                    'link' => INSTALL_URL . "?controller=Order&action=pay_success&order_id=$orderId",
+                    'created_at' => time()
+                ]);
+            }
+        } else {
+            // Payment not verified, handle the error (perhaps log it)
+            error_log("Invalid IPN message: " . json_encode($_POST));
+        }
+
+        // Step 3: Handle canceled or failed payment (if needed)
+        if ($_POST['payment_status'] == 'Failed' || $_POST['payment_status'] == 'Canceled') {
+            // Update the order status as canceled
+            $order['status'] = 'cancelled';
+            $orderModel->update($order);
+            $notificationModel->save([
+                'user_id' => $user['id'],
+                'message' => "Your order #$orderId has been cancelled!",
+                'link' => INSTALL_URL . "?controller=Order&action=pay_cancel&order_id=$orderId",
+                'created_at' => time()
+            ]);
         }
     }
 
@@ -398,14 +445,14 @@ class OrderController extends Controller {
             $orderModel->deleteBy($optsForOrder);
         }
 
-        // Retrieve all orders from the database
+// Retrieve all orders from the database
         $orders = $orderModel->getAll();
 
-        // Format orders for display
+// Format orders for display
         foreach ($orders as &$order) {
             $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
             $order['name'] = $courierModel->get($order['courier_id'])['name'] ?? 'Unknown';
-            $order['delivery_date'] = date('Y-m-d', strtotime($order['delivery_date']));
+            $order['delivery_date'] = date($this->settings['date_format'], $order['delivery_date']);
         }
 
         $this->view('ajax', ['orders' => $orders, 'currency' => $this->settings['currency_code']]);
@@ -529,7 +576,8 @@ class OrderController extends Controller {
                 $notificationModel->save([
                     'user_id' => $_POST['user_id'],
                     'message' => "Your order #$orderId has been edited successfully!",
-                    'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId"
+                    'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
+                    'created_at' => time()
                 ]);
                 if ($this->settings['email_sending'] == 'enabled') {
                     $order = $orderModel->get($orderId);
@@ -606,7 +654,7 @@ class OrderController extends Controller {
     }
 
     function export() {
-        // Check if orderData is provided
+// Check if orderData is provided
         if (isset($_POST['orderData'])) {
             // Decode the JSON data
             $orders = json_decode($_POST['orderData'], true);
@@ -619,7 +667,7 @@ class OrderController extends Controller {
 
         $format = isset($_POST['format']) ? $_POST['format'] : 'pdf';
 
-        // Export based on format
+// Export based on format
         switch ($format) {
             case 'pdf':
                 $this->exportAsPDF($orders);
@@ -654,22 +702,22 @@ class OrderController extends Controller {
 
         $pdf->AddPage();
 
-        // Generate HTML table with dynamic headers
+// Generate HTML table with dynamic headers
         $html = $this->generateDynamicOrderTable($orders);
         $pdf->writeHTML($html, true, false, true, false, '');
 
-        // Output PDF
+// Output PDF
         $pdf->Output('orders_export.pdf', 'D');
         exit;
     }
 
     private function generateDynamicOrderTable($orders) {
-        // Start HTML table
+// Start HTML table
         $html = '<table border="1" cellpadding="5">
 <thead>
     <tr>';
 
-        // Define preferred header names
+// Define preferred header names
         $preferredHeaders = [
             'id' => 'Order ID',
             'tracking_number' => 'Tracking Number',
@@ -891,7 +939,7 @@ class OrderController extends Controller {
                                     <?= htmlspecialchars($courier['name']) ?>
                                 </p>
                                 <p><strong>Delivery Date:</strong>
-                                    <?= date('Y-m-d', strtotime($order['delivery_date'])) ?>
+                                    <?= date($this->settings['date_format'], $order['delivery_date']) ?>
                                 </p>
                                 <p><strong>Status:</strong>
                                     <?= \Utility::$order_status[$order['status']] ?? 'Unknown' ?>

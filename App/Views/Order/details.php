@@ -33,8 +33,8 @@
                                 <p><strong>Courier:</strong> <?php echo htmlspecialchars($tpl['courier']['name']); ?>
                                 </p>
                                 <p><strong>Delivery Date:</strong>
-                                    <?php echo htmlspecialchars(date('m/d/Y', $tpl['order']['delivery_date'])); ?></p>
-                                <p><strong>Status:</strong> <?php echo htmlspecialchars($tpl['order']['status']); ?></p>
+                                    <?php echo htmlspecialchars(date($tpl['date_format'], $tpl['order']['delivery_date'])); ?></p>
+                                <p><strong>Status:</strong> <?php echo htmlspecialchars(Utility::$order_status[$tpl['order']['status']]); ?></p>
                                 <p><strong>Total Price:</strong>
                                     <?php echo Utility::getDisplayableAmount(htmlspecialchars(number_format($tpl['order']['total_amount'], 2))); ?>
                                 </p>
@@ -68,11 +68,11 @@
                         </div>
                         <div class="mt-3">
                             <a href="<?php echo INSTALL_URL; ?>?controller=Order&action=list"
-                                class="btn btn-outline-dark">Back to Order List</a>
-                            <?php if ($_SESSION['user']['id'] === $tpl['order']['user_id']) { ?>
+                               class="btn btn-outline-dark">Back to Order List</a>
+                               <?php if ($_SESSION['user']['id'] === $tpl['order']['user_id'] && in_array($tpl['order']['status'], ['pending', 'cancelled'])) { ?>
                                 <a href="<?php echo INSTALL_URL; ?>?controller=Order&action=pay&order_id=<?php echo $tpl['order']['id']; ?>"
-                                    class="btn btn-success">Pay</a>
-                            <?php } ?>
+                                   class="btn btn-success">Pay</a>
+                               <?php } ?>
                         </div>
                     </div>
                 </div>

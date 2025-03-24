@@ -156,7 +156,7 @@ class ProductController extends Controller {
                 exit;
             }
         }
-        
+
         $this->view('ajax', ['products' => $products]);
     }
 

@@ -89,10 +89,13 @@ CREATE TABLE `notifications` (
     `link` VARCHAR(255) NULL, -- Optional, to open a specific page
     `is_seen` TINYINT(1) DEFAULT 0, -- 0 = unseen, 1 = seen
     `created_at` BIGINT DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `settings` (`key`, `value`) 
 VALUES ('email_sending', 'enabled'),
 ('tax_rate', 10.00),
 ('shipping_rate', 5.00),
-('currency_code', '$');
+('currency_code', '$'),
+('timezone', 'Europe/Sofia'),
+('date_format', 'm/d/Y');

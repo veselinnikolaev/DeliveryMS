@@ -77,7 +77,7 @@
         </table>
 
         <div class="print-footer">
-            Generated on: <?php echo date('Y-m-d H:i:s'); ?>
+            Generated on: <?php echo date($tpl['date_format'] . ' H:i:s'); ?>
         </div>
 
         <div class="no-print" style="text-align: center; margin-top: 20px;">

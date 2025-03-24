@@ -231,6 +231,11 @@ class InstallController extends Controller {
             exit;
         }
 
+        if (PAYPAL_EMAIL == '{paypal_email}') {
+            header("Location: " . INSTALL_URL . "?controller=Install&action=step3", true, 301);
+            exit;
+        }
+
         $file = file_get_contents("config/constant.php");
 
         $file = str_replace('"INSTALLED", false', '"INSTALLED", true', $file);
