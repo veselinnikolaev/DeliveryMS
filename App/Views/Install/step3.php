@@ -33,7 +33,7 @@
                     <div class="alert alert-info" role="alert">
                         <i class="fa fa-info-circle me-2"></i>
                         Don't have a PayPal Business account yet? 
-                        <a href="https://www.paypal.com/business/accounts" target="_blank" class="alert-link">
+                        <a href="https://www.paypal.com/bg/business/getting-started" target="_blank" class="alert-link">
                             Click here to create one
                         </a>
                     </div>

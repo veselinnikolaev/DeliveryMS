@@ -4,18 +4,21 @@ namespace App\Controllers;
 
 use Core\Controller;
 
-class InstallController extends Controller {
+class InstallController extends Controller
+{
 
     var $layout = 'front';
 
-    public function __construct() {
+    public function __construct()
+    {
         if (INSTALLED && MAIL_CONFIGURED && $_REQUEST['action'] != 'step5') {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
     }
 
-    function step0() {
+    function step0()
+    {
         if (INSTALLED && !MAIL_CONFIGURED) {
             header("Location: " . INSTALL_URL . '?controller=Install&action=step4', true, 301);
             exit;
@@ -24,7 +27,8 @@ class InstallController extends Controller {
         $this->view($this->layout);
     }
 
-    function step1() {
+    function step1()
+    {
         if (INSTALLED && !MAIL_CONFIGURED) {
             header("Location: " . INSTALL_URL . '?controller=Install&action=step4', true, 301);
             exit;
@@ -78,7 +82,8 @@ class InstallController extends Controller {
         $this->view($this->layout, ['error_message' => $errorMessage ?? null]);
     }
 
-    function step2() {
+    function step2()
+    {
         if (INSTALLED && !MAIL_CONFIGURED) {
             header("Location: " . INSTALL_URL . '?controller=Install&action=step4', true, 301);
             exit;
@@ -140,7 +145,8 @@ class InstallController extends Controller {
         $this->view($this->layout, $arr);
     }
 
-    function step3() {
+    function step3()
+    {
         if (INSTALLED && !MAIL_CONFIGURED) {
             header("Location: " . INSTALL_URL . '?controller=Install&action=step4', true, 301);
             exit;
@@ -159,13 +165,14 @@ class InstallController extends Controller {
         $this->view($this->layout);
     }
 
-    function step4() {
+    function step4()
+    {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $file = file_get_contents("config/constant.php");
-            if (!empty($_POST['skip_mail']) && $_POST['skip_mail']) {
+            if (!empty($_POST['skip_mail'])) {
                 try {
                     $settingModel = new \App\Models\Setting();
-                    $settingModel->update(['value' => 'disabled'], ['key' => 'email_sending']);
+                    $settingModel->updateBy(['value' => 'disabled'], ['key' => 'email_sending']);
                 } catch (\Throwable) {
                     echo json_encode(["error" => "Failed to update settings."]);
                     exit();
@@ -174,6 +181,7 @@ class InstallController extends Controller {
                 echo json_encode(["success" => true]);
                 exit;
             }
+
             $mailHost = $_POST['mail_host'];
             $mailPort = $_POST['mail_port'];
             $mailUsername = $_POST['mail_username'];
@@ -203,7 +211,8 @@ class InstallController extends Controller {
         $this->view($this->layout, ['error_message' => $errorMessage ?? null]);
     }
 
-    function step5() {
+    function step5()
+    {
         if (INSTALLED && !MAIL_CONFIGURED) {
             header("Location: " . INSTALL_URL . '?controller=Install&action=step4', true, 301);
             exit;

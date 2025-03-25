@@ -11,7 +11,7 @@
                 e.preventDefault();
 
                 $.ajax({
-                    url: "index.php?controller=Install&action=step4", // Target step3
+                    url: "index.php?controller=Install&action=step4", // Target step4
                     type: "POST",
                     data: {skip_mail: true}, // Sending a flag to indicate skipping
                     success: function (response) {
