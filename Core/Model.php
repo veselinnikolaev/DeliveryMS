@@ -2,8 +2,7 @@
 
 namespace Core;
 
-class Model
-{
+class Model {
 
     private $mysqli;
     private $debug = false;
@@ -14,8 +13,7 @@ class Model
     public $table = null;
     public $primaryKey = null;
 
-    public function connect()
-    {
+    public function connect() {
         // Инициализиране на mysqli връзката
         $this->host = DEFAULT_HOST;
         $this->user = DEFAULT_USER;
@@ -33,8 +31,7 @@ class Model
         }
     }
 
-    public function checkConnection($host, $user, $password, $database)
-    {
+    public function checkConnection($host, $user, $password, $database) {
         // Създаване на връзка към MySQL сървъра (без база данни)
         try {
             $this->mysqli = new \mysqli($host, $user, $password);
@@ -81,8 +78,7 @@ class Model
         ];
     }
 
-    public function migrate($filePath = 'config/database.sql')
-    {
+    public function migrate($filePath = 'config/database.sql') {
         $this->connect();
 
         // Check if file exists
@@ -124,8 +120,7 @@ class Model
         }
     }
 
-    public function isDbMigrated($databaseName)
-    {
+    public function isDbMigrated($databaseName) {
         $this->connect();
 
         // Проверка дали базата данни съществува
@@ -151,8 +146,7 @@ class Model
         return false; // Няма таблици -> не е мигрирано
     }
 
-    public function getAll($options = null, $column = null, $limit = null)
-    {
+    public function getAll($options = null, $column = null, $limit = null) {
         // Създаване на основна SELECT заявка
         $query = "SELECT * FROM " . $this->getTable();
 
@@ -184,8 +178,7 @@ class Model
         return $this->executeQuery($query);
     }
 
-    public function get($id)
-    {
+    public function get($id) {
         // Връща един запис по primary key
         $primaryKeyName = $this->primaryKey ?: 'id';
         $query = "SELECT * FROM " . $this->getTable() . " WHERE `$primaryKeyName` = ?";
@@ -194,8 +187,7 @@ class Model
         return $arr[0];
     }
 
-    public function getFirstBy($options = null)
-    {
+    public function getFirstBy($options = null) {
         // Основна SELECT заявка
         $query = "SELECT * FROM `" . $this->getTable() . "`";
         $params = [];
@@ -219,8 +211,7 @@ class Model
         // Изпълняване със защитени параметри
     }
 
-    public function getMultiple($ids)
-    {
+    public function getMultiple($ids) {
         // Създаване на основна SELECT заявка
         $query = "SELECT * FROM " . $this->getTable();
         $primaryKeyName = $this->primaryKey ?: 'id';
@@ -235,8 +226,7 @@ class Model
         return $this->executeQuery($query)[0];
     }
 
-    public function existsBy($options = null)
-    {
+    public function existsBy($options = null) {
         $query = "SELECT COUNT(*) as count FROM " . $this->getTable();
 
         if ($options && is_array($options)) {
@@ -256,8 +246,7 @@ class Model
         return isset($result[0]['count']) && $result[0]['count'] > 0;
     }
 
-    public function save($data)
-    {
+    public function save($data) {
         $this->connect();
         // Вставка на нов запис
 
@@ -292,8 +281,7 @@ class Model
         }
     }
 
-    public function update($data)
-    {
+    public function update($data) {
         // Обновяване на съществуващ запис
         $save = array();
 
@@ -327,8 +315,7 @@ class Model
         return $this->executeQuery($query, $values, str_repeat('s', count($values) - 1) . 'i'); // Добавяме 'i' за integer
     }
 
-    public function updateBy($data, $options = null)
-    {
+    public function updateBy($data, $options = null) {
         // Prepare an array of fields/values to update based on the defined schema
         $save = [];
         foreach ($this->schema as $field) {
@@ -387,16 +374,14 @@ class Model
         return $this->executeQuery($query, $values, $types);
     }
 
-    public function delete($id)
-    {
+    public function delete($id) {
         // Изтриване на запис
         $primaryKeyName = $this->primaryKey ?: 'id';
         $query = "DELETE FROM " . $this->getTable() . " WHERE `$primaryKeyName` = ?";
         return $this->executeQuery($query, [$id], 'i'); // 'i' за integer
     }
 
-    public function deleteBy($options = null)
-    {
+    public function deleteBy($options = null) {
         // Изтриване на запис
         $query = "DELETE FROM " . $this->getTable();
         $params = [];
@@ -418,8 +403,7 @@ class Model
         return $this->executeQuery($query);
     }
 
-    public function updateBatch($data = null, $keyColumn = null)
-    {
+    public function updateBatch($data = null, $keyColumn = null) {
         $this->connect();
         // Проверка дали има подадени данни
         if (empty($data) || empty($keyColumn)) {
@@ -456,8 +440,7 @@ class Model
         return false;
     }
 
-    public function executeQuery($query, $params = [], $types = '')
-    {
+    public function executeQuery($query, $params = [], $types = '') {
         $this->connect();
         // Подготовка на заявката
         $stmt = $this->mysqli->prepare($query);
@@ -486,14 +469,12 @@ class Model
         return true; // За не-заявки с резултати, като UPDATE или DELETE
     }
 
-    public function getTable()
-    {
+    public function getTable() {
         // Връща името на таблицата
         return $this->table;
     }
 
-    public function close()
-    {
+    public function close() {
         // Затваряне на връзката с базата данни
         $this->mysqli->close();
     }

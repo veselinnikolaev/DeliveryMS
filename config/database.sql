@@ -64,14 +64,14 @@ CREATE TABLE IF NOT EXISTS `order_products` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Create the `couriers` table
-CREATE TABLE IF NOT EXISTS `couriers` (
+-- Create the `couriers` table (NOT USED)
+/*CREATE TABLE IF NOT EXISTS `couriers` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(100) NOT NULL,
   `phone_number` VARCHAR(20) DEFAULT NULL,
   `email` VARCHAR(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;*/
 
 -- Create the `settings` table
 CREATE TABLE IF NOT EXISTS `settings` (

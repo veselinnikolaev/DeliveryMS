@@ -47,14 +47,14 @@
                                 <h5 class="mb-1"><?php echo htmlspecialchars($tpl['user']['name']); ?></h5>
                                 <p class="text-muted"><?php echo htmlspecialchars($tpl['user']['role']); ?></p>
 
-                                <div class="mt-3">
+                                <div class="mt-3 d-flex flex-wrap gap-2 justify-content-center">
                                     <a href="<?php echo INSTALL_URL; ?>?controller=User&action=edit&id=<?php echo $tpl['user']['id']; ?>" 
-                                       class="btn btn-primary">
-                                        <i class="mdi mdi-pencil me-1"></i> Edit Profile
+                                       class="btn btn-primary rounded-pill text-white">
+                                        <i class="mdi mdi-pencil me-2"></i> Edit Profile
                                     </a>
                                     <?php if ($tpl['user']['role'] !== 'root'): ?>
-                                        <button type="button" class="btn btn-danger mt-2" id="deleteAccount" data-id="<?php echo $tpl['user']['id']; ?>">
-                                            <i class="mdi mdi-delete me-1"></i> Delete Account
+                                        <button type="button" class="btn btn-danger rounded-pill text-white" id="deleteAccount" data-id="<?php echo $tpl['user']['id']; ?>">
+                                            <i class="mdi mdi-delete me-2"></i> Delete Account
                                         </button>
                                     <?php endif; ?>
                                 </div>

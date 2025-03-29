@@ -27,7 +27,6 @@ class OrderController extends Controller {
     function list($layout = 'admin') {
         $orderModel = new \App\Models\Order();
         $userModel = new \App\Models\User();
-        $courierModel = new \App\Models\Courier();
 
         $opts = array();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -68,12 +67,17 @@ class OrderController extends Controller {
             $opts['user_id'] = $_GET['user_id'];
         }
 
+        // Retrieve all orders from the database
+        if (!empty($_GET['courier_id']) && $_GET['courier_id'] == $_SESSION['user']['id']) { //User role checking orders
+            $opts['courier_id'] = $_GET['courier_id'];
+        }
+        
         $orders = $orderModel->getAll($opts);
 
         // Format orders for display
         foreach ($orders as &$order) {
             $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
-            $order['courier_name'] = $courierModel->get($order['courier_id'])['name'] ?? 'Unknown';
+            $order['courier_name'] = $userModel->get($order['courier_id'])['name'] ?? 'Unknown';
             $order['delivery_date'] = date($this->settings['date_format'], $order['delivery_date']);
         }
 
@@ -104,7 +108,6 @@ class OrderController extends Controller {
         $orderProductsModel = new \App\Models\OrderProducts();
         $productModel = new \App\Models\Product();
         $userModel = new \App\Models\User();
-        $courierModel = new \App\Models\Courier();
         $notificationModel = new \App\Models\Notification();
         $mailer = new \App\Helpers\mailer\Mailer();
         $currency = $this->settings['currency_code'];
@@ -180,7 +183,7 @@ class OrderController extends Controller {
                         if ($this->settings['email_sending'] == 'enabled') {
                             $order = $orderModel->get($orderId);
                             $customer = $userModel->get($order['user_id']);
-                            $courier = $courierModel->get($order['courier_id']);
+                            $courier = $userModel->get($order['courier_id']);
                             $orderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
 
                             foreach ($orderProducts as &$product) {
@@ -204,7 +207,7 @@ class OrderController extends Controller {
         $arr = [
             'users' => $userModel->getAll(),
             'products' => $productModel->getAll(),
-            'couriers' => $courierModel->getAll(),
+            'couriers' => $userModel->getAll(['role' => 'courier']),
             'currency' => $currency,
             'error_message' => $error_message ?? null
         ];
@@ -216,7 +219,6 @@ class OrderController extends Controller {
         $orderProductsModel = new \App\Models\OrderProducts();
         $productModel = new \App\Models\Product();
         $userModel = new \App\Models\User();
-        $courierModel = new \App\Models\Courier();
 
         if (empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
@@ -246,7 +248,7 @@ class OrderController extends Controller {
         }
 
         $customerData = $userModel->get($orderData['user_id']);
-        $courierData = $courierModel->get($orderData['courier_id']);
+        $courierData = $userModel->get($orderData['courier_id']);
 
         $opts = array();
         $opts['order_id'] = $orderId;
@@ -282,7 +284,6 @@ class OrderController extends Controller {
         $orderModel = new \App\Models\Order();
         $orderProductsModel = new \App\Models\OrderProducts();
         $userModel = new \App\Models\User();
-        $courierModel = new \App\Models\Courier();
 
         if (!empty($_POST['id'])) {
             $orderId = $_POST['id'];
@@ -304,7 +305,7 @@ class OrderController extends Controller {
         // Format orders for display
         foreach ($orders as &$order) {
             $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
-            $order['name'] = $courierModel->get($order['courier_id'])['name'] ?? 'Unknown';
+            $order['name'] = $userModel->get($order['courier_id'])['name'] ?? 'Unknown';
             $order['delivery_date'] = date($this->settings['date_format'], $order['delivery_date']);
         }
 
@@ -433,7 +434,6 @@ class OrderController extends Controller {
         $orderModel = new \App\Models\Order();
         $orderProductsModel = new \App\Models\OrderProducts();
         $userModel = new \App\Models\User();
-        $courierModel = new \App\Models\Courier();
 
         if (!empty($_POST['ids']) && is_array($_POST['ids'])) {
             $orderIds = $_POST['ids'];
@@ -451,7 +451,7 @@ class OrderController extends Controller {
 // Format orders for display
         foreach ($orders as &$order) {
             $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
-            $order['name'] = $courierModel->get($order['courier_id'])['name'] ?? 'Unknown';
+            $order['name'] = $userModel->get($order['courier_id'])['name'] ?? 'Unknown';
             $order['delivery_date'] = date($this->settings['date_format'], $order['delivery_date']);
         }
 
@@ -486,7 +486,6 @@ class OrderController extends Controller {
         $orderProductsModel = new \App\Models\OrderProducts();
         $productModel = new \App\Models\Product();
         $userModel = new \App\Models\User();
-        $courierModel = new \App\Models\Courier();
         $notificationModel = new \App\Models\Notification();
         $mailer = new \App\Helpers\mailer\Mailer();
         $currency = $this->settings['currency_code'];
@@ -582,7 +581,7 @@ class OrderController extends Controller {
                 if ($this->settings['email_sending'] == 'enabled') {
                     $order = $orderModel->get($orderId);
                     $customer = $userModel->get($order['user_id']);
-                    $courier = $courierModel->get($order['courier_id']);
+                    $courier = $userModel->get($order['courier_id']);
 
                     $orderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
                     foreach ($orderProducts as &$orderProduct) {
@@ -616,7 +615,7 @@ class OrderController extends Controller {
             'orderProducts' => $orderProducts,
             'users' => $userModel->getAll(),
             'products' => $productModel->getAll(),
-            'couriers' => $courierModel->getAll(),
+            'couriers' => $userModel->getAll(['role' => 'courier']),
             'productQuantities' => $productQuantities,
             'currency' => $currency,
             'error_message' => $error_message ?? null

@@ -76,6 +76,14 @@
                         <span class="menu-title">Settings</span>
                     </a>
                 </li>
+            <?php elseif ($_SESSION['user']['role'] === 'courier'): ?>
+                <li class="nav-item nav-category">Deliveries</li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?php INSTALL_URL; ?>?controller=Order&action=list&courier_id=<?php echo $_SESSION['user']['id']; ?>">
+                        <i class="menu-icon mdi mdi-truck-delivery"></i>
+                        <span class="menu-title">Orders to Deliver</span>
+                    </a>
+                </li>
             <?php endif; ?>
         <?php endif; ?>
     </ul>

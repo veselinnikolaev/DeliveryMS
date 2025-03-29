@@ -43,15 +43,6 @@
                                             <input type="text" class="form-control" id="filter-phone" placeholder="Search by phone">
                                         </div>
                                         <div class="col-md-4 mb-3">
-                                            <label for="filter-role" class="form-label">Role</label>
-                                            <select class="form-control" id="filter-role">
-                                                <option value="">Select Role</option>
-                                                <option value="user">User</option>
-                                                <option value="admin">Admin</option>
-                                                <option value="root">Root</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-4 mb-3">
                                             <label for="filter-country" class="form-label">Country</label>
                                             <input type="text" class="form-control" id="filter-country" placeholder="Search by country">
                                         </div>
@@ -59,9 +50,32 @@
                                             <label for="filter-region" class="form-label">Region</label>
                                             <input type="text" class="form-control" id="filter-region" placeholder="Search by region">
                                         </div>
-                                        <div class="col-md-12 mb-3">
+                                        <div class="col-md-4 mb-3">
                                             <label for="filter-address" class="form-label">Address</label>
                                             <input type="text" class="form-control" id="filter-address" placeholder="Search by address">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12 mb-3">
+                                            <label class="form-label">Roles To Show</label>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                <div class="form-check border rounded p-2 px-4 d-flex align-items-center shadow-sm" style="background: #ffffff; border: 2px solid #007bff; border-radius: 8px; transition: all 0.3s ease-in-out; cursor: pointer;">
+                                                    <input class="form-check-input me-2" type="checkbox" id="role-user" value="user" checked>
+                                                    <label class="form-check-label fw-semibold text-primary" for="role-user">User</label>
+                                                </div>
+                                                <div class="form-check border rounded p-2 px-4 d-flex align-items-center shadow-sm" style="background: #ffffff; border: 2px solid #28a745; border-radius: 8px; transition: all 0.3s ease-in-out; cursor: pointer;">
+                                                    <input class="form-check-input me-2" type="checkbox" id="role-admin" value="admin" checked>
+                                                    <label class="form-check-label fw-semibold text-success" for="role-admin">Admin</label>
+                                                </div>
+                                                <div class="form-check border rounded p-2 px-4 d-flex align-items-center shadow-sm" style="background: #ffffff; border: 2px solid #dc3545; border-radius: 8px; transition: all 0.3s ease-in-out; cursor: pointer;">
+                                                    <input class="form-check-input me-2" type="checkbox" id="role-root" value="root" checked>
+                                                    <label class="form-check-label fw-semibold text-danger" for="role-root">Root</label>
+                                                </div>
+                                                <div class="form-check border rounded p-2 px-4 d-flex align-items-center shadow-sm" style="background: #ffffff; border: 2px solid #ffc107; border-radius: 8px; transition: all 0.3s ease-in-out; cursor: pointer;">
+                                                    <input class="form-check-input me-2" type="checkbox" id="role-courier" value="courier" checked>
+                                                    <label class="form-check-label fw-semibold text-warning" for="role-courier">Courier</label>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="d-flex justify-content-end gap-2 mt-3">
@@ -72,30 +86,30 @@
                                             <i class="icon-search"></i> Apply Filters
                                         </button>
                                     </div>
+                                </div>
                             </form>
                         </div>
                     </div>
-                </div>
-                <div class="card-body">
-                    <?php if (in_array($_SESSION['user']['role'], ['admin', 'root'])) { ?>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <button id="bulk-delete-users-btn" class="btn btn-danger d-none">
-                                    <i class="fa fa-trash"></i> Delete Selected (<span id="selected-count-users">0</span>)
-                                </button>
+                    <div class="card-body">
+                        <?php if (in_array($_SESSION['user']['role'], ['admin', 'root'])) { ?>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <button id="bulk-delete-users-btn" class="btn btn-danger d-none">
+                                        <i class="fa fa-trash"></i> Delete Selected (<span id="selected-count-users">0</span>)
+                                    </button>
+                                </div>
                             </div>
+                        <?php } ?>
+                        <div class="table-responsive" id="container-user-id">
+                            <?php
+                            include 'component/table.php';
+                            ?>
                         </div>
-                    <?php } ?>
-                    <div class="table-responsive" id="container-user-id">
-                        <?php
-                        include 'component/table.php';
-                        ?>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 </div>
 
 <div class="modal fade" id="deleteUser" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"

@@ -4,8 +4,11 @@
         $(document).on('click', '#apply-filters-courier', function () {
             let filters = {
                 name: $('#filter-name').val(),
-                phone_number: $('#filter-phone').val(),
-                email: $('#filter-email').val()
+                phone: $('#filter-phone').val(),
+                email: $('#filter-email').val(),
+                address: $('#filter-address').val(),
+                country: $('#filter-country').val(),
+                region: $('#filter-region').val()
             };
 
             $.ajax({
@@ -29,17 +32,31 @@
             $('#filter-name').val('');
             $('#filter-phone').val('');
             $('#filter-email').val('');
+            $('#filter-address').val('');
+            $('#filter-country').val('');
+            $('#filter-region').val('');
+
 
             // Trigger apply filters to restore previous results
             $('#apply-filters-courier').trigger('click');
         });
 
         $(document).on('click', '#apply-filters-user', function () {
+            let roles = [];
+            $('.form-check-input:checked').each(function () {
+                roles.push($(this).val());
+            });
+
+            if (roles.length === 0) {
+                alert('Please select at least one role before applying filters.');
+                return;
+            }
+
             let filters = {
                 name: $('#filter-name').val(),
                 phone: $('#filter-phone').val(),
                 email: $('#filter-email').val(),
-                role: $('#filter-role').val(),
+                roles: roles,
                 address: $('#filter-address').val(),
                 country: $('#filter-country').val(),
                 region: $('#filter-region').val()
@@ -69,7 +86,7 @@
             $('#filter-address').val('');
             $('#filter-country').val('');
             $('#filter-region').val('');
-
+            $('.form-check-input').prop('checked', true);
 
             // Trigger apply filters to restore previous results
             $('#apply-filters-user').trigger('click');

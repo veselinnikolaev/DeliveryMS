@@ -70,12 +70,12 @@ class ProductController extends Controller {
     }
 
     function create() {
-        // Create an instance of the Courier model
+        // Create an instance of the Product model
         $productModel = new \App\Models\Product();
 
         // Check if the form has been submitted
         if (!empty($_POST['send'])) {
-            // Save the data using the Courier model
+            // Save the data using the Product model
             if ($productModel->save($_POST)) {
                 // Redirect to the list of couriers on successful creation
                 header("Location: " . INSTALL_URL . "?controller=Product&action=list", true, 301);
@@ -128,7 +128,7 @@ class ProductController extends Controller {
         // Check if the form has been submitted
         if (!empty($_POST['id'])) {
 
-            // Save the data using the Courier model
+            // Save the data using the Product model
             if ($productModel->update($_POST)) {
                 // Redirect to the list of couriers on successful creation
                 header("Location: " . INSTALL_URL . "?controller=Product&action=list", true, 301);

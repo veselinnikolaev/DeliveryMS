@@ -34,18 +34,27 @@
                                     <div class="row">
                                         <div class="col-md-4 mb-3">
                                             <label for="filter-name" class="form-label">Courier Name</label>
-                                            <input type="text" class="form-control" id="filter-name"
-                                                   placeholder="Search by name">
-                                        </div>
-                                        <div class="col-md-4 mb-3">
-                                            <label for="filter-phone" class="form-label">Phone Number</label>
-                                            <input type="text" class="form-control" id="filter-phone"
-                                                   placeholder="Search by phone">
+                                            <input type="text" class="form-control" id="filter-name" placeholder="Search by name">
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label for="filter-email" class="form-label">Email</label>
-                                            <input type="text" class="form-control" id="filter-email"
-                                                   placeholder="Search by email">
+                                            <input type="text" class="form-control" id="filter-email" placeholder="Search by email">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="filter-phone" class="form-label">Phone Number</label>
+                                            <input type="text" class="form-control" id="filter-phone" placeholder="Search by phone">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="filter-country" class="form-label">Country</label>
+                                            <input type="text" class="form-control" id="filter-country" placeholder="Search by country">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="filter-region" class="form-label">Region</label>
+                                            <input type="text" class="form-control" id="filter-region" placeholder="Search by region">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="filter-address" class="form-label">Address</label>
+                                            <input type="text" class="form-control" id="filter-address" placeholder="Search by address">
                                         </div>
                                     </div>
                                     <div class="d-flex justify-content-end gap-2">
