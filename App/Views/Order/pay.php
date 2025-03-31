@@ -70,7 +70,7 @@
         //$url = "https://www.sandbox.paypal.com/cgi-bin/webscr";
         ?>
         <!-- PayPal Button -->
-        <form action="<?php echo $url; ?>" method="post" target="_top">
+        <form action="<?php echo $url; ?>" method="post" target="_blank">
             <input type="hidden" name="cmd" value="_xclick">
             <input type="hidden" name="business" value="<?php echo PAYPAL_EMAIL; ?>">
             <input type="hidden" name="custom" value="<?php echo $tpl['order']['id']; ?>">
