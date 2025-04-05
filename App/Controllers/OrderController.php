@@ -100,7 +100,7 @@ class OrderController extends Controller {
             exit;
         }
         if ($_SESSION['user']['role'] == 'user') {
-            header("Location: " . INSTALL_URL, true, 301);
+            header("Location: " . $_SESSION['previous_url'], true, 301);
             exit;
         }
 
@@ -195,7 +195,7 @@ class OrderController extends Controller {
 
                             $mailer->sendMail($customer['email'], "Order Confirmation #{$orderId}", $emailContent);
                         }
-                        header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
+                        header("Location: " . $_SESSION['previous_url'], true, 301);
                         exit;
                     }
                 } else {
@@ -226,7 +226,7 @@ class OrderController extends Controller {
         }
 
         if (empty($_GET['id'])) {
-            header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
+            header("Location: " . $_SESSION['previous_url'], true, 301);
             exit;
         }
 
@@ -243,7 +243,7 @@ class OrderController extends Controller {
         $orderData = $orderModel->get($orderId);
 
         if (!$orderData) {
-            header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
+            header("Location: " . $_SESSION['previous_url'], true, 301);
             exit;
         }
 
@@ -593,7 +593,7 @@ class OrderController extends Controller {
 
                     $mailer->sendMail($customer['email'], "Order Update #{$orderId}", $emailContent);
                 }
-                header("Location: " . INSTALL_URL . "?controller=Order&action=list", true, 301);
+                header("Location: " . $_SESSION['previous_url'], true, 301);
                 exit;
             }
         }

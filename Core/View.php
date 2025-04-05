@@ -24,7 +24,7 @@ class View
 
         if (INSTALLED) {
             //Notifications
-            if (!empty($_SESSION)) {
+            if (!empty($_SESSION['user'])) {
                 $notificationModel = new \App\Models\Notification();
                 $tpl['notifications'] = $notificationModel->getAll(['user_id' => $_SESSION['user']['id']], 'created_at DESC');
             }

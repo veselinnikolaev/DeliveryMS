@@ -12,7 +12,7 @@ class InstallController extends Controller
     public function __construct()
     {
         if (INSTALLED && MAIL_CONFIGURED && $_REQUEST['action'] != 'step5') {
-            header("Location: " . INSTALL_URL, true, 301);
+            header("Location: " . $_SESSION['previous_url'], true, 301);
             exit;
         }
     }

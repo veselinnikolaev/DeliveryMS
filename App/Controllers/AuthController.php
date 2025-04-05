@@ -47,7 +47,7 @@ class AuthController extends Controller {
 
     function login() {
         if (!empty($_SESSION['user'])) {
-            header("Location: " . INSTALL_URL, true, 301);
+            header("Location: " . $_SESSION['previous_url'], true, 301);
             exit;
         }
 
@@ -58,7 +58,7 @@ class AuthController extends Controller {
 
             if ($user && password_verify($_POST['password'], $user['password_hash'])) {
                 $_SESSION['user'] = $user;
-                header("Location: " . $_SERVER['HTTP_REFERER'], true, 301);
+                header("Location: " . $_SESSION['previous_url'], true, 301);
                 exit;
             } else {
                 $error_message = "Invalid email or password.";

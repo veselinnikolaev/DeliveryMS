@@ -1,5 +1,4 @@
 <?php
-
 /**
  * PHPMailer - PHP email creation and transport class.
  * PHP Version 5.5
@@ -17,7 +16,6 @@
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.
  */
-
 /**
  * Get an OAuth2 token from an OAuth2 provider.
  * * Install this script on your server so that it's accessible
@@ -49,28 +47,28 @@ use Greew\OAuth2\Client\Provider\Azure;
 
 if (!isset($_GET['code']) && !isset($_POST['provider'])) {
     ?>
-<html>
-<body>
-<form method="post">
-    <h1>Select Provider</h1>
-    <input type="radio" name="provider" value="Google" id="providerGoogle">
-    <label for="providerGoogle">Google</label><br>
-    <input type="radio" name="provider" value="Yahoo" id="providerYahoo">
-    <label for="providerYahoo">Yahoo</label><br>
-    <input type="radio" name="provider" value="Microsoft" id="providerMicrosoft">
-    <label for="providerMicrosoft">Microsoft</label><br>
-    <input type="radio" name="provider" value="Azure" id="providerAzure">
-    <label for="providerAzure">Azure</label><br>
-    <h1>Enter id and secret</h1>
-    <p>These details are obtained by setting up an app in your provider's developer console.
-    </p>
-    <p>ClientId: <input type="text" name="clientId"><p>
-    <p>ClientSecret: <input type="text" name="clientSecret"></p>
-    <p>TenantID (only relevant for Azure): <input type="text" name="tenantId"></p>
-    <input type="submit" value="Continue">
-</form>
-</body>
-</html>
+    <html>
+        <body>
+            <form method="post">
+                <h1>Select Provider</h1>
+                <input type="radio" name="provider" value="Google" id="providerGoogle">
+                <label for="providerGoogle">Google</label><br>
+                <input type="radio" name="provider" value="Yahoo" id="providerYahoo">
+                <label for="providerYahoo">Yahoo</label><br>
+                <input type="radio" name="provider" value="Microsoft" id="providerMicrosoft">
+                <label for="providerMicrosoft">Microsoft</label><br>
+                <input type="radio" name="provider" value="Azure" id="providerAzure">
+                <label for="providerAzure">Azure</label><br>
+                <h1>Enter id and secret</h1>
+                <p>These details are obtained by setting up an app in your provider's developer console.
+                </p>
+                <p>ClientId: <input type="text" name="clientId"><p>
+                <p>ClientSecret: <input type="text" name="clientSecret"></p>
+                <p>TenantID (only relevant for Azure): <input type="text" name="tenantId"></p>
+                <input type="submit" value="Continue">
+            </form>
+        </body>
+    </html>
     <?php
     exit;
 }
@@ -103,7 +101,6 @@ if (array_key_exists('provider', $_POST)) {
 //If you don't want to use the built-in form, set your client id and secret here
 //$clientId = 'RANDOMCHARS-----duv1n2.apps.googleusercontent.com';
 //$clientSecret = 'RANDOMCHARS-----lGyjPcRtvP';
-
 //If this automatic URL doesn't work, set it yourself manually to the URL of this script
 $redirectUri = (isset($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
 //$redirectUri = 'http://localhost/PHPMailer/redirect';
@@ -171,10 +168,10 @@ if (!isset($_GET['code'])) {
     unset($_SESSION['provider']);
     //Try to get an access token (using the authorization code grant)
     $token = $provider->getAccessToken(
-        'authorization_code',
-        [
-            'code' => $_GET['code']
-        ]
+            'authorization_code',
+            [
+                'code' => $_GET['code']
+            ]
     );
     //Use this to interact with an API on the users behalf
     //Use this to get a new access token if the old one expires

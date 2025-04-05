@@ -78,7 +78,7 @@ class ProductController extends Controller {
             // Save the data using the Product model
             if ($productModel->save($_POST)) {
                 // Redirect to the list of couriers on successful creation
-                header("Location: " . INSTALL_URL . "?controller=Product&action=list", true, 301);
+                header("Location: " . $_SESSION['previous_url'], true, 301);
                 exit;
             } else {
                 // If saving fails, set an error message
@@ -131,7 +131,7 @@ class ProductController extends Controller {
             // Save the data using the Product model
             if ($productModel->update($_POST)) {
                 // Redirect to the list of couriers on successful creation
-                header("Location: " . INSTALL_URL . "?controller=Product&action=list", true, 301);
+                header("Location: " . $_SESSION['previous_url'], true, 301);
                 exit;
             } else {
                 // If saving fails, set an error message

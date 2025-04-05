@@ -89,7 +89,7 @@ class CourierController extends Controller {
                 $_POST['role'] = 'courier';
 
                 if ($userModel->save($_POST)) {
-                    header("Location: " . INSTALL_URL . "?controller=Courier&action=list", true, 301);
+                    header("Location: " . $_SESSION['previous_url'], true, 301);
                     exit;
                 } else {
                     $error_message = "Failed to save courier. Please try again.";
@@ -144,7 +144,7 @@ class CourierController extends Controller {
             // Save the data using the Courier model
             if ($userModel->update($_POST)) {
                 // Redirect to the list of couriers on successful creation
-                header("Location: " . INSTALL_URL . "?controller=Courier&action=list", true, 301);
+                header("Location: " . $_SESSION['previous_url'], true, 301);
                 exit;
             } else {
                 // If saving fails, set an error message

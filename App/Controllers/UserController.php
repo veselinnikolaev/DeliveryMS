@@ -16,13 +16,14 @@ class UserController extends Controller {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
             exit;
         }
+    }
+
+    function list($layout = 'admin') {
         if ($_SESSION['user']['role'] == 'user') {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
-    }
 
-    function list($layout = 'admin') {
         $userModel = new \App\Models\User();
 
         $opts = array();
@@ -59,10 +60,20 @@ class UserController extends Controller {
     }
 
     function filter() {
+        if ($_SESSION['user']['role'] == 'user') {
+            header("Location: " . INSTALL_URL, true, 301);
+            exit;
+        }
+
         $this->list('ajax');
     }
 
     function print() {
+        if ($_SESSION['user']['role'] == 'user') {
+            header("Location: " . INSTALL_URL, true, 301);
+            exit;
+        }
+
         if (isset($_POST['userData'])) {
             // Decode the JSON data
             $users = json_decode($_POST['userData'], true);
@@ -77,6 +88,11 @@ class UserController extends Controller {
     }
 
     public function changeRole() {
+        if ($_SESSION['user']['role'] == 'user') {
+            header("Location: " . INSTALL_URL, true, 301);
+            exit;
+        }
+
         $userModel = new \App\Models\User();
 
         if (!empty($_POST['id']) && !empty($_POST['role'])) {
@@ -93,6 +109,11 @@ class UserController extends Controller {
     }
 
     function create() {
+        if ($_SESSION['user']['role'] == 'user') {
+            header("Location: " . INSTALL_URL, true, 301);
+            exit;
+        }
+
         // Create an instance of the User model
         $userModel = new \App\Models\User();
 
@@ -107,7 +128,7 @@ class UserController extends Controller {
                 $_POST['role'] = 'user';
 
                 if ($userModel->save($_POST)) {
-                    header("Location: " . INSTALL_URL . "?controller=User&action=list", true, 301);
+                    header("Location: " . $_SESSION['previous_url'], true, 301);
                     exit;
                 } else {
                     $error_message = "Failed to register. Please try again.";
@@ -140,6 +161,11 @@ class UserController extends Controller {
     }
 
     function bulkDelete() {
+        if ($_SESSION['user']['role'] == 'user') {
+            header("Location: " . INSTALL_URL, true, 301);
+            exit;
+        }
+
         $userModel = new \App\Models\User();
 
         if (!empty($_POST['ids']) && is_array($_POST['ids'])) {
@@ -166,7 +192,7 @@ class UserController extends Controller {
         if (!empty($_POST['id'])) {
             if ($userModel->update($_POST)) {
                 // Redirect to the list of users on successful creation
-                header("Location: " . INSTALL_URL . "?controller=User&action=list", true, 301);
+                header("Location: " . $_SESSION['previous_url'], true, 301);
                 exit;
             }
 
@@ -179,6 +205,11 @@ class UserController extends Controller {
     }
 
     function profile() {
+        if ($_SESSION['user']['role'] == 'user' && $_SESSION['user']['id'] != $_GET['id']) {
+            header("Location: " . INSTALL_URL, true, 301);
+            exit;
+        }
+
         $userModel = new \App\Models\User();
 
         $user = $userModel->get($_GET['id']);
@@ -236,8 +267,14 @@ class UserController extends Controller {
     }
 
     function editPassword() {
-        $userModel = new \App\Models\User();
         $id = isset($_POST['id']) ? $_POST['id'] : (isset($_GET['id']) ? $_GET['id'] : null);
+        
+        if ($_SESSION['user']['role'] == 'user' && $_SESSION['user']['id'] != $id) {
+            header("Location: " . INSTALL_URL, true, 301);
+            exit;
+        }
+
+        $userModel = new \App\Models\User();
 
         if (!empty($_POST['id'])) {
             $newPassword = $_POST['password'];

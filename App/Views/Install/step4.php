@@ -62,7 +62,7 @@
                 </div>
 
                 <div class="d-flex justify-content-between mt-4">
-                    <a href="<?php echo $_SERVER['HTTP_REFERER']; ?>" class="btn btn-secondary">Back</a>
+                    <a href="<?php echo $_SESSION['previous_url']; ?>" class="btn btn-secondary">Back</a>
                        <?php
                        if (!INSTALLED) {
                            echo '<a class="btn btn-warning skip-mail-config">Skip</a>';
