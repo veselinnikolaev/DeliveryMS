@@ -12,7 +12,7 @@ class Controller {
 
             // Пропускаме заявки към файлове със разширения
             if (!preg_match('/\.(jpg|jpeg|png|gif|css|js|ico|svg|pdf)$/i', $uri)) {
-                $_SESSION['previous_url'] = $_SESSION['current_url'] ?? null;
+                $_SESSION['previous_url'] = $_SESSION['current_url'] ?? INSTALL_URL;
                 $_SESSION['current_url'] = $uri;
             }
         }
