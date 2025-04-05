@@ -125,8 +125,7 @@ class CourierController extends Controller {
         $userModel = new \App\Models\User();
 
         if (!empty($_POST['ids']) && is_array($_POST['ids'])) {
-            $inCourierIds = implode(', ', $_POST['ids']);
-            $userModel->deleteBy(["id IN ($inCourierIds) AND 1 " => '1']);
+            $userModel->deleteBy(['id' => $_POST['ids']]);
         }
 
         $couriers = $userModel->getAll(['role' => 'courier']);

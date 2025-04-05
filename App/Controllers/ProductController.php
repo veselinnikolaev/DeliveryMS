@@ -112,8 +112,7 @@ class ProductController extends Controller {
         $productModel = new \App\Models\Product();
 
         if (!empty($_POST['ids']) && is_array($_POST['ids'])) {
-            $inProductIds = implode(', ', $_POST['ids']);
-            $productModel->deleteBy(["id IN ($inProductIds) AND 1 " => '1']);
+            $productModel->deleteBy(['id' => $_POST['ids']]);
         }
 
         $products = $productModel->getAll();

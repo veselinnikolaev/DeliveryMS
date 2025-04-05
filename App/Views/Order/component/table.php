@@ -1,7 +1,7 @@
 <table class="table select-table" id="order-table-id">
     <thead>
         <tr>
-            <?php if (in_array($_SESSION['user']['role'], ['admin', 'root'])) { ?>
+            <?php if (in_array($_SESSION['user']['role'], ['admin', 'root', 'courier'])) { ?>
                 <th>
                     <div class="form-check form-check-flat mt-0">
                         <label class="form-check-label">
@@ -26,7 +26,7 @@
     <tbody>
         <?php foreach ($tpl['orders'] as $order) { ?>
             <tr>
-                <?php if (in_array($_SESSION['user']['role'], ['admin', 'root'])) { ?>
+                <?php if (in_array($_SESSION['user']['role'], ['admin', 'root', 'courier'])) { ?>
                     <td>
                         <div class="form-check form-check-flat mt-0">
                             <label class="form-check-label">
@@ -45,13 +45,19 @@
                 <td><?php echo htmlspecialchars($order['country']); ?></td>
                 <td><?php echo htmlspecialchars($order['region']); ?></td>
                 <td><?php
-                    foreach (Utility::$order_status as $k => $v) {
-                        if ($k == $order['status']) {
-                            echo $v;
-                        }
-                    }
+                    echo htmlspecialchars(Utility::$order_status[$order['status']]);
                     ?></td>
                 <td style="text-align: right;">
+                    <?php if ($_SESSION['user']['role'] === 'courier' /* && $order['status'] == 'shipped' */) { ?>
+                        <a class="btn btn-success btn-circle mdc-ripple-upgraded change-status" 
+                           href="#" data-id="<?php echo $order['id'] ?>" data-status="delivered">
+                            <i class="fa fa-check" aria-hidden="true" title="Mark as Delivered"></i>
+                        </a>
+                        <a class="btn btn-warning btn-circle mdc-ripple-upgraded change-status"
+                           href="#" data-id="<?php echo $order['id'] ?>" data-status="returned">
+                            <i class="fa fa-undo" aria-hidden="true" title="Mark as Returned"></i>
+                        </a>
+                    <?php } ?>
                     <a class="btn btn-light btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=Order&action=details&id=<?php echo $order['id'] ?>">
                         <i class="fa fa-eye" aria-hidden="true"></i>
                     </a>

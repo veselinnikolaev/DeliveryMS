@@ -71,7 +71,7 @@ class OrderController extends Controller {
         if (!empty($_GET['courier_id']) && $_GET['courier_id'] == $_SESSION['user']['id']) { //User role checking orders
             $opts['courier_id'] = $_GET['courier_id'];
         }
-        
+
         $orders = $orderModel->getAll($opts);
 
         // Format orders for display
@@ -214,6 +214,36 @@ class OrderController extends Controller {
         $this->view($this->layout, $arr);
     }
 
+    public function changeStatus() {
+        if ($_SESSION['user']['role'] != 'courier') {
+            header("Location: " . INSTALL_URL, true, 301);
+            exit;
+        }
+
+        $orderModel = new \App\Models\Order();
+        $userModel = new \App\Models\User();
+
+        if (!empty($_POST['ids']) && !empty($_POST['status'])) {
+            $status = $_POST['status'];
+            $ids = $_POST['ids'];
+
+            if (in_array($status, ['delivered', 'returned'])) {
+                $orderModel->updateBy(['status' => $status], ['id' => $ids]);
+            }
+        }
+
+        // Return refreshed user list
+        $orders = $orderModel->getAll(['courier_id' => $_SESSION['user']['id']]);
+
+        foreach ($orders as &$order) {
+            $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
+            $order['courier_name'] = $userModel->get($order['courier_id'])['name'] ?? 'Unknown';
+            $order['delivery_date'] = date($this->settings['date_format'], $order['delivery_date']);
+        }
+
+        $this->view('ajax', ['orders' => $orders]);
+    }
+
     function details() {
         $orderModel = new \App\Models\Order();
         $orderProductsModel = new \App\Models\OrderProducts();
@@ -221,7 +251,7 @@ class OrderController extends Controller {
         $userModel = new \App\Models\User();
 
         if (empty($_SESSION['user'])) {
-            header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
+            header("Location: " . INSTALL_URL . "?controller = Auth&action = login", true, 301);
             exit;
         }
 
@@ -272,7 +302,7 @@ class OrderController extends Controller {
 
     function delete() {
         if (empty($_SESSION['user'])) {
-            header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
+            header("Location: " . INSTALL_URL . "?controller = Auth&action = login", true, 301);
             exit;
         }
         if ($_SESSION['user']['role'] == 'user') {
@@ -438,11 +468,8 @@ class OrderController extends Controller {
         if (!empty($_POST['ids']) && is_array($_POST['ids'])) {
             $orderIds = $_POST['ids'];
 
-            $inOrderIds = implode(', ', $orderIds);
-            $optsForOrderProduct = ["order_id IN ($inOrderIds) AND 1 " => '1'];
-            $orderProductsModel->deleteBy($optsForOrderProduct);
-            $optsForOrder = ["id IN ($inOrderIds) AND 1 " => '1'];
-            $orderModel->deleteBy($optsForOrder);
+            $orderProductsModel->deleteBy(['order_id' => $orderIds]);
+            $orderModel->deleteBy(['id' => $orderIds]);
         }
 
 // Retrieve all orders from the database

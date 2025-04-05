@@ -118,6 +118,28 @@
                                 </div>
                             </div>
                         <?php } ?>
+                        <?php if ($_SESSION['user']['role'] === 'courier') { ?>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <!-- Mark as Delivered -->
+                                    <button 
+                                        id="bulk-change-orders-btn" 
+                                        class="btn btn-success d-none bulk-change-orders-btn" 
+                                        data-status="delivered"
+                                        <i class="fa fa-check"></i> Mark Selected as Delivered (<span id="selected-count-orders" class="selected-count-orders">0</span>)
+                                    </button>
+
+                                    <!-- Mark as Returned -->
+                                    <button 
+                                        id="bulk-change-orders-btn"
+                                        class="btn btn-warning d-none bulk-change-orders-btn" 
+                                        data-status="returned"
+                                        <i class="fa fa-undo"></i> Mark Selected as Returned (<span id="selected-count-orders" class="selected-count-orders">0</span>)
+                                    </button>
+                                </div>
+                            </div>
+                        <?php } ?>
+
                         <div class="table-responsive" id="container-order-id">
 
                             <?php
@@ -190,6 +212,24 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="changeStatusModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Are you sure?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmationModalMessage">Do you really want to proceed with this action?</p>
+            </div>
+            <div class="modal-footer">
+                <a id="confirmChangeStatusBtn" class="btn btn-danger" href="#" data-ids="" data-status="">Yes</a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>

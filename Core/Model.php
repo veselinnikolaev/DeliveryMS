@@ -351,12 +351,18 @@ class Model {
         // Start building the query
         $query = "UPDATE " . $this->getTable() . " SET " . implode(',', $set);
 
-        // If conditions ($options) are provided, append them to the WHERE clause
+        // Handle WHERE clause
         if ($options && is_array($options)) {
             $conditions = [];
             foreach ($options as $field => $value) {
-                $conditions[] = "`$field` = ?";
-                $values[] = $value;
+                // Handling IN clause properly
+                if (is_array($value)) {
+                    $conditions[] = "`$field` IN (" . implode(',', array_fill(0, count($value), '?')) . ")";
+                    $values = array_merge($values, $value); // Append all IN values
+                } else {
+                    $conditions[] = "`$field` = ?";
+                    $values[] = $value;
+                }
             }
             $query .= " WHERE " . implode(" AND ", $conditions);
         } elseif ($options) {
@@ -390,8 +396,15 @@ class Model {
         if ($options && is_array($options)) {
             $conditions = [];
             foreach ($options as $field => $value) {
-                // Изграждане на условията за WHERE
-                $conditions[] = "$field = '$value'";
+                // Ако $value е масив, изграждаме IN частта
+                if (is_array($value)) {
+                    $conditions[] = "`$field` IN (" . implode(',', array_fill(0, count($value), '?')) . ")";
+                    $params = array_merge($params, $value); // Добавяме стойностите за IN
+                } else {
+                    // Изграждане на условията за WHERE
+                    $conditions[] = "`$field` = ?";
+                    $params[] = $value; // Добавяме стойността за нормалното условие
+                }
             }
             // Добавяне на WHERE частта към заявката
             $query .= " WHERE " . implode(" AND ", $conditions);
@@ -400,7 +413,8 @@ class Model {
             $query .= " WHERE " . $options;
         }
 
-        return $this->executeQuery($query);
+        // Изпълнение на заявката с параметри
+        return $this->executeQuery($query, $params);
     }
 
     public function updateBatch($data = null, $keyColumn = null) {
@@ -411,7 +425,7 @@ class Model {
         }
 
         // Подготовка на заявката
-        $query = "UPDATE settings SET value = CASE";
+        $query = "UPDATE " . $this->getTable() . " SET value = CASE";
         $conditions = [];
         $params = [];
 

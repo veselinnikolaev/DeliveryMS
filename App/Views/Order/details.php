@@ -67,8 +67,8 @@
                             </table>
                         </div>
                         <div class="mt-3">
-                            <a href="<?php echo INSTALL_URL; ?>?controller=Order&action=list"
-                               class="btn btn-outline-dark">Back to Order List</a>
+                            <a href="<?php echo $_SESSION['previous_url']; ?>"
+                               class="btn btn-outline-dark">Back</a>
                                <?php if ($_SESSION['user']['id'] === $tpl['order']['user_id'] && in_array($tpl['order']['status'], ['pending', 'cancelled'])) { ?>
                                 <a href="<?php echo INSTALL_URL; ?>?controller=Order&action=pay&order_id=<?php echo $tpl['order']['id']; ?>"
                                    class="btn btn-success">Pay</a>

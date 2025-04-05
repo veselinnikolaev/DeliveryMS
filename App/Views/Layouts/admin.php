@@ -79,5 +79,7 @@
         <script src="web/js/export.js"></script>
         <script src="web/js/print.js"></script>
         <script src="web/js/markNotificationAsSeen.js"></script>
+        <script src="web/js/changeOrderStatus.js"></script>
+        <script src="web/js/bulkStatusChange.js"></script>
     </body>
 </html>

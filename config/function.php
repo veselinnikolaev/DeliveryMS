@@ -7,9 +7,8 @@ class Utility {
     static $order_status = [
         'pending' => 'Pending',
         'shipped' => 'Shipped',
-        'out_for_delivery' => 'Out for Delivery',
-        'delivered' => 'Delivered',
         'cancelled' => 'Cancelled',
+        'delivered' => 'Delivered',
         'returned' => 'Returned'
     ];
     static $currencies = [

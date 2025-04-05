@@ -171,8 +171,7 @@ class UserController extends Controller {
         if (!empty($_POST['ids']) && is_array($_POST['ids'])) {
             $userIds = $_POST['ids'];
 
-            $inUserIds = implode(', ', $userIds);
-            $userModel->deleteBy(["id IN ($inUserIds) AND 1 " => '1']);
+            $userModel->deleteBy(['id' => $userIds]);
             if (in_array($_SESSION['user']['id'], $userIds)) {
                 session_destroy();
             }
@@ -268,7 +267,7 @@ class UserController extends Controller {
 
     function editPassword() {
         $id = isset($_POST['id']) ? $_POST['id'] : (isset($_GET['id']) ? $_GET['id'] : null);
-        
+
         if ($_SESSION['user']['role'] == 'user' && $_SESSION['user']['id'] != $id) {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
