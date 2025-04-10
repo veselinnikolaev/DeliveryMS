@@ -211,6 +211,34 @@ class Model {
         // Изпълняване със защитени параметри
     }
 
+    public function countAll($options = null) {
+        $query = "SELECT COUNT(*) as total FROM " . $this->getTable();
+        $params = [];
+
+        // Build WHERE clause if options are provided
+        if ($options && is_array($options)) {
+            $conditions = [];
+            foreach ($options as $field => $value) {
+                $conditions[] = "`$field` = ?";
+                $params[] = $value;
+            }
+            $query .= " WHERE " . implode(" AND ", $conditions);
+            $types = str_repeat('s', count($params));
+        } elseif ($options) {
+            // If options is a raw WHERE string
+            $query .= " WHERE " . $options;
+            $types = '';
+        } else {
+            $types = '';
+        }
+
+        // Execute the query
+        $result = $this->executeQuery($query, $params, $types);
+
+        // Return the count from the result
+        return isset($result[0]['total']) ? (int) $result[0]['total'] : 0;
+    }
+
     public function getMultiple($ids) {
         // Създаване на основна SELECT заявка
         $query = "SELECT * FROM " . $this->getTable();
