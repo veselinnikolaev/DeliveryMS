@@ -8,16 +8,19 @@ use App\Models\User;
 use App\Models\Notification;
 use Core\Controller;
 
-class HomeController extends Controller {
+class HomeController extends Controller
+{
 
     var $layout = 'admin';
     var $settings;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->settings = $this->loadSettings();
     }
 
-    function loadSettings() {
+    function loadSettings()
+    {
         $settingModel = new \App\Models\Setting();
         $settings = $settingModel->getAll();
         $app_settings = [];
@@ -27,12 +30,24 @@ class HomeController extends Controller {
         return $app_settings;
     }
 
-    public function index() {
-        if (empty($_SESSION['user'])) {
-            header("Location: " . INSTALL_URL . "?controller=Auth&action=login");
-            exit;
+    public function index()
+    {
+        // Check if user is logged in
+        $isLoggedIn = !empty($_SESSION['user']);
+
+        // Common data for all cases
+        $data = [
+            'currency' => $this->settings['currency_code'],
+            'isLoggedIn' => $isLoggedIn
+        ];
+
+        // If not logged in, just render the view with minimal data
+        if (!$isLoggedIn) {
+            $this->view($this->layout, $data);
+            return;
         }
 
+        // User is logged in, proceed with role-specific data
         $userModel = new User();
         $orderModel = new Order();
         $productModel = new Product();
@@ -41,11 +56,8 @@ class HomeController extends Controller {
         $userRole = $_SESSION['user']['role'];
         $userId = $_SESSION['user']['id'];
 
-        // Common data for all roles
-        $data = [
-            'currency' => $this->settings['currency_code'],
-            'user_role' => $userRole
-        ];
+        // Add user role to data
+        $data['user_role'] = $userRole;
 
         // Role-specific data fetching
         switch ($userRole) {
@@ -77,9 +89,9 @@ class HomeController extends Controller {
 
                 // Recent deliveries for courier
                 $data['recent_deliveries'] = $orderModel->getAll(
-                        ['courier_id' => $userId],
-                        'delivery_date DESC',
-                        5
+                    ['courier_id' => $userId],
+                    'delivery_date DESC',
+                    5
                 );
                 foreach ($data['recent_deliveries'] as &$order) {
                     $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
@@ -95,28 +107,29 @@ class HomeController extends Controller {
 
                 // Recent orders for user
                 $data['recent_orders'] = $orderModel->getAll(
-                        ['user_id' => $userId],
-                        'created_at DESC',
-                        5
+                    ['user_id' => $userId],
+                    'created_at DESC',
+                    5
                 );
                 foreach ($data['recent_orders'] as &$order) {
                     $order['formatted_total'] = $this->settings['currency_code'] . number_format($order['total_amount'], 2);
-                    $order['status_text'] = \Utility::statuses[$order['status']];
+                    $order['status_text'] = \Utility::$order_status[$order['status']];
                 }
                 break;
         }
 
-        // Common data for all roles
+        // Common data for all roles when logged in
         $data['notifications'] = $notificationModel->getAll(
-                ['user_id' => $userId, 'is_seen' => 0],
-                'created_at DESC',
-                5
+            ['user_id' => $userId, 'is_seen' => 0],
+            'created_at DESC',
+            5
         );
 
         $this->view($this->layout, $data);
     }
 
-    private function getSalesData() {
+    private function getSalesData()
+    {
         $orderModel = new Order();
 
         // Last 30 days sales data
@@ -135,8 +148,10 @@ class HomeController extends Controller {
             ]);
 
             $total = 0;
-            foreach ($sales as $sale) {
-                $total += $sale['total_amount'];
+            if (is_array($sales) && !empty($sales)) {
+                foreach ($sales as $sale) {
+                    $total += $sale['total_amount'];
+                }
             }
 
             $salesData[] = [
