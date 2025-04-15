@@ -8,19 +8,16 @@ use App\Models\User;
 use App\Models\Notification;
 use Core\Controller;
 
-class HomeController extends Controller
-{
+class HomeController extends Controller {
 
     var $layout = 'admin';
     var $settings;
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->settings = $this->loadSettings();
     }
 
-    function loadSettings()
-    {
+    function loadSettings() {
         $settingModel = new \App\Models\Setting();
         $settings = $settingModel->getAll();
         $app_settings = [];
@@ -30,8 +27,7 @@ class HomeController extends Controller
         return $app_settings;
     }
 
-    public function index()
-    {
+    public function index() {
         // Check if user is logged in
         $isLoggedIn = !empty($_SESSION['user']);
 
@@ -66,7 +62,7 @@ class HomeController extends Controller
                 // Admin Dashboard Statistics
                 $data['total_orders'] = $orderModel->countAll();
                 $data['pending_orders'] = $orderModel->countAll(['status' => 'pending']);
-                $data['completed_orders'] = $orderModel->countAll(['status' => 'completed']);
+                $data['completed_orders'] = $orderModel->countAll(['status' => 'delivered']);
                 $data['total_users'] = $userModel->countAll();
                 $data['total_products'] = $productModel->countAll();
 
@@ -74,7 +70,7 @@ class HomeController extends Controller
                 $data['recent_orders'] = $orderModel->getAll([], 'created_at DESC', 5);
                 foreach ($data['recent_orders'] as &$order) {
                     $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
-                    $order['formatted_total'] = $this->settings['currency_code'] . number_format($order['total_amount'], 2);
+                    $order['formatted_total'] = \Utility::getDisplayableAmount($order['total_amount']);
                 }
 
                 // Sales data for charts
@@ -89,9 +85,9 @@ class HomeController extends Controller
 
                 // Recent deliveries for courier
                 $data['recent_deliveries'] = $orderModel->getAll(
-                    ['courier_id' => $userId],
-                    'delivery_date DESC',
-                    5
+                        ['courier_id' => $userId],
+                        'delivery_date DESC',
+                        5
                 );
                 foreach ($data['recent_deliveries'] as &$order) {
                     $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
@@ -103,16 +99,16 @@ class HomeController extends Controller
                 // User Dashboard Statistics
                 $data['my_orders'] = $orderModel->countAll(['user_id' => $userId]);
                 $data['pending_orders'] = $orderModel->countAll(['user_id' => $userId, 'status' => 'pending']);
-                $data['completed_orders'] = $orderModel->countAll(['user_id' => $userId, 'status' => 'completed']);
+                $data['completed_orders'] = $orderModel->countAll(['user_id' => $userId, 'status' => 'delivered']);
 
                 // Recent orders for user
                 $data['recent_orders'] = $orderModel->getAll(
-                    ['user_id' => $userId],
-                    'created_at DESC',
-                    5
+                        ['user_id' => $userId],
+                        'created_at DESC',
+                        5
                 );
                 foreach ($data['recent_orders'] as &$order) {
-                    $order['formatted_total'] = $this->settings['currency_code'] . number_format($order['total_amount'], 2);
+                    $order['formatted_total'] = \Utility::getDisplayableAmount($order['total_amount']);
                     $order['status_text'] = \Utility::$order_status[$order['status']];
                 }
                 break;
@@ -120,16 +116,15 @@ class HomeController extends Controller
 
         // Common data for all roles when logged in
         $data['notifications'] = $notificationModel->getAll(
-            ['user_id' => $userId, 'is_seen' => 0],
-            'created_at DESC',
-            5
+                ['user_id' => $userId, 'is_seen' => 0],
+                'created_at DESC',
+                5
         );
 
         $this->view($this->layout, $data);
     }
 
-    private function getSalesData()
-    {
+    public function getSalesData() {
         $orderModel = new Order();
 
         // Last 30 days sales data
@@ -142,9 +137,9 @@ class HomeController extends Controller
             $end = strtotime($date . ' 23:59:59');
 
             $sales = $orderModel->getAll([
-                'created_at >= ' => $start,
-                'created_at <= ' => $end,
-                'status' => 'completed'
+                "created_at >= $start AND 1 " => 1,
+                "created_at <= $end AND 1 " => 1,
+                'status IN (\'delivered\', \'shipped\') AND 1 ' => 1
             ]);
 
             $total = 0;

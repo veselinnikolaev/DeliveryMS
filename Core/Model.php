@@ -441,8 +441,9 @@ class Model {
             $query .= " WHERE " . $options;
         }
 
+        $types = str_repeat('s', count($params));
         // Изпълнение на заявката с параметри
-        return $this->executeQuery($query, $params);
+        return $this->executeQuery($query, $params, $types);
     }
 
     public function updateBatch($data = null, $keyColumn = null) {

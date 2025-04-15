@@ -24,6 +24,8 @@
         <link rel="stylesheet" href="web/css/style.css">
         <!-- endinject -->
         <link rel="shortcut icon" href="web/assets/images/favicon.png" />
+        <!-- Font Awesome -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     </head>
     <body>
         <div class="container-scroller">
@@ -61,6 +63,9 @@
         <script src="web/assets/js/jquery.cookie.js" type="text/javascript"></script>
         <script src="web/assets/js/dashboard.js"></script>
 
+        <!-- Chart.js -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
         <script src="web/assets/vendors/datatables.net/jquery.dataTables.js"></script>
         <script src="web/assets/vendors/datatables.net-bs4/dataTables.bootstrap4.js"></script>
         <script src="web/js/tables.js"></script>
@@ -81,5 +86,10 @@
         <script src="web/js/markNotificationAsSeen.js"></script>
         <script src="web/js/changeOrderStatus.js"></script>
         <script src="web/js/bulkStatusChange.js"></script>
+        <script>
+            window.salesData = <?= json_encode($tpl['sales_data']) ?>;
+            window.currency = <?= json_encode($currency) ?>;
+        </script>
+        <script src="web/js/chart.js"></script>
     </body>
 </html>

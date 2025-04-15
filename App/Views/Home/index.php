@@ -5,45 +5,37 @@ $currency = $isLoggedIn ? $tpl['currency'] : '';
 $user_role = $isLoggedIn ? $tpl['user_role'] : '';
 $notifications = $isLoggedIn ? $tpl['notifications'] : [];
 ?>
-<div class="container-fluid">
-    <div class="row">
-        <!-- Main content -->
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+<div class="container-scroller">
+    <div class="main-panel">
+        <div class="content-wrapper">
             <?php if (!$isLoggedIn): ?>
-                <!-- Non-logged in welcome page -->
-                <div class="container py-5">
+                <!-- Non-logged in welcome page - full width with max-width constraint -->
+                <div class="container py-5 my-5">
                     <div class="row justify-content-center">
-                        <div class="col-md-10 text-center">
-                            <img src="web/assets/images/logo.svg" alt="Logo" class="img-fluid mb-4"
-                                style="max-width: 150px;">
-                            <h1 class="display-4 fw-bold mb-4">Welcome to Our Platform</h1>
-                            <p class="lead mb-5">Manage your orders, track deliveries, and shop with ease. Please log in to
-                                access your dashboard.</p>
-
-                            <div class="row justify-content-center">
-                                <div class="col-md-8">
-                                    <div class="card shadow-lg border-0">
-                                        <div class="card-body p-5">
+                        <div class="col-lg-12">
+                            <!-- Login/Register section -->
+                            <div class="row justify-content-center mb-5">
+                                <div class="col-md-10 col-lg-8">
+                                    <div class="card card-dashboard shadow-sm rounded-4">
+                                        <div class="card-body p-4">
                                             <div class="row">
-                                                <div class="col-md-6 mb-4 mb-md-0">
-                                                    <div class="d-flex flex-column h-100">
-                                                        <h3 class="h4 mb-3">Already have an account?</h3>
-                                                        <p class="text-muted mb-4">Sign in to access your dashboard, view
-                                                            orders, and more.</p>
+                                                <div class="col-md-6 mb-4 mb-md-0 border-end">
+                                                    <div class="py-2">
+                                                        <h3 class="h4 mb-3">Have an account?</h3>
+                                                        <p class="text-muted mb-4">Sign in to access your dashboard, view orders, and manage payments.</p>
                                                         <a href="<?= INSTALL_URL ?>?controller=Auth&action=login"
-                                                            class="btn btn-primary btn-lg mt-auto">
-                                                            <i class="fas fa-sign-in-alt me-2"></i> Login
+                                                           class="btn btn-primary w-100">
+                                                            <i class="mdi mdi-login-variant me-2"></i> Log in
                                                         </a>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <div class="d-flex flex-column h-100">
+                                                    <div class="py-2">
                                                         <h3 class="h4 mb-3">New to our platform?</h3>
-                                                        <p class="text-muted mb-4">Create an account to start shopping,
-                                                            place orders, and more.</p>
+                                                        <p class="text-muted mb-4">Create an account to start managing your orders and tracking deliveries.</p>
                                                         <a href="<?= INSTALL_URL ?>?controller=Auth&action=register"
-                                                            class="btn btn-outline-primary btn-lg mt-auto">
-                                                            <i class="fas fa-user-plus me-2"></i> Register
+                                                           class="btn btn-outline-primary w-100">
+                                                            <i class="mdi mdi-account-plus me-2"></i> Register
                                                         </a>
                                                     </div>
                                                 </div>
@@ -53,16 +45,16 @@ $notifications = $isLoggedIn ? $tpl['notifications'] : [];
                                 </div>
                             </div>
 
-                            <div class="row mt-5">
+                            <!-- Feature cards -->
+                            <div class="row justify-content-center g-4">
                                 <div class="col-md-4 mb-4">
                                     <div class="card card-dashboard h-100">
                                         <div class="card-body text-center p-4">
                                             <div class="stat-icon bg-light-primary mx-auto mb-3">
-                                                <i class="fas fa-shopping-cart"></i>
+                                                <i class="mdi mdi-clipboard-text-outline"></i>
                                             </div>
-                                            <h4>Shop Online</h4>
-                                            <p class="text-muted">Browse our extensive catalog of products and shop from the
-                                                comfort of your home.</p>
+                                            <h4 class="mb-3">Manage Orders</h4>
+                                            <p class="text-muted">View your order history, check status updates, and manage payments all in one place.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -70,11 +62,10 @@ $notifications = $isLoggedIn ? $tpl['notifications'] : [];
                                     <div class="card card-dashboard h-100">
                                         <div class="card-body text-center p-4">
                                             <div class="stat-icon bg-light-success mx-auto mb-3">
-                                                <i class="fas fa-truck"></i>
+                                                <i class="mdi mdi-truck-delivery"></i>
                                             </div>
-                                            <h4>Fast Delivery</h4>
-                                            <p class="text-muted">Track your orders in real-time and get them delivered
-                                                right to your doorstep.</p>
+                                            <h4 class="mb-3">Track Deliveries</h4>
+                                            <p class="text-muted">Follow your deliveries in real-time with accurate status updates from our courier team.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -82,11 +73,10 @@ $notifications = $isLoggedIn ? $tpl['notifications'] : [];
                                     <div class="card card-dashboard h-100">
                                         <div class="card-body text-center p-4">
                                             <div class="stat-icon bg-light-warning mx-auto mb-3">
-                                                <i class="fas fa-headset"></i>
+                                                <i class="mdi mdi-headset"></i>
                                             </div>
-                                            <h4>24/7 Support</h4>
-                                            <p class="text-muted">Our customer support team is always ready to assist you
-                                                with any queries.</p>
+                                            <h4 class="mb-3">24/7 Support</h4>
+                                            <p class="text-muted">Our support team is always ready to assist you with any questions about your orders.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -95,34 +85,9 @@ $notifications = $isLoggedIn ? $tpl['notifications'] : [];
                     </div>
                 </div>
             <?php else: ?>
-                <div
-                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <!-- Logged-in user dashboard -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">Dashboard</h1>
-                    <div class="btn-toolbar mb-2 mb-md-0">
-                        <div class="dropdown">
-                            <button class="btn btn-outline-secondary dropdown-toggle position-relative" type="button"
-                                id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-bell"></i>
-                                <?php if (count($notifications) > 0): ?>
-                                    <span
-                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge">
-                                        <?= count($notifications) ?>
-                                    </span>
-                                <?php endif; ?>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown">
-                                <?php if (count($notifications) > 0): ?>
-                                    <?php foreach ($notifications as $notification): ?>
-                                        <li><a class="dropdown-item" href="#">
-                                                <?= htmlspecialchars($notification['message']) ?>
-                                            </a></li>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <li><a class="dropdown-item" href="#">No new notifications</a></li>
-                                <?php endif; ?>
-                            </ul>
-                        </div>
-                    </div>
                 </div>
 
                 <?php if ($user_role == 'admin' || $user_role == 'root'): ?>
@@ -364,19 +329,21 @@ $notifications = $isLoggedIn ? $tpl['notifications'] : [];
                                                         </td>
                                                         <td title="<?= htmlspecialchars($delivery['address']) ?>"><?= htmlspecialchars($delivery['address_short']) ?></td>
                                                         <td>
-                                                            <?= date('M d, Y', $delivery['delivery_date']) ?>
+                                                            <?= date($tpl['date_format'], $delivery['delivery_date']) ?>
                                                         </td>
                                                         <td>
-                                                            <a href="<?= INSTALL_URL ?>?controller=Order&action=view&id=<?= $delivery['id'] ?>"
-                                                                class="btn btn-sm btn-primary">
+                                                            <a href="<?= INSTALL_URL ?>?controller=Order&action=details&id=<?= $delivery['id'] ?>"
+                                                               class="btn btn-sm btn-primary">
                                                                 <i class="fas fa-eye"></i> View
                                                             </a>
-                                                            <?php if ($delivery['status'] == 'shipped'): ?>
+                                                            <!--
+                                                                <?php if ($delivery['status'] == 'shipped'): ?>
                                                                 <a href="<?= INSTALL_URL ?>?controller=Order&action=changeStatus&ids=<?= $delivery['id'] ?>&status=delivered"
-                                                                    class="btn btn-sm btn-success">
+                                                                   class="btn btn-sm btn-success">
                                                                     <i class="fas fa-check"></i> Mark Delivered
                                                                 </a>
                                                             <?php endif; ?>
+                                                            -->
                                                         </td>
                                                     </tr>
                                                 <?php endforeach; ?>
@@ -385,29 +352,29 @@ $notifications = $isLoggedIn ? $tpl['notifications'] : [];
                                     </div>
                                 </div>
                                 <div class="card-footer bg-white text-center">
-                                    <a href="<?= INSTALL_URL ?>?controller=Order&action=list" class="btn btn-sm btn-primary">View All
+                                    <a href="<?= INSTALL_URL ?>?controller=Order&action=list&courier_id=<?= $_SESSION['user']['id'] ?>" class="btn btn-sm btn-primary">View All
                                         Deliveries</a>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <div class="card card-dashboard">
-                                <div class="card-header bg-white">
-                                    <h5 class="card-title mb-0">Delivery Map</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div id="deliveryMap"
-                                        style="height: 400px; background-color: #f8f9fa; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                                        <p class="text-muted">Map loading... Please wait.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                    <!--
+                                        <div class="row mb-4">
+                                            <div class="col-12">
+                                                <div class="card card-dashboard">
+                                                    <div class="card-header bg-white">
+                                                        <h5 class="card-title mb-0">Delivery Map</h5>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div id="deliveryMap"
+                                                             style="height: 400px; background-color: #f8f9fa; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                                            <p class="text-muted">Map loading... Please wait.</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                    -->
                 <?php elseif ($user_role == 'user'): ?>
                     <!-- User Dashboard -->
                     <div class="row mb-4">
@@ -489,7 +456,7 @@ $notifications = $isLoggedIn ? $tpl['notifications'] : [];
                                                             <?= $order['id'] ?>
                                                         </td>
                                                         <td>
-                                                            <?= date('M d, Y', $order['created_at']) ?>
+                                                            <?= date($tpl['date_format'], $order['created_at']) ?>
                                                         </td>
                                                         <td>
                                                             <?= $order['formatted_total'] ?>
@@ -523,8 +490,8 @@ $notifications = $isLoggedIn ? $tpl['notifications'] : [];
                                                             </span>
                                                         </td>
                                                         <td>
-                                                            <a href="<?= INSTALL_URL ?>?controller=Order&action=view&id=<?= $order['id'] ?>"
-                                                                class="btn btn-sm btn-primary">
+                                                            <a href="<?= INSTALL_URL ?>?controller=Order&action=details&id=<?= $order['id'] ?>"
+                                                               class="btn btn-sm btn-primary">
                                                                 <i class="fas fa-eye"></i> View
                                                             </a>
                                                         </td>
@@ -535,128 +502,14 @@ $notifications = $isLoggedIn ? $tpl['notifications'] : [];
                                     </div>
                                 </div>
                                 <div class="card-footer bg-white text-center">
-                                    <a href="<?= INSTALL_URL ?>?controller=Order&action=myOrders"
-                                        class="btn btn-sm btn-primary">View All Orders</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <div class="card card-dashboard">
-                                <div class="card-header bg-white">
-                                    <h5 class="card-title mb-0">Quick Actions</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-4 mb-3">
-                                            <a href="<?= INSTALL_URL ?>?controller=Product&action=shop"
-                                                class="btn btn-primary w-100">
-                                                <i class="fas fa-shopping-cart me-2"></i> Shop Now
-                                            </a>
-                                        </div>
-                                        <div class="col-md-4 mb-3">
-                                            <a href="<?= INSTALL_URL ?>?controller=Cart" class="btn btn-info w-100">
-                                                <i class="fas fa-shopping-basket me-2"></i> View Cart
-                                            </a>
-                                        </div>
-                                        <div class="col-md-4 mb-3">
-                                            <a href="<?= INSTALL_URL ?>?controller=User&action=profile" class="btn btn-secondary w-100">
-                                                <i class="fas fa-user-edit me-2"></i> Edit Profile
-                                            </a>
-                                        </div>
-                                    </div>
+                                    <a href="<?= INSTALL_URL ?>?controller=Order&action=list&user_id=<?= $_SESSION['user']['id'] ?>"
+                                       class="btn btn-sm btn-primary">View All Orders</a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 <?php endif; ?>
-            <?php endif; ?>
-        </main>
+            </div>
+        <?php endif; ?>
     </div>
 </div>
-
-<!-- Bootstrap Bundle with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<?php if ($user_role == 'admin' || $user_role == 'root'): ?>
-    <script>
-        // Sales Chart
-        const salesData = <?= json_encode($tpl['sales_data']) ?>;
-        const ctx = document.getElementById('salesChart').getContext('2d');
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: salesData.map(item => item.date),
-                datasets: [{
-                    label: 'Sales',
-                    data: salesData.map(item => item.total),
-                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                    borderColor: '#0d6efd',
-                    borderWidth: 2,
-                    tension: 0.3,
-                    fill: true,
-                    pointBackgroundColor: '#0d6efd',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
-                    pointHoverRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function (context) {
-                                return `${context.dataset.label}: ${context.parsed.y} ${<?= json_encode($currency) ?>}`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            drawBorder: false
-                        },
-                        ticks: {
-                            callback: function (value) {
-                                return value + ' ' + <?= json_encode($currency) ?>;
-                            }
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                }
-            }
-        });
-    </script>
-<?php endif; ?>
-
-<?php if ($user_role == 'courier'): ?>
-    <script>
-        // Placeholder for map integration
-        // In a real application, you would integrate with Google Maps or another mapping service
-        setTimeout(() => {
-            document.getElementById('deliveryMap').innerHTML = `
-                        <div class="text-center">
-                            <i class="fas fa-map-marked-alt" style="font-size: 60px; color: #6c757d;"></i>
-                            <p class="mt-3">Map integration would be implemented here with actual delivery locations.</p>
-                            <p class="text-muted">For a production environment, integrate with Google Maps API or similar service.</p>
-                        </div>
-                    `;
-        }, 1000);
-    </script>
-<?php endif; ?>
