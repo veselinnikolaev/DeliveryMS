@@ -25,7 +25,7 @@
                            value="<?php
                            if (!empty($tpl['paypal_email'])) {
                                echo $tpl['paypal_email'];
-                           } else if (PAYPAL_EMAIL) {
+                           } else if (PAYPAL_EMAIL != '{paypal_email}') {
                                echo PAYPAL_EMAIL;
                            }
                            ?>" required>

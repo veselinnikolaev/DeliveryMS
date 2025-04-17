@@ -146,7 +146,7 @@ class InstallController extends Controller {
             $paypalEmail = $_POST['paypal_email'];
 
             // Pattern to match the PAYPAL_EMAIL definition with any email
-            $pattern = '/define$$"PAYPAL_EMAIL",\s*"[^"]*"$$;/';
+            $pattern = '/define\("PAYPAL_EMAIL",\s*"[^"]*"\);/';
 
             // Replace with new email
             $replacement = 'define("PAYPAL_EMAIL", "' . $paypalEmail . '");';

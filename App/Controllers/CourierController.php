@@ -139,10 +139,19 @@ class CourierController extends Controller {
 
         // Check if the form has been submitted
         if (!empty($_POST['id'])) {
-
+            $id = $_POST['id'];
             // Save the data using the Courier model
             if ($userModel->update($_POST)) {
                 // Redirect to the list of couriers on successful creation
+                $notificationModel = new \App\Models\Notification();
+                $adminName = $_SESSION['user']['name'];
+                $notificationModel->save([
+                    'user_id' => $id,
+                    'message' => "Your profile has been edited by: $adminName",
+                    'link' => INSTALL_URL . "?controller=User&action=profile&id=$id",
+                    'created_at' => time()
+                ]);
+
                 header("Location: " . $_SESSION['previous_url'], true, 301);
                 exit;
             } else {

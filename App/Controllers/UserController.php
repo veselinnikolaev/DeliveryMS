@@ -100,6 +100,22 @@ class UserController extends Controller {
 
             if (in_array($role, ['user', 'admin'])) {
                 $userModel->update($_POST);
+
+                $notificationModel = new \App\Models\Notification();
+
+                // Notify the user whose role changed
+                $notificationModel->save([
+                    'user_id' => $userId,
+                    'message' => "Your account role has been changed to: $role",
+                    'link' => INSTALL_URL . "?controller=User&action=profile&id=$userId",
+                    'created_at' => time()
+                ]);
+
+                // Notify admins
+                $this->notifyAdmins(
+                        "User role changed: {$user['name']} is now a $role",
+                        INSTALL_URL . "?controller=User&action=profile&id=$userId"
+                );
             }
         }
 
@@ -285,6 +301,23 @@ class UserController extends Controller {
 
             if (!isset($errorMessage)) {
                 if ($userModel->update(['id' => $id, 'password_hash' => password_hash($newPassword, PASSWORD_DEFAULT)])) {
+                    $notificationModel = new \App\Models\Notification();
+                    $notificationModel->save([
+                        'user_id' => $id,
+                        'message' => "Your password has been changed successfully",
+                        'link' => INSTALL_URL . "?controller=User&action=profile&id=$id",
+                        'created_at' => time()
+                    ]);
+
+                    // Notify admins if an admin changed someone else's password
+                    if ($_SESSION['user']['role'] == 'admin' && $_SESSION['user']['id'] != $id) {
+                        $user = $userModel->get($id);
+                        $this->notifyAdmins(
+                                "Password changed for user: {$user['name']} by admin: {$_SESSION['user']['name']}",
+                                INSTALL_URL . "?controller=User&action=profile&id=$id"
+                        );
+                    }
+
                     header("Location: " . INSTALL_URL . "?controller=User&action=profile&id=$id", true, 301);
                     exit;
                 }
@@ -471,5 +504,20 @@ class UserController extends Controller {
 
         fclose($output);
         exit;
+    }
+
+    private function notifyAdmins($message, $link = null) {
+        $userModel = new \App\Models\User();
+        $notificationModel = new \App\Models\Notification();
+
+        $admins = $userModel->getAll(['role' => 'admin']);
+        foreach ($admins as $admin) {
+            $notificationModel->save([
+                'user_id' => $admin['id'],
+                'message' => $message,
+                'link' => $link,
+                'created_at' => time()
+            ]);
+        }
     }
 }

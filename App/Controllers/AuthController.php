@@ -58,6 +58,15 @@ class AuthController extends Controller {
 
             if ($user && password_verify($_POST['password'], $user['password_hash'])) {
                 $_SESSION['user'] = $user;
+                
+                $notificationModel = new \App\Models\Notification();
+                $notificationModel->save([
+                    'user_id' => $user['id'],
+                    'message' => 'New login detected.',
+                    'link' => INSTALL_URL . '?controller=Home&action=index',
+                    'created_at' => time()
+                ]);
+                
                 header("Location: " . $_SESSION['previous_url'], true, 301);
                 exit;
             } else {

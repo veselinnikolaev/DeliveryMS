@@ -174,12 +174,38 @@ class OrderController extends Controller {
                     }
 
                     if (!isset($error_message)) {
+                        // Notify customer
                         $notificationModel->save([
                             'user_id' => $_POST['user_id'],
-                            'message' => "Your order #$orderId has been created successfully!",
+                            'message' => "New order #{$orderId} has been created. Total: " . \Utility::getDisplayableAmount($priceDetails['total']),
                             'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
                             'created_at' => time()
                         ]);
+
+                        // Notify courier
+                        $notificationModel->save([
+                            'user_id' => $_POST['courier_id'],
+                            'message' => "New delivery assigned to you. Order #{$orderId}",
+                            'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
+                            'created_at' => time()
+                        ]);
+
+                        // Check for low stock and notify admins
+                        foreach ($productIds as $key => $productId) {
+                            $product = $productModel->get($productId);
+                            if ($product['stock'] < 10) { // Threshold for low stock
+                                $adminUsers = $userModel->getAll(['role' => 'admin']);
+                                foreach ($adminUsers as $admin) {
+                                    $notificationModel->save([
+                                        'user_id' => $admin['id'],
+                                        'message' => "Low stock alert: {$product['name']} (Only {$product['stock']} left)",
+                                        'link' => INSTALL_URL . "?controller=Product&action=edit&id=$productId",
+                                        'created_at' => time()
+                                    ]);
+                                }
+                            }
+                        }
+
                         if ($this->settings['email_sending'] == 'enabled') {
                             $order = $orderModel->get($orderId);
                             $customer = $userModel->get($order['user_id']);
@@ -229,6 +255,18 @@ class OrderController extends Controller {
 
             if (in_array($status, ['delivered', 'returned'])) {
                 $orderModel->updateBy(['status' => $status], ['id' => $ids]);
+
+                foreach ($ids as $orderId) {
+                    $order = $orderModel->get($orderId);
+
+                    // Notify customer about delivery/return
+                    $notificationModel->save([
+                        'user_id' => $order['user_id'],
+                        'message' => "Your order #{$orderId} has been " . $status,
+                        'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
+                        'created_at' => time()
+                    ]);
+                }
             }
         }
 
@@ -431,6 +469,13 @@ class OrderController extends Controller {
                     'link' => INSTALL_URL . "?controller=Order&action=pay_success&order_id=$orderId",
                     'created_at' => time()
                 ]);
+            } else if ($_POST['payment_status'] == 'Failed') {
+                $notificationModel->save([
+                    'user_id' => $user['id'],
+                    'message' => "Payment failed for order #{$orderId}. Please try again.",
+                    'link' => INSTALL_URL . "?controller=Order&action=pay&order_id=$orderId",
+                    'created_at' => time()
+                ]);
             }
         } else {
             // Payment not verified, handle the error (perhaps log it)
@@ -520,6 +565,7 @@ class OrderController extends Controller {
         if (!empty($_POST['id'])) {
             $orderId = $_POST['id'];
             $order = $orderModel->get($orderId);
+            $originalCourierId = $order['courier_id'];
             $currentOrderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
 
             $currentQuantities = [];
@@ -605,6 +651,16 @@ class OrderController extends Controller {
                     'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
                     'created_at' => time()
                 ]);
+
+                if ($originalCourierId != $_POST['courier_id']) {
+                    $notificationModel->save([
+                        'user_id' => $_POST['courier_id'],
+                        'message' => "New delivery assigned to you. Order #{$orderId}",
+                        'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
+                        'created_at' => time()
+                    ]);
+                }
+
                 if ($this->settings['email_sending'] == 'enabled') {
                     $order = $orderModel->get($orderId);
                     $customer = $userModel->get($order['user_id']);
