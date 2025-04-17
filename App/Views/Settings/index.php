@@ -100,6 +100,39 @@
                                 <?php endforeach; ?>
                             </div>
                         </div>
+                        <div class="settings-section mb-4">
+                            <h5 class="section-title border-bottom pb-2 mb-3">Payment Settings</h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-group">
+                                        <div class="d-flex align-items-center">
+                                            <?php if (!PAYPAL_EMAIL): ?>
+                                                <div class="me-3">
+                                                    <span class="text-danger">
+                                                        <i class="ti-alert"></i>
+                                                        PayPal email configuration required
+                                                    </span>
+                                                </div>
+                                                <a href="<?php echo INSTALL_URL; ?>?controller=Install&action=step3" 
+                                                   class="btn btn-danger">
+                                                    Configure PayPal Email
+                                                </a>
+                                            <?php else: ?>
+                                                <a href="<?php echo INSTALL_URL; ?>?controller=Install&action=step3" 
+                                                   class="btn btn-outline-primary">
+                                                    Update PayPal Email
+                                                </a>
+                                            <?php endif; ?>
+                                        </div>
+                                        <?php if (PAYPAL_EMAIL): ?>
+                                            <div class="mt-2 text-muted small">
+                                                Current PayPal email: <?php echo PAYPAL_EMAIL; ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-actions mt-4 pt-3 border-top">
                             <div class="row">
                                 <div class="col-12">

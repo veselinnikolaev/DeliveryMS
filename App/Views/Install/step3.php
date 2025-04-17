@@ -25,6 +25,8 @@
                            value="<?php
                            if (!empty($tpl['paypal_email'])) {
                                echo $tpl['paypal_email'];
+                           } else if (PAYPAL_EMAIL) {
+                               echo PAYPAL_EMAIL;
                            }
                            ?>" required>
                     <div class="form-text">The email address associated with your PayPal business account</div>
@@ -34,19 +36,23 @@
                         <i class="fa fa-info-circle me-2"></i>
                         Don't have a PayPal Business account yet? 
                         <a href="https://www.paypal.com/bg/business/getting-started" target="_blank" class="alert-link">
-                            Click here to create one
+                            Click here
                         </a>
                     </div>
                 </div>
 
                 <div class="d-flex justify-content-between mt-4">
-                    <a href="<?php echo INSTALL_URL; ?>?controller=Install&action=step2" class="btn btn-secondary">Back</a>
-                    <button type="submit" class="btn btn-primary">Next Step</button>
+                    <a href="<?php echo $_SESSION['previous_url']; ?>" class="btn btn-secondary">Back</a>
+                    <?php if (strpos($_SESSION['previous_url'], '?controller=Settings&action=index') !== false): ?>
+                        <button type="submit" class="btn btn-primary">Done</button>
+                    <?php else: ?>
+                        <button type="submit" class="btn btn-primary">Next Step</button>
+                    <?php endif; ?>
                 </div>
             </form>
         </div>
     </div>
-    <div class="mt-4 text-center text-muted">
+    <div class = "mt-4 text-center text-muted">
         <small>Step 3 of 5 - PayPal Configuration</small>
     </div>
 </div>

@@ -63,12 +63,16 @@
 
                 <div class="d-flex justify-content-between mt-4">
                     <a href="<?php echo $_SESSION['previous_url']; ?>" class="btn btn-secondary">Back</a>
-                       <?php
-                       if (!INSTALLED) {
-                           echo '<a class="btn btn-warning skip-mail-config">Skip</a>';
-                       }
-                       ?>
-                    <button type="submit" class="btn btn-primary">Next Step</button>
+                    <?php
+                    if (!INSTALLED) {
+                        echo '<a class="btn btn-warning skip-mail-config">Skip</a>';
+                    }
+                    ?>
+                    <?php if (strpos($_SESSION['previous_url'], '?controller=Settings&action=index') !== false): ?>
+                        <button type="submit" class="btn btn-primary">Done</button>
+                    <?php else: ?>
+                        <button type="submit" class="btn btn-primary">Next Step</button>
+                    <?php endif; ?>
                 </div>
             </form>
         </div>

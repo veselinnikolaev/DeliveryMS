@@ -48,7 +48,7 @@
                     echo htmlspecialchars(Utility::$order_status[$order['status']]);
                     ?></td>
                 <td style="text-align: right;">
-                    <?php if ($_SESSION['user']['role'] === 'courier' /* && $order['status'] == 'shipped' */) { ?>
+                    <?php if ($_SESSION['user']['role'] === 'courier' && $order['status'] == 'shipped') { ?>
                         <a class="btn btn-success btn-circle mdc-ripple-upgraded change-status" 
                            href="#" data-id="<?php echo $order['id'] ?>" data-status="delivered">
                             <i class="fa fa-check" aria-hidden="true" title="Mark as Delivered"></i>

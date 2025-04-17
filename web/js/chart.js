@@ -20,15 +20,31 @@
             return value.toFixed(2);
         };
 
+        // Improved growth calculation with smoothing and caps
+        const calculateGrowth = (prevValue, currValue) => {
+            if (prevValue === 0 && currValue === 0) return 0;
+            if (prevValue === 0) return currValue > 0 ? 100 : 0;
+            const growth = ((currValue - prevValue) / prevValue) * 100;
+            // Cap growth between -50% and 100%
+            return Math.max(Math.min(growth, 100), -50);
+        };
+
+        // Calculate growth data with smoothing
         const growthData = [];
+        const smoothingFactor = 0.3; // Adjust this value between 0 and 1
+
         if (salesData.length > 1) {
+            let previousGrowth = 0;
             for (let i = 1; i < salesData.length; i++) {
                 const prevValue = salesData[i - 1].total;
                 const currValue = salesData[i].total;
-                const growth = prevValue === 0 ? 0 : ((currValue - prevValue) / prevValue) * 100;
-                growthData.push(parseFloat(growth.toFixed(2)));
+                const rawGrowth = calculateGrowth(prevValue, currValue);
+                // Apply exponential smoothing
+                const smoothedGrowth = (smoothingFactor * rawGrowth) + ((1 - smoothingFactor) * previousGrowth);
+                growthData.push(parseFloat(smoothedGrowth.toFixed(2)));
+                previousGrowth = smoothedGrowth;
             }
-            growthData.unshift(null);
+            growthData.unshift(null); // Add null for the first point
         }
 
         const chart = new Chart(ctx, {
@@ -101,7 +117,9 @@
                                     return 'Sales: ' + context.parsed.y.toFixed(2) + ' ' + currency;
                                 } else {
                                     if (context.parsed.y === null) return 'Growth: N/A';
-                                    return 'Growth: ' + context.parsed.y.toFixed(2) + '%';
+                                    const growth = context.parsed.y.toFixed(2);
+                                    const indicator = Math.abs(growth) >= 49 ? ' (capped)' : '';
+                                    return 'Growth: ' + growth + '%' + indicator;
                                 }
                             }
                         }
@@ -123,15 +141,18 @@
                     },
                     y1: {
                         position: 'right',
-                        beginAtZero: false,
+                        beginAtZero: true, // Changed to true for better visualization
+                        min: -50, // Set minimum value
+                        max: 100, // Set maximum value
                         grid: {
                             drawOnChartArea: false
                         },
                         ticks: {
                             padding: 8,
                             callback: function (value) {
-                                return value.toFixed(2) + '%';
-                            }
+                                return value.toFixed(0) + '%'; // Removed decimal places for cleaner display
+                            },
+                            stepSize: 25 // Add step size for cleaner intervals
                         }
                     },
                     x: {
@@ -139,7 +160,9 @@
                             display: false
                         },
                         ticks: {
-                            padding: 8
+                            padding: 8,
+                            maxRotation: 45, // Improve readability for long dates
+                            minRotation: 0
                         }
                     }
                 },
@@ -152,6 +175,7 @@
             }
         });
 
+        // Zoom functionality
         chartElement.addEventListener('wheel', function (e) {
             if (e.ctrlKey || e.metaKey) {
                 e.preventDefault();
@@ -162,14 +186,20 @@
 
                 chart.options.scales.y.min = newMin > 0 ? newMin : 0;
                 chart.options.scales.y.max = newMax;
-                chart.update();
+                chart.update('none'); // Use 'none' for better performance
             }
         });
 
+        // Store chart reference
         window.salesChart = chart;
 
+        // Optimize resize handler
+        let resizeTimeout;
         $(window).on('resize', function () {
-            chart.resize();
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {
+                chart.resize();
+            }, 250); // Debounce resize events
         });
     });
 }(jQuery));
