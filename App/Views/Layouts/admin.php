@@ -26,6 +26,7 @@
         <link rel="shortcut icon" href="web/assets/images/favicon.png" />
         <!-- Font Awesome -->
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
     </head>
     <body>
         <div class="container-scroller">
@@ -86,10 +87,25 @@
         <script src="web/js/markNotificationAsSeen.js"></script>
         <script src="web/js/changeOrderStatus.js"></script>
         <script src="web/js/bulkStatusChange.js"></script>
+        <script src="web/js/orderTracking.js"></script>
+        <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+        <script src="web/js/chart.js"></script>
         <script>
             window.salesData = <?= json_encode($tpl['sales_data']) ?>;
             window.currency = <?= json_encode($currency) ?>;
         </script>
-        <script src="web/js/chart.js"></script>
+        <?php if (!empty($tpl['order']) && $tpl['order']['status'] == 'shipped' && !empty($tpl['order']['courier_id'])) { ?>
+            <script>
+                window.orderTracking = new OrderTracking({
+                    orderId: <?php echo json_encode($tpl['order']['id']); ?>,
+                    courierId: <?php echo json_encode($tpl['order']['courier_id']); ?>,
+                    deliveryAddress: <?php echo json_encode($tpl['order']['address'] . ', ' . $tpl['order']['region'] . ', ' . $tpl['order']['country']); ?>,
+                    mapMarkers: {
+                        courier: '<i class="mdi mdi-truck-delivery text-primary" style="font-size: 24px;"></i>',
+                        destination: '<i class="mdi mdi-map-marker text-danger" style="font-size: 24px;"></i>'
+                    }
+                });
+            </script>
+        <?php } ?>
     </body>
 </html>

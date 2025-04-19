@@ -332,7 +332,7 @@ class OrderController extends Controller {
             'customer' => $customerData,
             'courier' => $courierData,
             'products' => $orderProducts,
-            'currency' => $this->settings['currency_code']
+            'currency' => $this->settings['currency_code'],
         ];
 
         $this->view($this->layout, $data);

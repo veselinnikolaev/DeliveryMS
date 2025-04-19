@@ -386,3 +386,33 @@ body {
         margin-bottom: 1.5rem;
     }
 }
+
+.custom-div-icon {
+    background: none;
+    border: none;
+}
+
+.custom-div-icon i {
+    display: block;
+    text-align: center;
+    line-height: 24px;
+}
+
+.info-item {
+    padding: 10px;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+.info-item:hover {
+    background-color: rgba(0,0,0,0.03);
+}
+
+.card-dashboard {
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+#deliveryMap {
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}

@@ -5,6 +5,8 @@ DROP TABLE IF EXISTS `order_products`;
 DROP TABLE IF EXISTS `couriers`;
 DROP TABLE IF EXISTS `settings`;
 DROP TABLE IF EXISTS `notifications`;
+DROP TABLE IF EXISTS `courier_locations`;
+DROP TABLE IF EXISTS `address_coordinates`;
 
 -- Create the `users` table
 CREATE TABLE IF NOT EXISTS `users` (
@@ -49,11 +51,11 @@ CREATE TABLE IF NOT EXISTS `orders` (
   `last_processed` BIGINT DEFAULT UNIX_TIMESTAMP(),
   `courier_id` INT(11) NOT NULL,
   `tracking_number` VARCHAR(100) DEFAULT NULL,
-  `delivery_date` VARCHAR(255) DEFAULT NULL,
+  `delivery_date` BIGINT DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Create the `order_details` table
+-- Create the `order_products` table
 CREATE TABLE IF NOT EXISTS `order_products` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `order_id` INT(11) NOT NULL,
@@ -64,14 +66,26 @@ CREATE TABLE IF NOT EXISTS `order_products` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- Create the `couriers` table (NOT USED)
-/*CREATE TABLE IF NOT EXISTS `couriers` (
+-- Create table for real-time courier location tracking
+CREATE TABLE `courier_locations` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(100) NOT NULL,
-  `phone_number` VARCHAR(20) DEFAULT NULL,
-  `email` VARCHAR(100) DEFAULT NULL,
+  `user_id` INT(11) NOT NULL, -- Using user_id instead of courier_id
+  `latitude` DECIMAL(10, 8) NOT NULL,
+  `longitude` DECIMAL(11, 8) NOT NULL,
+  `timestamp` BIGINT DEFAULT UNIX_TIMESTAMP(),
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `address_coordinates` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `address_hash` VARCHAR(32) NOT NULL UNIQUE,
+  `address` VARCHAR(255) NOT NULL,
+  `latitude` DECIMAL(10, 8) NOT NULL,
+  `longitude` DECIMAL(11, 8) NOT NULL,
+  `created_at` BIGINT DEFAULT UNIX_TIMESTAMP(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;*/
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create the `settings` table
 CREATE TABLE IF NOT EXISTS `settings` (
