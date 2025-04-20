@@ -2,7 +2,6 @@
     'use strict';
 
     function OrderTracking(config) {
-        // Initialize properties
         this.map = null;
         this.courierMarker = null;
         this.destinationMarker = null;
@@ -10,62 +9,51 @@
         this.updateTimer = null;
         this.config = config;
 
-        // Start initialization if config is provided
         if (config) {
             this.init();
         }
     }
 
     OrderTracking.prototype.init = function () {
-        // Initialize map only if the container exists
         if ($('#deliveryMap').length) {
             this.initMap();
-            this.setupEventListeners();
-        } else {
-            console.error('Map container not found');
+            // Geocode the delivery address with full details
+            this.geocodeAddress(
+                    this.config.deliveryAddress,
+                    this.config.deliveryRegion,
+                    this.config.deliveryCountry
+                    );
         }
     };
 
     OrderTracking.prototype.initMap = function () {
-        // Default center (can be adjusted based on your primary service area)
-        const defaultCenter = [42.6977, 23.3219]; // Sofia, Bulgaria coordinates
+        const defaultCenter = [43.2141, 27.9147]; // Varna coordinates
 
-        // Create the map instance
         this.map = L.map('deliveryMap').setView(defaultCenter, 12);
 
-        // Add the tile layer (OpenStreetMap)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            attribution: '© OpenStreetMap contributors',
             maxZoom: 19
         }).addTo(this.map);
 
-        // Create courier marker
-        const courierIcon = L.divIcon({
-            html: this.config.mapMarkers.courier,
-            className: 'custom-div-icon courier-icon',
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
-        });
-
         this.courierMarker = L.marker(defaultCenter, {
-            icon: courierIcon
+            icon: L.divIcon({
+                html: this.config.mapMarkers.courier,
+                className: 'custom-div-icon courier-icon',
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
+            })
         }).addTo(this.map);
-        this.courierMarker.bindPopup("Courier Location");
-
-        // Create destination marker
-        const destinationIcon = L.divIcon({
-            html: this.config.mapMarkers.destination,
-            className: 'custom-div-icon destination-icon',
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
-        });
 
         this.destinationMarker = L.marker(defaultCenter, {
-            icon: destinationIcon
+            icon: L.divIcon({
+                html: this.config.mapMarkers.destination,
+                className: 'custom-div-icon destination-icon',
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
+            })
         }).addTo(this.map);
-        this.destinationMarker.bindPopup("Delivery Destination");
 
-        // Create route path
         this.routePath = L.polyline([], {
             color: '#3388ff',
             weight: 3,
@@ -73,13 +61,10 @@
             dashArray: '10, 10'
         }).addTo(this.map);
 
-        // Initial location update
         this.updateCourierLocation();
-
-        // Start periodic updates
         this.updateTimer = setInterval(() => {
             this.updateCourierLocation();
-        }, 30000); // Update every 30 seconds
+        }, 30000);
     };
 
     OrderTracking.prototype.updateCourierLocation = function () {
@@ -97,38 +82,22 @@
     };
 
     OrderTracking.prototype.handleLocationUpdate = function (response) {
-        if (response.success) {
+        if (response.success && response.latitude && response.longitude) {
             const courierPosition = [
                 parseFloat(response.latitude),
                 parseFloat(response.longitude)
             ];
 
-            // Update courier marker position
             this.courierMarker.setLatLng(courierPosition);
 
-            // Update estimated delivery time
             if (response.estimated_time) {
                 $('#estimatedTime').text(response.estimated_time);
             }
 
-            // Calculate and display time since last update
             const updateTime = new Date(response.timestamp * 1000);
             const now = new Date();
             const minutesAgo = Math.floor((now - updateTime) / 60000);
             this.updateCourierStatus(minutesAgo);
-
-            // If destination hasn't been set yet, geocode the delivery address
-            if (!this.destinationMarker.getLatLng() ||
-                    (this.destinationMarker.getLatLng().lat === 42.6977 &&
-                            this.destinationMarker.getLatLng().lng === 23.3219)) {
-                this.geocodeAddress(this.config.deliveryAddress);
-            } else {
-                // Update route and fit bounds
-                this.updateRoutePath(courierPosition, this.destinationMarker.getLatLng());
-                this.fitMapBounds(courierPosition, this.destinationMarker.getLatLng());
-            }
-        } else {
-            this.handleLocationError();
         }
     };
 
@@ -150,37 +119,96 @@
         $('#courierStatus').text(status);
     };
 
-    OrderTracking.prototype.geocodeAddress = function (address) {
+    OrderTracking.prototype.geocodeAddress = function (address, region, country) {
+        // Format the address in a way Nominatim understands better
+        let formattedAddress = address
+                .replace('boulevard', 'blvd')
+                .replace('number', '')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+        // Construct the search query
+        let searchQuery = `${formattedAddress}, ${region}, ${country}`;
+        console.log('Searching for:', searchQuery);
+
         $.ajax({
-            url: `https://nominatim.openstreetmap.org/search`,
+            url: 'https://nominatim.openstreetmap.org/search',
             method: 'GET',
             data: {
+                street: formattedAddress,
+                city: region,
+                country: country,
                 format: 'json',
-                q: address,
                 limit: 1
             },
             headers: {
                 'User-Agent': 'DeliveryTrackingSystem/1.0'
             },
             success: (response) => {
-                if (response && response[0]) {
+                console.log('Nominatim response:', response);
+
+                if (response && response.length > 0) {
                     const position = [
                         parseFloat(response[0].lat),
                         parseFloat(response[0].lon)
                     ];
-                    this.destinationMarker.setLatLng(position);
-
-                    if (this.courierMarker) {
-                        const courierPos = this.courierMarker.getLatLng();
-                        this.updateRoutePath([courierPos.lat, courierPos.lng], position);
-                        this.fitMapBounds([courierPos.lat, courierPos.lng], position);
-                    }
+                    this.updateMapWithLocations(position);
+                } else {
+                    // Try alternative search
+                    this.searchWithFullAddress(searchQuery);
                 }
             },
             error: () => {
-                console.error('Geocoding failed');
+                this.searchWithFullAddress(searchQuery);
             }
         });
+    };
+
+    OrderTracking.prototype.searchWithFullAddress = function (fullAddress) {
+        $.ajax({
+            url: 'https://nominatim.openstreetmap.org/search',
+            method: 'GET',
+            data: {
+                q: fullAddress,
+                format: 'json',
+                limit: 1
+            },
+            headers: {
+                'User-Agent': 'DeliveryTrackingSystem/1.0'
+            },
+            success: (response) => {
+                console.log('Full address search response:', response);
+
+                if (response && response.length > 0) {
+                    const position = [
+                        parseFloat(response[0].lat),
+                        parseFloat(response[0].lon)
+                    ];
+                    this.updateMapWithLocations(position);
+                } else {
+                    // Fall back to region center
+                    this.useRegionCenter(this.config.deliveryRegion);
+                }
+            },
+            error: () => {
+                this.useRegionCenter(this.config.deliveryRegion);
+            }
+        });
+    };
+    
+    OrderTracking.prototype.updateMapWithLocations = function (destinationPosition) {
+        // Update destination marker
+        this.destinationMarker.setLatLng(destinationPosition);
+        this.destinationMarker.bindPopup(this.config.deliveryAddress).openPopup();
+
+        // Get courier location
+        this.updateCourierLocation();
+    };
+
+    OrderTracking.prototype.handleGeocodeError = function () {
+        console.error('Geocoding failed, using region center as fallback');
+        // Use region center as fallback
+        this.getFallbackCoordinates(this.config.deliveryRegion);
     };
 
     OrderTracking.prototype.updateRoutePath = function (start, end) {
@@ -188,29 +216,10 @@
     };
 
     OrderTracking.prototype.fitMapBounds = function (start, end) {
-        const bounds = L.latLngBounds([start, end]);
-        this.map.fitBounds(bounds, {
-            padding: [50, 50],
-            maxZoom: 15
+        this.map.fitBounds([start, end], {
+            padding: [50, 50]
         });
     };
 
-    OrderTracking.prototype.setupEventListeners = function () {
-        // Clean up on page unload
-        $(window).on('beforeunload', () => {
-            if (this.updateTimer) {
-                clearInterval(this.updateTimer);
-            }
-        });
-
-        // Handle map resize
-        $(window).on('resize', () => {
-            if (this.map) {
-                this.map.invalidateSize();
-            }
-        });
-    };
-
-    // Make OrderTracking available globally
     window.OrderTracking = OrderTracking;
 })(jQuery);

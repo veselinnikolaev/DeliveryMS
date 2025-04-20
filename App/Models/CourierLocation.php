@@ -14,7 +14,7 @@ class CourierLocation extends Model {
         array('name' => 'user_id', 'type' => 'int', 'default' => ''),
         array('name' => 'latitude', 'type' => 'decimal', 'default' => ''),
         array('name' => 'longitude', 'type' => 'decimal', 'default' => ''),
-        array('name' => 'created_at', 'type' => 'bigint', 'default' => '')
+        array('name' => 'timestamp', 'type' => 'bigint', 'default' => '')
     );
 }
 

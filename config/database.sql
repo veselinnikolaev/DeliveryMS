@@ -77,16 +77,6 @@ CREATE TABLE `courier_locations` (
   KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `address_coordinates` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `address_hash` VARCHAR(32) NOT NULL UNIQUE,
-  `address` VARCHAR(255) NOT NULL,
-  `latitude` DECIMAL(10, 8) NOT NULL,
-  `longitude` DECIMAL(11, 8) NOT NULL,
-  `created_at` BIGINT DEFAULT UNIX_TIMESTAMP(),
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 -- Create the `settings` table
 CREATE TABLE IF NOT EXISTS `settings` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,

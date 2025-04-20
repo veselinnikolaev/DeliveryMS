@@ -89,17 +89,21 @@
         <script src="web/js/bulkStatusChange.js"></script>
         <script src="web/js/orderTracking.js"></script>
         <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-        <script src="web/js/chart.js"></script>
-        <script>
-            window.salesData = <?= json_encode($tpl['sales_data']) ?>;
-            window.currency = <?= json_encode($currency) ?>;
-        </script>
+        <?php if ($_REQUEST['controller'] === 'Home' && $_REQUEST['action'] === 'index') { ?>
+            <script src="web/js/chart.js"></script>
+            <script>
+                window.salesData = <?= json_encode($tpl['sales_data']) ?>;
+                window.currency = <?= json_encode($currency) ?>;
+            </script>
+        <?php } ?>
         <?php if (!empty($tpl['order']) && $tpl['order']['status'] == 'shipped' && !empty($tpl['order']['courier_id'])) { ?>
             <script>
                 window.orderTracking = new OrderTracking({
                     orderId: <?php echo json_encode($tpl['order']['id']); ?>,
                     courierId: <?php echo json_encode($tpl['order']['courier_id']); ?>,
-                    deliveryAddress: <?php echo json_encode($tpl['order']['address'] . ', ' . $tpl['order']['region'] . ', ' . $tpl['order']['country']); ?>,
+                    deliveryAddress: <?php echo json_encode($tpl['order']['address']); ?>,
+                    deliveryRegion: <?php echo json_encode($tpl['order']['region']); ?>,
+                    deliveryCountry: <?php echo json_encode($tpl['order']['country']); ?>,
                     mapMarkers: {
                         courier: '<i class="mdi mdi-truck-delivery text-primary" style="font-size: 24px;"></i>',
                         destination: '<i class="mdi mdi-map-marker text-danger" style="font-size: 24px;"></i>'

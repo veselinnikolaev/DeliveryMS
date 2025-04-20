@@ -38,14 +38,42 @@
                                 <div class="mb-3">
                                     <label for="address" class="form-label">Address</label>
                                     <input type="text" class="form-control" id="address" name="address" value="<?php echo $order['address']; ?>" required>
+                                    <small class="form-text text-muted">Enter a precise address for accurate delivery tracking</small>
                                 </div>
                                 <div class="mb-3">
                                     <label for="country" class="form-label">Country</label>
-                                    <input type="text" class="form-control" id="country" name="country" value="<?php echo $order['country']; ?>" required>
+                                    <select class="form-select" id="country" name="country" required>
+                                        <option value="">Select Country</option>
+                                        <?php
+                                        // Array of countries
+                                        $countries = array(
+                                            "Bulgaria" => "Bulgaria",
+                                            "Romania" => "Romania",
+                                            "Greece" => "Greece"
+                                                // Add more countries as needed
+                                        );
+
+                                        // Get the currently saved country (from your database or other source)
+                                        $current_country = isset($order['country']) ? $order['country'] : '';
+
+                                        // Generate options with appropriate selected attribute
+                                        foreach ($countries as $value => $name) {
+                                            $selected = ($value == $current_country) ? 'selected' : '';
+                                            echo "<option value=\"{$value}\" {$selected}>{$name}</option>";
+                                        }
+                                        ?>
+                                    </select>
                                 </div>
                                 <div class="mb-3">
                                     <label for="region" class="form-label">Region</label>
-                                    <input type="text" class="form-control" id="region" name="region" value="<?php echo $order['region']; ?>" required>
+                                    <input type="text" class="form-control" id="region" name="region" value="<?php echo $order['region']; ?>" required list="regionsList">
+                                    <datalist id="regionsList">
+                                        <option value="Sofia">
+                                        <option value="Plovdiv">
+                                        <option value="Varna">
+                                        <option value="Burgas">
+                                            <!-- Add more common regions -->
+                                    </datalist>
                                 </div>
                                 <div class="mb-3">
                                     <label for="courierId" class="form-label">Courier</label>
@@ -65,6 +93,7 @@
                                 </div>  
                             </div>
                             <div class="col-md-6">
+                                <small class="form-text text-muted">Money related fields are automatically calculated with "Calculate Price" button</small>
                                 <div class="mb-3">
                                     <label for="productPrice" class="form-label">Product Price</label>
                                     <div class="input-group">

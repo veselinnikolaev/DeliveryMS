@@ -27,7 +27,7 @@
                                 <div class="mb-3">
                                     <label for="customer" class="form-label">Customer</label>
                                     <select name="user_id" id="userId" class="form-select" required>
-                                        <option value=''>---</option>
+                                        <option value=''>Select Customer</option>
                                         <?php
                                         foreach ($tpl['users'] as $user) {
                                             echo "<option value=\"{$user['id']}\" 
@@ -42,19 +42,33 @@
                                 <div class="mb-3">
                                     <label for="address" class="form-label">Address</label>
                                     <input type="text" class="form-control" id="address" name="address" required>
+                                    <small class="form-text text-muted">Enter a precise address for accurate delivery tracking</small>
                                 </div>
                                 <div class="mb-3">
                                     <label for="country" class="form-label">Country</label>
-                                    <input type="text" class="form-control" id="country" name="country" required>
+                                    <select class="form-select" id="country" name="country" required>
+                                        <option value="">Select Country</option>
+                                        <option value="Bulgaria">Bulgaria</option>
+                                        <option value="Romania">Romania</option>
+                                        <option value="Greece">Greece</option>
+                                        <!-- Add more countries as needed -->
+                                    </select>
                                 </div>
                                 <div class="mb-3">
                                     <label for="region" class="form-label">Region</label>
-                                    <input type="text" class="form-control" id="region" name="region" required>
+                                    <input type="text" class="form-control" id="region" name="region" required list="regionsList">
+                                    <datalist id="regionsList">
+                                        <option value="Sofia">
+                                        <option value="Plovdiv">
+                                        <option value="Varna">
+                                        <option value="Burgas">
+                                            <!-- Add more common regions -->
+                                    </datalist>
                                 </div>
                                 <div class="mb-3">
                                     <label for="courierId" class="form-label">Courier</label>
                                     <select name="courier_id" id="courierId" class="form-select" required>
-                                        <option value=''>---</option>
+                                        <option value=''>Select Courier</option>
                                         <?php
                                         foreach ($tpl['couriers'] as $courier) {
                                             echo "<option value=\"{$courier['id']}\">{$courier['name']}</option>";
@@ -68,6 +82,7 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
+                                <small class="form-text text-muted">Money related fields are automatically calculated with "Calculate Price" button</small>
                                 <div class="mb-3">
                                     <label for="productPrice" class="form-label">Product Price</label>
                                     <div class="input-group">
@@ -99,7 +114,7 @@
                                 <div class="mb-3">
                                     <label for="status" class="form-label">Order Status</label>
                                     <select class="form-select" id="status" name="status" required>
-                                        <option value=''>---</option>
+                                        <option value=''>Select Status</option>
                                         <?php
                                         foreach (Utility::$order_status as $k => $v) {
                                             ?>
@@ -114,7 +129,7 @@
                                         <div class="col-md-6">
                                             <label for="productIds" class="form-label">Products</label>
                                             <select name="product_id[]" id="productIds" class="form-select" required>
-                                                <option value="">---</option>
+                                                <option value="">Select Product</option>
                                                 <?php
                                                 foreach ($tpl['products'] as $product) {
                                                     echo "<option value=\"{$product['id']}\" data-max-quantity=\"{$product['stock']}\">{$product['name']}</option>";

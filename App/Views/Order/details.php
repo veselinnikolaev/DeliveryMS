@@ -80,7 +80,38 @@
                                 </div>
                             </div>
                         </div>
-
+                        <hr>
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="mdi mdi-cart-outline text-primary me-2" style="font-size: 24px;"></i>
+                            <h5 class="mb-0">Products</h5>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="order-products-table-id">
+                                <thead>
+                                    <tr>
+                                        <th>Product Name</th>
+                                        <th>Quantity</th>
+                                        <th>Price</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($tpl['products'] as $product) { ?>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <i class="mdi mdi-package text-primary me-2"></i>
+                                                    <?php echo htmlspecialchars($product['name']); ?>
+                                                </div>
+                                            </td>
+                                            <td><?php echo htmlspecialchars($product['quantity']); ?></td>
+                                            <td><?php echo Utility::getDisplayableAmount(htmlspecialchars(number_format($product['price'], 2))); ?></td>
+                                            <td><?php echo Utility::getDisplayableAmount(htmlspecialchars(number_format($product['subtotal'], 2))); ?></td>
+                                        </tr>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                        </div>
                         <?php if ($tpl['order']['status'] == 'shipped' && !empty($tpl['order']['courier_id'])) { ?>
                             <div class="row mb-4 mt-4">
                                 <div class="col-12">
@@ -120,40 +151,6 @@
                                 </div>
                             </div>
                         <?php } ?>
-
-                        <hr>
-                        <div class="d-flex align-items-center mb-3">
-                            <i class="mdi mdi-cart-outline text-primary me-2" style="font-size: 24px;"></i>
-                            <h5 class="mb-0">Products</h5>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-hover" id="order-products-table-id">
-                                <thead>
-                                    <tr>
-                                        <th>Product Name</th>
-                                        <th>Quantity</th>
-                                        <th>Price</th>
-                                        <th>Subtotal</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($tpl['products'] as $product) { ?>
-                                        <tr>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <i class="mdi mdi-package text-primary me-2"></i>
-                                                    <?php echo htmlspecialchars($product['name']); ?>
-                                                </div>
-                                            </td>
-                                            <td><?php echo htmlspecialchars($product['quantity']); ?></td>
-                                            <td><?php echo Utility::getDisplayableAmount(htmlspecialchars(number_format($product['price'], 2))); ?></td>
-                                            <td><?php echo Utility::getDisplayableAmount(htmlspecialchars(number_format($product['subtotal'], 2))); ?></td>
-                                        </tr>
-                                    <?php } ?>
-                                </tbody>
-                            </table>
-                        </div>
-
                         <div class="mt-4">
                             <a href="<?php echo $_SESSION['previous_url']; ?>" class="btn btn-outline-primary">
                                 <i class="mdi mdi-arrow-left me-1"></i>Back
