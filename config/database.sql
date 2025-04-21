@@ -6,7 +6,6 @@ DROP TABLE IF EXISTS `couriers`;
 DROP TABLE IF EXISTS `settings`;
 DROP TABLE IF EXISTS `notifications`;
 DROP TABLE IF EXISTS `courier_locations`;
-DROP TABLE IF EXISTS `address_coordinates`;
 
 -- Create the `users` table
 CREATE TABLE IF NOT EXISTS `users` (
