@@ -112,26 +112,44 @@
                                 </tbody>
                             </table>
                         </div>
-                        <?php if ($tpl['order']['status'] == 'shipped' && !empty($tpl['order']['courier_id'])) { ?>
+                        <?php if ($tpl['order']['status'] == 'shipped') { ?>
+                            <div id="deliveryAddress" 
+                                 data-address="<?php echo htmlspecialchars($tpl['order']['address'] . ', ' . $tpl['order']['region'] . ', ' . $tpl['order']['country']); ?>"
+                                 data-courier-id="<?php echo htmlspecialchars($tpl['order']['courier_id']); ?>">
+                            </div>
                             <div class="row mb-4 mt-4">
                                 <div class="col-12">
                                     <div class="card card-dashboard">
                                         <div class="card-header bg-white">
                                             <div class="d-flex align-items-center">
                                                 <i class="mdi mdi-truck-fast text-primary me-2" style="font-size: 24px;"></i>
-                                                <h5 class="card-title mb-0">Delivery Tracking</h5>
+                                                <h5 class="card-title mb-0">Live Delivery Tracking</h5>
                                             </div>
                                         </div>
                                         <div class="card-body">
-                                            <div id="deliveryMap" style="height: 400px; border-radius: 10px;"></div>
+                                            <!-- Map Container -->
+                                            <div id="deliveryMap" style="height: 400px; border-radius: 10px; position: relative;">
+                                                <div class="map-loading-overlay position-absolute w-100 h-100 d-flex align-items-center justify-content-center bg-light" style="z-index: 1000;">
+                                                    <div class="text-center">
+                                                        <div class="spinner-border text-primary" role="status"></div>
+                                                        <p class="mt-2 mb-0">Loading map...</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Tracking Information -->
                                             <div class="mt-4">
                                                 <div class="row">
                                                     <div class="col-md-6">
                                                         <div class="d-flex align-items-center p-3 bg-light rounded">
                                                             <i class="mdi mdi-clock-outline text-primary me-3" style="font-size: 24px;"></i>
                                                             <div>
-                                                                <p class="mb-1 text-muted">Estimated Delivery</p>
-                                                                <h6 class="mb-0" id="estimatedTime">Loading...</h6>
+                                                                <p class="mb-1 text-muted">Estimated Delivery Time</p>
+                                                                <h6 class="mb-0" id="estimatedTime">
+                                                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                                                        <span class="visually-hidden">Loading...</span>
+                                                                    </div>
+                                                                </h6>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -139,10 +157,28 @@
                                                         <div class="d-flex align-items-center p-3 bg-light rounded">
                                                             <i class="mdi mdi-crosshairs-gps text-success me-3" style="font-size: 24px;"></i>
                                                             <div>
-                                                                <p class="mb-1 text-muted">Courier Location</p>
-                                                                <h6 class="mb-0" id="courierStatus">Loading...</h6>
+                                                                <p class="mb-1 text-muted">Courier Status</p>
+                                                                <h6 class="mb-0" id="courierStatus">
+                                                                    <div class="spinner-border spinner-border-sm text-success" role="status">
+                                                                        <span class="visually-hidden">Loading...</span>
+                                                                    </div>
+                                                                </h6>
                                                             </div>
                                                         </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Legend -->
+                                            <div class="mt-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="me-4">
+                                                        <i class="mdi mdi-truck-fast text-primary me-2"></i>
+                                                        <small>Courier Location</small>
+                                                    </div>
+                                                    <div>
+                                                        <i class="mdi mdi-map-marker text-danger me-2"></i>
+                                                        <small>Delivery Address</small>
                                                     </div>
                                                 </div>
                                             </div>

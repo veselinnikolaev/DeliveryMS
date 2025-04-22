@@ -84,6 +84,12 @@
                         <span class="menu-title">Orders to Deliver</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?php INSTALL_URL; ?>?controller=Courier&action=startTracking" class="nav-link">
+                        <i class="menu-icon mdi mdi-crosshairs-gps"></i>
+                        <span class="menu-title">Tracking</span>
+                    </a>
+                </li>
             <?php endif; ?>
         <?php endif; ?>
     </ul>

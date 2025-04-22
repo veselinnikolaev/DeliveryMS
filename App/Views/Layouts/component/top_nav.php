@@ -37,46 +37,22 @@ if (!empty($tpl['notifications'])) {
                     </a>
                 </li>
             <?php else: ?>
-                <li class="nav-item dropdown">
-                    <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0" aria-labelledby="notificationDropdown">
-                        <a class="dropdown-item py-3 border-bottom">
-                            <p class="mb-0 font-weight-medium float-left">You have 4 new notifications </p>
-                            <span class="badge badge-pill badge-primary float-right">View all</span>
-                        </a>
-                        <a class="dropdown-item preview-item py-3">
-                            <div class="preview-thumbnail">
-                                <i class="mdi mdi-alert m-auto text-primary"></i>
+                <?php if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'courier'): ?>
+                    <li class="nav-item d-flex align-items-center">
+                        <div id="global-tracking-indicator" style="display: none;" 
+                             class="d-flex align-items-center me-3 px-3 py-2 rounded">
+                            <div class="d-flex align-items-center">
+                                <i class="mdi mdi-crosshairs-gps me-2 tracking-pulse"></i>
+                                <span class="tracking-text">Location Tracking Active</span>
                             </div>
-                            <div class="preview-item-content">
-                                <h6 class="preview-subject fw-normal text-dark mb-1">Application Error</h6>
-                                <p class="fw-light small-text mb-0"> Just now </p>
-                            </div>
-                        </a>
-                        <a class="dropdown-item preview-item py-3">
-                            <div class="preview-thumbnail">
-                                <i class="mdi mdi-settings m-auto text-primary"></i>
-                            </div>
-                            <div class="preview-item-content">
-                                <h6 class="preview-subject fw-normal text-dark mb-1">Settings</h6>
-                                <p class="fw-light small-text mb-0"> Private message </p>
-                            </div>
-                        </a>
-                        <a class="dropdown-item preview-item py-3">
-                            <div class="preview-thumbnail">
-                                <i class="mdi mdi-airballoon m-auto text-primary"></i>
-                            </div>
-                            <div class="preview-item-content">
-                                <h6 class="preview-subject fw-normal text-dark mb-1">New user registration</h6>
-                                <p class="fw-light small-text mb-0"> 2 days ago </p>
-                            </div>
-                        </a>
-                    </div>
-                </li>
-                <li class="nav-item dropdown">
+                        </div>
+                    </li>
+                <?php endif; ?>
+                <li class="nav-item dropdown">       
                     <a class="nav-link count-indicator" id="countDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="icon-bell"></i>
                         <?php if ($unread_count > 0): ?>
-                            <span class="count"><?= $unread_count ?></span> <!-- Show count of unread -->
+                            <span class="count"></span> <!-- Show count of unread -->
                         <?php endif; ?>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list pb-0" aria-labelledby="countDropdown">
@@ -117,7 +93,7 @@ if (!empty($tpl['notifications'])) {
                             <p class="dropdown-item text-center text-muted">No new notifications</p>
                         <?php endif; ?>
                     </div>
-                </li>
+                </li>   
                 <li class="nav-item dropdown d-none d-lg-block user-dropdown">
                     <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
                         <?php if (!empty($_SESSION['user']['photo_path'])): ?>

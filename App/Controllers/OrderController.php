@@ -62,26 +62,26 @@ class OrderController extends Controller {
             }
         }
 
-        // Retrieve all orders from the database
+// Retrieve all orders from the database
         if (!empty($_GET['user_id']) && $_GET['user_id'] == $_SESSION['user']['id']) { //User role checking orders
             $opts['user_id'] = $_GET['user_id'];
         }
 
-        // Retrieve all orders from the database
+// Retrieve all orders from the database
         if (!empty($_GET['courier_id']) && $_GET['courier_id'] == $_SESSION['user']['id']) { //User role checking orders
             $opts['courier_id'] = $_GET['courier_id'];
         }
 
         $orders = $orderModel->getAll($opts);
 
-        // Format orders for display
+// Format orders for display
         foreach ($orders as &$order) {
             $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
             $order['courier_name'] = $userModel->get($order['courier_id'])['name'] ?? 'Unknown';
             $order['delivery_date'] = date($this->settings['date_format'], $order['delivery_date']);
         }
 
-        // Pass the data to the view
+// Pass the data to the view
         $arr = [
             'orders' => $orders,
             'currency' => $this->settings['currency_code']
@@ -116,7 +116,7 @@ class OrderController extends Controller {
             $productIds = $_POST['product_id'];
             $quantities = $_POST['quantity'];
 
-            // Validate quantities against available product quantities
+// Validate quantities against available product quantities
             $quantityError = false;
             $error_message = null;
 
@@ -142,7 +142,7 @@ class OrderController extends Controller {
                 $orderId = $orderModel->save($orderData + $_POST);
 
                 if ($orderId) {
-                    // Save order products and update product quantities
+// Save order products and update product quantities
                     foreach ($productIds as $key => $productId) {
                         $productDetails = $productModel->get($productId);
                         $subtotal = $productDetails['price'] * $quantities[$key];
@@ -160,7 +160,7 @@ class OrderController extends Controller {
                             break;
                         }
 
-                        // Update product quantity after order product is saved
+// Update product quantity after order product is saved
                         $updatedQuantity = $productDetails['stock'] - $quantities[$key];
                         $updateSuccess = $productModel->update([
                             'id' => $productId,
@@ -174,7 +174,7 @@ class OrderController extends Controller {
                     }
 
                     if (!isset($error_message)) {
-                        // Notify customer
+// Notify customer
                         $notificationModel->save([
                             'user_id' => $_POST['user_id'],
                             'message' => "New order #{$orderId} has been created. Total: " . \Utility::getDisplayableAmount($priceDetails['total']),
@@ -182,7 +182,7 @@ class OrderController extends Controller {
                             'created_at' => time()
                         ]);
 
-                        // Notify courier
+// Notify courier
                         $notificationModel->save([
                             'user_id' => $_POST['courier_id'],
                             'message' => "New delivery assigned to you. Order #{$orderId}",
@@ -190,7 +190,7 @@ class OrderController extends Controller {
                             'created_at' => time()
                         ]);
 
-                        // Check for low stock and notify admins
+// Check for low stock and notify admins
                         foreach ($productIds as $key => $productId) {
                             $product = $productModel->get($productId);
                             if ($product['stock'] < 10) { // Threshold for low stock
@@ -259,7 +259,7 @@ class OrderController extends Controller {
                 foreach ($ids as $orderId) {
                     $order = $orderModel->get($orderId);
 
-                    // Notify customer about delivery/return
+// Notify customer about delivery/return
                     $notificationModel->save([
                         'user_id' => $order['user_id'],
                         'message' => "Your order #{$orderId} has been " . $status,
@@ -270,7 +270,7 @@ class OrderController extends Controller {
             }
         }
 
-        // Return refreshed user list
+// Return refreshed user list
         $orders = $orderModel->getAll(['courier_id' => $_SESSION['user']['id']]);
 
         foreach ($orders as &$order) {
@@ -289,7 +289,7 @@ class OrderController extends Controller {
         $userModel = new \App\Models\User();
 
         if (empty($_SESSION['user'])) {
-            header("Location: " . INSTALL_URL . "?controller = Auth&action = login", true, 301);
+            header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
             exit;
         }
 
@@ -332,6 +332,7 @@ class OrderController extends Controller {
             'customer' => $customerData,
             'courier' => $courierData,
             'products' => $orderProducts,
+            'date_format' => 'Y-m-d H:i',
             'currency' => $this->settings['currency_code'],
         ];
 
@@ -367,10 +368,10 @@ class OrderController extends Controller {
             $orderModel->delete($orderId);
         }
 
-        // Retrieve all orders from the database
+// Retrieve all orders from the database
         $orders = $orderModel->getAll();
 
-        // Format orders for display
+// Format orders for display
         foreach ($orders as &$order) {
             $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
             $order['name'] = $userModel->get($order['courier_id'])['name'] ?? 'Unknown';
@@ -400,43 +401,43 @@ class OrderController extends Controller {
         }
     }
 
-    // Controller method to handle the return from PayPal
+// Controller method to handle the return from PayPal
     public function pay_success() {
-        // Get the order ID from the URL parameter
+// Get the order ID from the URL parameter
         $orderId = $_GET['order_id'];
 
         $orderModel = new \App\Models\Order();
         $userModel = new \App\Models\User();
-        // Load the order from the database
+// Load the order from the database
         $order = $orderModel->get($orderId);
         $user = $userModel->getFirstBy(['id' => $order['user_id']]);
 
-        // If the order exists and the payment was successful, mark it as paid
+// If the order exists and the payment was successful, mark it as paid
         if ($order) {
-            // Show a success message or redirect to a success page
+// Show a success message or redirect to a success page
             $this->view($this->layout, ['order' => $order, 'user' => $user]);
         }
     }
 
-    // Controller method to handle the cancellation from PayPal
+// Controller method to handle the cancellation from PayPal
     public function pay_cancel() {
-        // Get the order ID from the URL parameter
+// Get the order ID from the URL parameter
         $orderId = $_GET['order_id'];
 
         $orderModel = new \App\Models\Order();
         $userModel = new \App\Models\User();
-        // Load the order from the database
+// Load the order from the database
         $order = $orderModel->get($orderId);
         $user = $userModel->getFirstBy(['id' => $order['user_id']]);
 
         if ($order) {
-            // Show a cancellation message or redirect to a cancellation page
+// Show a cancellation message or redirect to a cancellation page
             $this->view($this->layout, ['order' => $order, 'user' => $user]);
         }
     }
 
     function paypal_ipn() {
-        // PayPal verifies the IPN message
+// PayPal verifies the IPN message
         $orderModel = new \App\Models\Order();
         $notificationModel = new \App\Models\Notification();
         $userModel = new \App\Models\User();
@@ -444,7 +445,7 @@ class OrderController extends Controller {
         $order = $orderModel->get($orderId);
         $user = $userModel->getFirstBy(['id' => $order['user_id']]);
 
-        // Step 1: Verify IPN message with PayPal (to avoid fraud)
+// Step 1: Verify IPN message with PayPal (to avoid fraud)
         $url = 'https://www.paypal.com/cgi-bin/webscr';
         $data = array(
             'cmd' => '_notify-validate',
@@ -453,14 +454,14 @@ class OrderController extends Controller {
             'currency_code' => $_POST['mc_currency'], // Currency code
         );
 
-        // Send the IPN data back to PayPal for validation
+// Send the IPN data back to PayPal for validation
         $response = file_get_contents($url . '?' . http_build_query($data));
 
-        // Step 2: If PayPal confirms the payment is valid
+// Step 2: If PayPal confirms the payment is valid
         if ($response == "VERIFIED") {
-            // Update the order status based on payment confirmation
+// Update the order status based on payment confirmation
             if ($_POST['payment_status'] == 'Completed') {
-                // Payment is successful, update order status
+// Payment is successful, update order status
                 $order['status'] = 'shipped';
                 $orderModel->update($order);
                 $notificationModel->save([
@@ -478,13 +479,13 @@ class OrderController extends Controller {
                 ]);
             }
         } else {
-            // Payment not verified, handle the error (perhaps log it)
+// Payment not verified, handle the error (perhaps log it)
             error_log("Invalid IPN message: " . json_encode($_POST));
         }
 
-        // Step 3: Handle canceled or failed payment (if needed)
+// Step 3: Handle canceled or failed payment (if needed)
         if ($_POST['payment_status'] == 'Failed' || $_POST['payment_status'] == 'Canceled') {
-            // Update the order status as canceled
+// Update the order status as canceled
             $order['status'] = 'cancelled';
             $orderModel->update($order);
             $notificationModel->save([
@@ -532,7 +533,7 @@ class OrderController extends Controller {
 
     function print() {
         if (isset($_POST['orderData'])) {
-            // Decode the JSON data
+// Decode the JSON data
             $orders = json_decode($_POST['orderData'], true);
 
             if (!$orders || empty($orders)) {
@@ -615,7 +616,7 @@ class OrderController extends Controller {
 
                 $orderProductsModel->deleteBy(['order_id' => $orderId]);
 
-                // Update stock for products based on total difference
+// Update stock for products based on total difference
                 foreach ($newOrderProducts as $orderProduct) {
                     $productId = $orderProduct['product_id'];
                     $quantity = $orderProduct['quantity'];
@@ -738,7 +739,7 @@ class OrderController extends Controller {
     function export() {
 // Check if orderData is provided
         if (isset($_POST['orderData'])) {
-            // Decode the JSON data
+// Decode the JSON data
             $orders = json_decode($_POST['orderData'], true);
 
             if (!$orders || empty($orders)) {
@@ -815,7 +816,7 @@ class OrderController extends Controller {
 
         if (!empty($orders) && is_array($orders[0])) {
             $orderedKeys = array_keys($orders[0]); // Get the exact order from first item
-            // Generate headers in the exact same order as the first item in $orders
+// Generate headers in the exact same order as the first item in $orders
             foreach ($orderedKeys as $key) {
                 if (!in_array($key, ['user_id', 'courier_id', 'status', 'total_amount'])) {
                     $displayName = $preferredHeaders[$key] ?? ucwords(str_replace('_', ' ', $key));
@@ -827,7 +828,7 @@ class OrderController extends Controller {
     </thead>
     <tbody>';
 
-            // Add order data
+// Add order data
             foreach ($orders as $order) {
                 $html .= '<tr>';
 
@@ -841,7 +842,7 @@ class OrderController extends Controller {
                 $html .= '</tr>';
             }
         } else {
-            // Fallback for no data
+// Fallback for no data
             $html .= '<th>No Data Available</th></tr></thead><tbody><tr><td>No orders found</td></tr>';
         }
 
@@ -856,11 +857,11 @@ class OrderController extends Controller {
         $data = [];
 
         if (!empty($orders) && is_array($orders[0])) {
-            // Вземи оригиналния ред на колоните от първия елемент
+// Вземи оригиналния ред на колоните от първия елемент
             $headerRow = array_keys($orders[0]);
             $data[] = array_map(fn($h) => ucwords(str_replace('_', ' ', $h)), $headerRow);
 
-            // Добави данните в същия ред
+// Добави данните в същия ред
             foreach ($orders as $order) {
                 $data[] = array_map(fn($key) => $order[$key] ?? 'N/A', $headerRow);
             }
@@ -879,7 +880,7 @@ class OrderController extends Controller {
         $output = fopen('php://output', 'w');
 
         if (!empty($orders) && is_array($orders[0])) {
-            // Вземи оригиналния ред на колоните
+// Вземи оригиналния ред на колоните
             $headerRow = array_keys($orders[0]);
             fputcsv($output, array_map(fn($h) => ucwords(str_replace('_', ' ', $h)), $headerRow));
 

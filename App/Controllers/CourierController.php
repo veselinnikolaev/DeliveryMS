@@ -59,11 +59,11 @@ class CourierController extends Controller {
             }
         }
 
-        // Извличане на всички записи на куриери от таблицата users
+// Извличане на всички записи на куриери от таблицата users
         $opts['role'] = 'courier';
         $couriers = $userModel->getAll($opts);
 
-        // Прехвърляне на данни към изгледа
+// Прехвърляне на данни към изгледа
         $this->view($layout, ['couriers' => $couriers]);
     }
 
@@ -72,9 +72,9 @@ class CourierController extends Controller {
     }
 
     function print() {
-        // Check if courierData is provided
+// Check if courierData is provided
         if (isset($_POST['courierData'])) {
-            // Decode the JSON data
+// Decode the JSON data
             $couriers = json_decode($_POST['courierData'], true);
 
             if (!$couriers || empty($couriers)) {
@@ -87,10 +87,10 @@ class CourierController extends Controller {
     }
 
     function create() {
-        // Create an instance of the User model
+// Create an instance of the User model
         $userModel = new \App\Models\User();
 
-        // Check if the form has been submitted
+// Check if the form has been submitted
         if (!empty($_POST['send'])) {
             if ($userModel->existsBy(['email' => $_POST['email']])) {
                 $error_message = "User with this email already exists.";
@@ -109,13 +109,13 @@ class CourierController extends Controller {
             }
         }
 
-        // Pass any error messages to the view
+// Pass any error messages to the view
         $arr = array();
         if (isset($error_message)) {
             $arr['error_message'] = $error_message;
         }
 
-        // Load the view and pass the data to it
+// Load the view and pass the data to it
         $this->view($this->layout, $arr);
     }
 
@@ -149,12 +149,12 @@ class CourierController extends Controller {
 
         $arr = $userModel->get($_GET['id']);
 
-        // Check if the form has been submitted
+// Check if the form has been submitted
         if (!empty($_POST['id'])) {
             $id = $_POST['id'];
-            // Save the data using the Courier model
+// Save the data using the Courier model
             if ($userModel->update($_POST)) {
-                // Redirect to the list of couriers on successful creation
+// Redirect to the list of couriers on successful creation
                 $notificationModel = new \App\Models\Notification();
                 $adminName = $_SESSION['user']['name'];
                 $notificationModel->save([
@@ -167,19 +167,19 @@ class CourierController extends Controller {
                 header("Location: " . $_SESSION['previous_url'], true, 301);
                 exit;
             } else {
-                // If saving fails, set an error message
+// If saving fails, set an error message
                 $arr['error_message'] = "Failed to create the courier. Please try again.";
             }
         }
 
-        // Load the view and pass the data to it
+// Load the view and pass the data to it
         $this->view($this->layout, $arr);
     }
 
     function export() {
-        // Check if courierData is provided
+// Check if courierData is provided
         if (isset($_POST['courierData'])) {
-            // Decode the JSON data
+// Decode the JSON data
             $couriers = json_decode($_POST['courierData'], true);
 
             if (!$couriers || empty($couriers)) {
@@ -190,7 +190,7 @@ class CourierController extends Controller {
 
         $format = isset($_POST['format']) ? $_POST['format'] : 'pdf';
 
-        // Export based on format
+// Export based on format
         switch ($format) {
             case 'pdf':
                 $this->exportAsPDF($couriers);
@@ -225,26 +225,26 @@ class CourierController extends Controller {
 
         $pdf->AddPage();
 
-        // Generate HTML table with dynamic headers
+// Generate HTML table with dynamic headers
         $html = $this->generateDynamicCourierTable($couriers);
         $pdf->writeHTML($html, true, false, true, false, '');
 
-        // Output PDF
+// Output PDF
         $pdf->Output('couriers_export.pdf', 'D');
         exit;
     }
 
     private function generateDynamicCourierTable($couriers) {
-        // Start HTML table
+// Start HTML table
         $html = '<table border="1" cellpadding="5">
 <thead>
     <tr>';
 
-        // If we have couriers, use their keys as headers
+// If we have couriers, use their keys as headers
         if (!empty($couriers) && is_array($couriers[0])) {
             $headers = array_keys($couriers[0]);
 
-            // Add headers to table
+// Add headers to table
             foreach ($headers as $header) {
                 $displayHeader = ucwords(str_replace('_', ' ', $header));
                 $html .= '<th>' . $displayHeader . '</th>';
@@ -254,21 +254,21 @@ class CourierController extends Controller {
     </thead>
     <tbody>';
 
-            // Add courier data
+// Add courier data
             foreach ($couriers as $courier) {
                 $html .= '<tr>';
                 foreach ($courier as $key => $value) {
-                    // Handle empty values
+// Handle empty values
                     if (empty($value) && $value !== 0) {
                         $value = 'N/A';
                     }
-                    // Sanitize output
+// Sanitize output
                     $html .= '<td>' . htmlspecialchars($value) . '</td>';
                 }
                 $html .= '</tr>';
             }
         } else {
-            // Fallback for no data
+// Fallback for no data
             $html .= '<th>No Data Available</th></tr></thead><tbody><tr><td>No couriers found</td></tr>';
         }
 
@@ -278,75 +278,75 @@ class CourierController extends Controller {
     }
 
     private function exportAsExcel($couriers) {
-        // Include SimpleXLSXGen
+// Include SimpleXLSXGen
         require(__DIR__ . '/../Helpers/export/simplexlsxgen/src/SimpleXLSXGen.php');
 
-        // Prepare data
+// Prepare data
         $data = [];
 
-        // First courier in array determines headers
+// First courier in array determines headers
         if (!empty($couriers) && is_array($couriers[0])) {
-            // Use keys from first courier for headers, ensuring proper capitalization
+// Use keys from first courier for headers, ensuring proper capitalization
             $headers = array_keys($couriers[0]);
             $headerRow = [];
 
             foreach ($headers as $header) {
-                // Convert courier_id to Courier ID, etc.
+// Convert courier_id to Courier ID, etc.
                 $headerRow[] = ucwords(str_replace('_', ' ', $header));
             }
 
             $data[] = $headerRow;
 
-            // Add couriers
+// Add couriers
             foreach ($couriers as $courier) {
                 $row = [];
                 foreach ($courier as $value) {
-                    // Handle empty values
+// Handle empty values
                     $row[] = (empty($value) && $value !== 0) ? 'N/A' : $value;
                 }
                 $data[] = $row;
             }
         } else {
-            // Fallback for no data
+// Fallback for no data
             $data[] = ['No Data Available'];
             $data[] = ['No couriers found'];
         }
 
-        // Create and send file
+// Create and send file
         \Shuchkin\SimpleXLSXGen::fromArray($data)->downloadAs('couriers_export.xlsx');
         exit;
     }
 
     private function exportAsCSV($couriers) {
-        // Set headers for CSV download
+// Set headers for CSV download
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="couriers_export.csv"');
 
-        // Open output stream
+// Open output stream
         $output = fopen('php://output', 'w');
 
-        // Determine headers dynamically from the first courier
+// Determine headers dynamically from the first courier
         if (!empty($couriers) && is_array($couriers[0])) {
             $headers = array_keys($couriers[0]);
-            // Convert keys to readable headers (e.g., courier_id to Courier ID)
+// Convert keys to readable headers (e.g., courier_id to Courier ID)
             $readableHeaders = array_map(function ($header) {
                 return ucwords(str_replace('_', ' ', $header));
             }, $headers);
 
-            // Add headers
+// Add headers
             fputcsv($output, $readableHeaders);
 
-            // Add data using the actual keys from the data
+// Add data using the actual keys from the data
             foreach ($couriers as $courier) {
                 $row = [];
                 foreach ($courier as $value) {
-                    // Handle empty values
+// Handle empty values
                     $row[] = (empty($value) && $value !== 0) ? 'N/A' : $value;
                 }
                 fputcsv($output, $row);
             }
         } else {
-            // Fallback for empty data
+// Fallback for empty data
             fputcsv($output, ['No data available']);
         }
 
@@ -354,125 +354,78 @@ class CourierController extends Controller {
         exit;
     }
 
-    public function getCourierLocation() {
+    public function updateLocation() {
         header('Content-Type: application/json');
 
-        if (!isset($_POST['user_id']) || !isset($_POST['order_id'])) {
-            echo json_encode(['success' => false, 'message' => 'Missing required parameters']);
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_SESSION['user']) || $_SESSION['user']['role'] !== 'courier') {
+            echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
             exit;
         }
 
-        $user_id = intval($_POST['user_id']);
-        $order_id = intval($_POST['order_id']);
+        $courierLocationModel = new \App\Models\CourierLocation();
 
-        // Get order details
-        $orderModel = new \App\Models\Order();
-        $order = $orderModel->get($order_id);
+        $locationData = [
+            'user_id' => $_SESSION['user']['id'],
+            'latitude' => $_POST['latitude'],
+            'longitude' => $_POST['longitude'],
+            'timestamp' => time()
+        ];
 
-        if (!$order) {
-            echo json_encode(['success' => false, 'message' => 'Order not found']);
-            exit;
+        if ($courierLocationModel->save($locationData)) {
+            echo json_encode(['status' => 'success']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Failed to update location']);
         }
-
-        // Get courier's current location or geocode their address
-        $courierLocation = $this->getCourierCurrentLocation($user_id, $order);
-
-        $estimated_time = !empty($order['delivery_date']) ?
-                date($this->settings['date_format'] . ' H:i', $order['delivery_date']) :
-                null;
-
-        echo json_encode([
-            'success' => true,
-            'latitude' => $courierLocation['latitude'],
-            'longitude' => $courierLocation['longitude'],
-            'timestamp' => time(),
-            'estimated_time' => $estimated_time
-        ]);
         exit;
     }
 
-    private function getCourierCurrentLocation($user_id, $order) {
-        // First check if we have a recent location in the database
-        $locationModel = new \App\Models\CourierLocation();
-        $existingLocations = $locationModel->getAll(['user_id' => $user_id], 'timestamp DESC');
+    function getLocation() {
+        header('Content-Type: application/json');
 
-        if (!empty($existingLocations)) {
-            return [
-                'latitude' => $existingLocations[0]['latitude'],
-                'longitude' => $existingLocations[0]['longitude']
-            ];
+        if (!empty($_GET['courier_id'])) {
+            $courierLocationModel = new \App\Models\CourierLocation();
+            $location = $courierLocationModel->getLatestLocation($_GET['courier_id']);
+
+            if ($location) {
+                echo json_encode([
+                    'status' => 'success',
+                    'data' => [
+                        'latitude' => $location['latitude'],
+                        'longitude' => $location['longitude'],
+                        'timestamp' => $location['timestamp']
+                    ]
+                ]);
+            } else {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Location not found'
+                ]);
+            }
+        } else {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Courier ID not provided'
+            ]);
         }
-
-        // If no location exists, use region-based coordinates
-        return $this->getRegionCoordinates($order['region']);
+        exit;
     }
 
-    private function geocodeAddress($address) {
-        // Clean up the address
-        $address = trim($address);
-        $address = str_replace('boulevard', 'blvd', $address);
-        $address = str_replace('number', '', $address);
-        $address = preg_replace('/\s+/', ' ', $address);
-
-        $url = 'https://nominatim.openstreetmap.org/search';
-        $params = http_build_query([
-            'q' => $address,
-            'format' => 'json',
-            'limit' => 1
-        ]);
-
-        error_log("Attempting to geocode: " . $address);
-
-        $ch = curl_init($url . '?' . $params);
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_USERAGENT => 'DeliveryTrackingSystem/1.0',
-            CURLOPT_TIMEOUT => 10
-        ]);
-
-        $response = curl_exec($ch);
-        $error = curl_error($ch);
-        curl_close($ch);
-
-        if ($error) {
-            error_log("Geocoding error: " . $error);
-            return $this->getRegionCoordinates('Varna');
+    public function startTracking() {
+        if ($_SESSION['user']['role'] !== 'courier') {
+            header("Location: " . INSTALL_URL, true, 301);
+            exit;
         }
 
-        $data = json_decode($response, true);
-        error_log("Geocoding response: " . print_r($data, true));
-
-        if (!empty($data) && isset($data[0]['lat']) && isset($data[0]['lon'])) {
-            return [
-                'latitude' => $data[0]['lat'],
-                'longitude' => $data[0]['lon']
-            ];
-        }
-
-        // If geocoding fails, return region coordinates
-        return $this->getRegionCoordinates('Varna');
+        $this->view($this->layout, [
+            'active_orders' => $this->getActiveOrders($_SESSION['user']['id'])
+        ]);
     }
 
-    private function getRegionCoordinates($region) {
-        $coordinates = [
-            'Varna' => [
-                'latitude' => 43.2141,
-                'longitude' => 27.9147
-            ],
-            'Sofia' => [
-                'latitude' => 42.6977,
-                'longitude' => 23.3219
-            ],
-            'Plovdiv' => [
-                'latitude' => 42.1429,
-                'longitude' => 24.7537
-            ],
-            'Burgas' => [
-                'latitude' => 42.5048,
-                'longitude' => 27.4626
-            ]
-        ];
-
-        return $coordinates[$region] ?? $coordinates['Varna'];
+    private function getActiveOrders($courierId) {
+        $orderModel = new \App\Models\Order();
+        return $orderModel->getAll([
+                    'courier_id' => $courierId,
+                    'status' => 'shipped'
+        ]);
     }
 }

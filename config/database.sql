@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS `orders` (
   `last_processed` BIGINT DEFAULT UNIX_TIMESTAMP(),
   `courier_id` INT(11) NOT NULL,
   `tracking_number` VARCHAR(100) DEFAULT NULL,
-  `delivery_date` BIGINT DEFAULT NULL,
+  `delivery_date` BIGINT DEFAULT NULL
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

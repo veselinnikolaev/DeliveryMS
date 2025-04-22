@@ -8,7 +8,6 @@ class CourierLocation extends Model {
 
     var $primaryKey = 'id';
     var $table = 'courier_locations';
-    
     var $schema = array(
         array('name' => 'id', 'type' => 'int', 'default' => ''),
         array('name' => 'user_id', 'type' => 'int', 'default' => ''),
@@ -16,6 +15,10 @@ class CourierLocation extends Model {
         array('name' => 'longitude', 'type' => 'decimal', 'default' => ''),
         array('name' => 'timestamp', 'type' => 'bigint', 'default' => '')
     );
+
+    public function getLatestLocation($courierId) {
+        return $this->getAll(['user_id' => $courierId], 'timestamp DESC')[0];
+    }
 }
 
 ?>
