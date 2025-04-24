@@ -37,15 +37,23 @@ class TrackingControl {
 
     init() {
         console.log('Initializing tracking control...');
-        this.initializeMap();
-        this.initializeTrackingButton();
+        
+        // Check if we're on the tracking page
+        const isTrackingPage = document.getElementById('tracking-map') !== null;
+        
+        if (isTrackingPage) {
+            this.initializeMap();
+            this.initializeTrackingButton();
+        }
+        
         // If tracking was active, restart it
         if (this.isTracking) {
             this.startTracking(true);
         }
 
-// Add page unload handler
+        // Add page unload handler
         window.addEventListener('beforeunload', () => {
+            // Only save tracking state if still tracking
             if (this.isTracking) {
                 TrackingStateManager.setTracking(true);
             }
@@ -60,13 +68,13 @@ class TrackingControl {
         }).addTo(this.map);
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                console.log('Got initial position:', position);
-                const {latitude, longitude} = position.coords;
-                this.map.setView([latitude, longitude], 13);
-                this.updateMarker(latitude, longitude);
-            },
-                    (error) => this.handleError('Error getting initial position: ' + error.message)
+                (position) => {
+                    console.log('Got initial position:', position);
+                    const {latitude, longitude} = position.coords;
+                    this.map.setView([latitude, longitude], 13);
+                    this.updateMarker(latitude, longitude);
+                },
+                (error) => this.handleError('Error getting initial position: ' + error.message)
             );
         }
     }
@@ -75,7 +83,7 @@ class TrackingControl {
         const toggleButton = document.getElementById('toggle-tracking');
         const indicator = document.getElementById('tracking-indicator');
         if (toggleButton && indicator) {
-// Update initial button state
+            // Update initial button state
             if (this.isTracking) {
                 toggleButton.innerHTML = '<i class="mdi mdi-stop me-1"></i>Stop Tracking';
                 toggleButton.classList.replace('btn-primary', 'btn-danger');
@@ -98,21 +106,31 @@ class TrackingControl {
         }
 
         this.watchId = navigator.geolocation.watchPosition(
-                (position) => {
-            const {latitude, longitude} = position.coords;
-            this.updateMarker(latitude, longitude);
-            this.updateServerLocation(latitude, longitude);
-        },
-                (error) => this.handleError(error.message),
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
+            (position) => {
+                const {latitude, longitude} = position.coords;
+                
+                // Only update marker if we're on the tracking page
+                if (this.map && this.map._container) {
+                    this.updateMarker(latitude, longitude);
                 }
+                
+                this.updateServerLocation(latitude, longitude);
+            },
+            (error) => this.handleError(error.message),
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
         );
+        
+        this.isTracking = true;
+        
         if (!isRestore) {
             TrackingStateManager.setTracking(true);
-    }
+        }
+        
+        this.updateGlobalIndicator();
     }
 
     stopTracking() {
@@ -121,30 +139,32 @@ class TrackingControl {
             navigator.geolocation.clearWatch(this.watchId);
             this.watchId = null;
         }
+        
+        this.isTracking = false;
         TrackingStateManager.clearTracking();
+        this.updateGlobalIndicator();
     }
 
     toggleTracking() {
         console.log('Toggling tracking. Current state:', this.isTracking);
         const button = document.getElementById('toggle-tracking');
         const indicator = document.getElementById('tracking-indicator');
+        
         if (!this.isTracking) {
             this.startTracking();
-            this.isTracking = true;
             button.innerHTML = '<i class="mdi mdi-stop me-1"></i>Stop Tracking';
             button.classList.replace('btn-primary', 'btn-danger');
             indicator.classList.replace('bg-secondary', 'bg-success');
             indicator.textContent = 'Tracking Active';
         } else {
             this.stopTracking();
-            this.isTracking = false;
             button.innerHTML = '<i class="mdi mdi-crosshairs-gps me-1"></i>Start Tracking';
             button.classList.replace('btn-danger', 'btn-primary');
             indicator.classList.replace('bg-success', 'bg-secondary');
             indicator.textContent = 'Not tracking';
         }
-        this.updateGlobalIndicator();
     }
+    
     updateMarker(lat, lng) {
         console.log('Updating marker position:', {lat, lng});
         if (!this.currentMarker) {
@@ -169,16 +189,16 @@ class TrackingControl {
             },
             body: `latitude=${latitude}&longitude=${longitude}`
         })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Server response:', data);
-                    if (data.status === 'error') {
-                        this.handleError('Error updating location: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    this.handleError('Error sending location update: ' + error.message);
-                });
+        .then(response => response.json())
+        .then(data => {
+            console.log('Server response:', data);
+            if (data.status === 'error') {
+                this.handleError('Error updating location: ' + data.message);
+            }
+        })
+        .catch(error => {
+            this.handleError('Error sending location update: ' + error.message);
+        });
     }
 
     handleError(message) {
@@ -204,23 +224,16 @@ class TrackingControl {
 
 // Initialize tracking control when document is ready
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Document ready, checking for tracking map...');
-    if (document.getElementById('tracking-map')) {
-        console.log('Tracking map found, initializing control...');
-        new TrackingControl();
-    } else if (TrackingStateManager.isTracking()) {
-        // If we're on a different page but tracking is active, continue background tracking
-        const backgroundTracker = new TrackingControl();
-        backgroundTracker.startTracking(true);
-    }
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    const isTracking = TrackingStateManager.isTracking();
+    console.log('Document ready, initializing tracking control...');
+    
+    // Always create the tracking control to handle the global indicator
+    const trackingControl = new TrackingControl();
+    
+    // Check for the global indicator and update its state
     const globalIndicator = document.getElementById('global-tracking-indicator');
-
-    if (globalIndicator && isTracking) {
-        globalIndicator.style.display = 'flex';
+    if (globalIndicator) {
+        const isTracking = TrackingStateManager.isTracking();
+        globalIndicator.style.display = isTracking ? 'flex' : 'none';
+        globalIndicator.style.opacity = isTracking ? '1' : '0';
     }
 });
-
