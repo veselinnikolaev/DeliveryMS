@@ -11,7 +11,7 @@
 
         const ctx = chartElement.getContext('2d');
 
-        const formatNumber = function(value) {
+        const formatNumber = function (value) {
             if (value >= 1000000) {
                 return (value / 1000000).toFixed(2) + 'M';
             } else if (value >= 1000) {
@@ -22,8 +22,10 @@
 
         // Improved growth calculation with smoothing and caps
         const calculateGrowth = (prevValue, currValue) => {
-            if (prevValue === 0 && currValue === 0) return 0;
-            if (prevValue === 0) return currValue > 0 ? 100 : 0;
+            if (prevValue === 0 && currValue === 0)
+                return 0;
+            if (prevValue === 0)
+                return currValue > 0 ? 100 : 0;
             const growth = ((currValue - prevValue) / prevValue) * 100;
             // Cap growth between -50% and 100%
             return Math.max(Math.min(growth, 100), -50);
@@ -116,7 +118,8 @@
                                 if (context.datasetIndex === 0) {
                                     return 'Sales: ' + context.parsed.y.toFixed(2) + ' ' + currency;
                                 } else {
-                                    if (context.parsed.y === null) return 'Growth: N/A';
+                                    if (context.parsed.y === null)
+                                        return 'Growth: N/A';
                                     const growth = context.parsed.y.toFixed(2);
                                     const indicator = Math.abs(growth) >= 49 ? ' (capped)' : '';
                                     return 'Growth: ' + growth + '%' + indicator;
@@ -197,7 +200,7 @@
         let resizeTimeout;
         $(window).on('resize', function () {
             clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(function() {
+            resizeTimeout = setTimeout(function () {
                 chart.resize();
             }, 250); // Debounce resize events
         });

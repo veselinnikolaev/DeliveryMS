@@ -27,68 +27,88 @@
         <!-- Font Awesome -->
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+        <script>
+            (function () {
+                try {
+                    const state = JSON.parse(localStorage.getItem('courier_tracking_state'));
+                    const isTracking = state && state.isTracking && (Date.now() - state.timestamp < 24 * 60 * 60 * 1000);
+                    if (!isTracking) {
+                        const style = document.createElement('style');
+                        style.innerHTML = '#global-tracking-indicator { display: none !important; opacity: 0 !important; }';
+                        document.head.appendChild(style);
+                    }
+                } catch (e) {
+                    const style = document.createElement('style');
+                    style.innerHTML = '#global-tracking-indicator { display: none !important; opacity: 0 !important; }';
+                    document.head.appendChild(style);
+                }
+            })();
+        </script>
     </head>
-    <body>
-        <div class="container-scroller">
+
+    <div class="container-scroller">
+        <?php
+        include 'App/Views/Layouts/component/top_nav.php';
+        ?>
+        <div class="container-fluid page-body-wrapper pt-0 proBanner-padding-top">
             <?php
-            include 'App/Views/Layouts/component/top_nav.php';
+            include 'App/Views/Layouts/component/sidebar.php';
             ?>
-            <div class="container-fluid page-body-wrapper pt-0 proBanner-padding-top">
-                <?php
-                include 'App/Views/Layouts/component/sidebar.php';
-                ?>
-                <div class="main-panel">
-                    <div class="content-wrapper">
-                        <?php
-                        include $viewPath;
-                        ?>
-                    </div>
+            <div class="main-panel">
+                <div class="content-wrapper">
+                    <?php
+                    include $viewPath;
+                    ?>
                 </div>
             </div>
         </div>
-        <script src="web/assets/vendors/js/vendor.bundle.base.js"></script>
-        <script src="web/assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
-        <!-- endinject -->
-        <!-- Plugin js for this page -->
-        <script src="web/assets/vendors/chart.js/chart.umd.js"></script>
-        <script src="web/assets/vendors/progressbar.js/progressbar.min.js"></script>
-        <!-- End plugin js for this page -->
-        <!-- inject:js -->
-        <script src="web/assets/js/off-canvas.js"></script>
-        <script src="web/assets/js/template.js"></script>
-        <script src="web/assets/js/settings.js"></script>
-        <script src="web/assets/js/hoverable-collapse.js"></script>
-        <script src="web/assets/js/todolist.js"></script>
-        <!-- endinject -->
-        <!-- Custom js for this page-->
-        <script src="web/assets/js/jquery.cookie.js" type="text/javascript"></script>
-        <script src="web/assets/js/dashboard.js"></script>
+    </div>
+    <script src="web/assets/vendors/js/vendor.bundle.base.js"></script>
+    <script src="web/assets/vendors/bootstrap-datepicker/bootstrap-datepicker.min.js"></script>
+    <!-- endinject -->
+    <!-- Plugin js for this page -->
+    <script src="web/assets/vendors/chart.js/chart.umd.js"></script>
+    <script src="web/assets/vendors/progressbar.js/progressbar.min.js"></script>
+    <!-- End plugin js for this page -->
+    <!-- inject:js -->
+    <script src="web/assets/js/off-canvas.js"></script>
+    <script src="web/assets/js/template.js"></script>
+    <script src="web/assets/js/settings.js"></script>
+    <script src="web/assets/js/hoverable-collapse.js"></script>
+    <script src="web/assets/js/todolist.js"></script>
+    <!-- endinject -->
+    <!-- Custom js for this page-->
+    <script src="web/assets/js/jquery.cookie.js" type="text/javascript"></script>
+    <script src="web/assets/js/dashboard.js"></script>
 
-        <!-- Chart.js -->
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-        <script src="web/assets/vendors/datatables.net/jquery.dataTables.js"></script>
-        <script src="web/assets/vendors/datatables.net-bs4/dataTables.bootstrap4.js"></script>
-        <script src="web/js/tables.js"></script>
-        <script src="web/js/datepicker.js"></script>
-        <script src="web/js/priceCalculation.js"></script>
-        <script src="web/js/deleteActions.js"></script>
-        <script src="web/js/productRows.js"></script>
-        <script src="web/js/settingsUpdate.js"></script>
-        <script src="web/js/changeRole.js"></script>
-        <script src="web/js/filter.js"></script>
-        <script src="web/js/passwordEye.js"></script>
-        <script src="web/js/skipMailConfig.js"></script>
-        <script src="web/js/autoCompleteUserData.js"></script>
-        <script src="web/js/bulkDelete.js"></script>
-        <script src="web/js/uploadProfilePicture.js"></script>
-        <script src="web/js/export.js"></script>
-        <script src="web/js/print.js"></script>
-        <script src="web/js/markNotificationAsSeen.js"></script>
-        <script src="web/js/changeOrderStatus.js"></script>
-        <script src="web/js/bulkStatusChange.js"></script>
-        <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-        <script src="web/js/courierTracking.js"></script>
-        <script src="web/js/trackingControl.js"></script>
-    </body>
+    <script src="web/assets/vendors/datatables.net/jquery.dataTables.js"></script>
+    <script src="web/assets/vendors/datatables.net-bs4/dataTables.bootstrap4.js"></script>
+    <script src="web/js/tables.js"></script>
+    <script src="web/js/priceCalculation.js"></script>
+    <script src="web/js/deleteActions.js"></script>
+    <script src="web/js/productRows.js"></script>
+    <script src="web/js/settingsUpdate.js"></script>
+    <script src="web/js/changeRole.js"></script>
+    <script src="web/js/filter.js"></script>
+    <script src="web/js/passwordEye.js"></script>
+    <script src="web/js/skipMailConfig.js"></script>
+    <script src="web/js/autoCompleteUserData.js"></script>
+    <script src="web/js/bulkDelete.js"></script>
+    <script src="web/js/uploadProfilePicture.js"></script>
+    <script src="web/js/export.js"></script>
+    <script src="web/js/print.js"></script>
+    <script src="web/js/markNotificationAsSeen.js"></script>
+    <script src="web/js/changeOrderStatus.js"></script>
+    <script src="web/js/bulkStatusChange.js"></script>
+    <script>
+            window.salesData = <?= json_encode($tpl['sales_data']) ?>;
+            window.currency = <?= json_encode($currency) ?>;
+    </script>
+    <script src="web/js/chart.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="web/js/courierTracking.js"></script>
+    <script src="web/js/trackingControl.js"></script>
 </html>

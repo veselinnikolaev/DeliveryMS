@@ -37,15 +37,15 @@ class TrackingControl {
 
     init() {
         console.log('Initializing tracking control...');
-        
+
         // Check if we're on the tracking page
         const isTrackingPage = document.getElementById('tracking-map') !== null;
-        
+
         if (isTrackingPage) {
             this.initializeMap();
             this.initializeTrackingButton();
         }
-        
+
         // If tracking was active, restart it
         if (this.isTracking) {
             this.startTracking(true);
@@ -68,13 +68,13 @@ class TrackingControl {
         }).addTo(this.map);
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    console.log('Got initial position:', position);
-                    const {latitude, longitude} = position.coords;
-                    this.map.setView([latitude, longitude], 13);
-                    this.updateMarker(latitude, longitude);
-                },
-                (error) => this.handleError('Error getting initial position: ' + error.message)
+                    (position) => {
+                console.log('Got initial position:', position);
+                const {latitude, longitude} = position.coords;
+                this.map.setView([latitude, longitude], 13);
+                this.updateMarker(latitude, longitude);
+            },
+                    (error) => this.handleError('Error getting initial position: ' + error.message)
             );
         }
     }
@@ -106,30 +106,30 @@ class TrackingControl {
         }
 
         this.watchId = navigator.geolocation.watchPosition(
-            (position) => {
-                const {latitude, longitude} = position.coords;
-                
-                // Only update marker if we're on the tracking page
-                if (this.map && this.map._container) {
-                    this.updateMarker(latitude, longitude);
-                }
-                
-                this.updateServerLocation(latitude, longitude);
-            },
-            (error) => this.handleError(error.message),
-            {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0
+                (position) => {
+            const {latitude, longitude} = position.coords;
+
+            // Only update marker if we're on the tracking page
+            if (this.map && this.map._container) {
+                this.updateMarker(latitude, longitude);
             }
+
+            this.updateServerLocation(latitude, longitude);
+        },
+                (error) => this.handleError(error.message),
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
         );
-        
+
         this.isTracking = true;
-        
+
         if (!isRestore) {
             TrackingStateManager.setTracking(true);
         }
-        
+
         this.updateGlobalIndicator();
     }
 
@@ -139,7 +139,7 @@ class TrackingControl {
             navigator.geolocation.clearWatch(this.watchId);
             this.watchId = null;
         }
-        
+
         this.isTracking = false;
         TrackingStateManager.clearTracking();
         this.updateGlobalIndicator();
@@ -149,7 +149,7 @@ class TrackingControl {
         console.log('Toggling tracking. Current state:', this.isTracking);
         const button = document.getElementById('toggle-tracking');
         const indicator = document.getElementById('tracking-indicator');
-        
+
         if (!this.isTracking) {
             this.startTracking();
             button.innerHTML = '<i class="mdi mdi-stop me-1"></i>Stop Tracking';
@@ -164,7 +164,7 @@ class TrackingControl {
             indicator.textContent = 'Not tracking';
         }
     }
-    
+
     updateMarker(lat, lng) {
         console.log('Updating marker position:', {lat, lng});
         if (!this.currentMarker) {
@@ -189,16 +189,16 @@ class TrackingControl {
             },
             body: `latitude=${latitude}&longitude=${longitude}`
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Server response:', data);
-            if (data.status === 'error') {
-                this.handleError('Error updating location: ' + data.message);
-            }
-        })
-        .catch(error => {
-            this.handleError('Error sending location update: ' + error.message);
-        });
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Server response:', data);
+                    if (data.status === 'error') {
+                        this.handleError('Error updating location: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    this.handleError('Error sending location update: ' + error.message);
+                });
     }
 
     handleError(message) {
@@ -210,12 +210,16 @@ class TrackingControl {
         const globalIndicator = document.getElementById('global-tracking-indicator');
         if (globalIndicator) {
             if (this.isTracking) {
-                globalIndicator.style.display = 'flex';
+                if (globalIndicator.style.display !== 'flex') {
+                    globalIndicator.style.display = 'flex';
+                }
                 globalIndicator.style.opacity = '1';
             } else {
                 globalIndicator.style.opacity = '0';
                 setTimeout(() => {
-                    globalIndicator.style.display = 'none';
+                    if (!this.isTracking) { // Check again in case it changed during timeout
+                        globalIndicator.style.display = 'none';
+                    }
                 }, 300);
             }
         }
@@ -225,15 +229,7 @@ class TrackingControl {
 // Initialize tracking control when document is ready
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Document ready, initializing tracking control...');
-    
-    // Always create the tracking control to handle the global indicator
+
+    // Always create the tracking control to handle tracking state
     const trackingControl = new TrackingControl();
-    
-    // Check for the global indicator and update its state
-    const globalIndicator = document.getElementById('global-tracking-indicator');
-    if (globalIndicator) {
-        const isTracking = TrackingStateManager.isTracking();
-        globalIndicator.style.display = isTracking ? 'flex' : 'none';
-        globalIndicator.style.opacity = isTracking ? '1' : '0';
-    }
 });
