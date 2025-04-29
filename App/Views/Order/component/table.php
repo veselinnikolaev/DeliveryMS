@@ -48,6 +48,9 @@
                     echo htmlspecialchars(Utility::$order_status[$order['status']]);
                     ?></td>
                 <td style="text-align: right;">
+                    <a class="btn btn-light btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=Order&action=details&id=<?php echo $order['id'] ?>">
+                        <i class="fa fa-eye" aria-hidden="true"></i>
+                    </a>
                     <?php if ($_SESSION['user']['role'] === 'courier' && $order['status'] == 'shipped') { ?>
                         <a class="btn btn-success btn-circle mdc-ripple-upgraded change-status" 
                            href="#" data-id="<?php echo $order['id'] ?>" data-status="delivered">
@@ -58,9 +61,6 @@
                             <i class="fa fa-undo" aria-hidden="true" title="Mark as Returned"></i>
                         </a>
                     <?php } ?>
-                    <a class="btn btn-light btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=Order&action=details&id=<?php echo $order['id'] ?>">
-                        <i class="fa fa-eye" aria-hidden="true"></i>
-                    </a>
                     <?php if (in_array($_SESSION['user']['role'], ['admin', 'root'])) { ?>
                         <a class="btn btn-info btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=Order&action=edit&order_id=<?php echo $order['id'] ?>">
                             <i class="fa fa-pencil-square-o" aria-hidden="true"></i>

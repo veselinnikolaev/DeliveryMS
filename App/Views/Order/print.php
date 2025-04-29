@@ -70,7 +70,7 @@
                         <td><?php echo htmlspecialchars($order['address']); ?></td>
                         <td><?php echo htmlspecialchars($order['country']); ?></td>
                         <td><?php echo htmlspecialchars($order['region']); ?></td>
-                        <td><?php echo Utility::$order_status[$order['status']] ?? 'Unknown'; ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>

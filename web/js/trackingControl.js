@@ -181,24 +181,35 @@ class TrackingControl {
     }
 
     updateServerLocation(latitude, longitude) {
-        console.log('Sending location update to server:', {latitude, longitude});
-        fetch('index.php?controller=Courier&action=updateLocation', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
+        console.log('Sending location update to server (jQuery):', {latitude, longitude});
+
+        $.ajax({
+            url: 'index.php?controller=Courier&action=updateLocation',
+            type: 'POST', // Specifies the HTTP method
+            dataType: 'json', // Tells jQuery to expect JSON in the response and parse it automatically
+            data: {
+                // Data to send. jQuery automatically formats this as 'application/x-www-form-urlencoded'
+                // for POST requests by default, matching the original fetch setup.
+                latitude: latitude,
+                longitude: longitude
             },
-            body: `latitude=${latitude}&longitude=${longitude}`
-        })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Server response:', data);
-                    if (data.status === 'error') {
-                        this.handleError('Error updating location: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    this.handleError('Error sending location update: ' + error.message);
-                });
+            success: (data) => { // Callback function for successful requests (status 2xx)
+                // 'data' is already parsed JSON because of dataType: 'json'
+                console.log('Server response:', data);
+                if (data.status === 'error') {
+                    // Assuming 'this.handleError' exists in the correct scope
+                    this.handleError('Error updating location: ' + data.message);
+                }
+            },
+            error: (jqXHR, textStatus, errorThrown) => { // Callback function for failed requests
+                // jqXHR is the jQuery XMLHttpRequest object
+                // textStatus describes the type of error (e.g., 'timeout', 'error', 'abort', 'parsererror')
+                // errorThrown is the textual portion of the HTTP status (e.g., 'Not Found', 'Internal Server Error')
+                console.error('AJAX Error:', textStatus, errorThrown);
+                // Assuming 'this.handleError' exists in the correct scope
+                this.handleError(`Error sending location update: ${textStatus} - ${errorThrown}`);
+            }
+        });
     }
 
     handleError(message) {
@@ -229,7 +240,13 @@ class TrackingControl {
 // Initialize tracking control when document is ready
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Document ready, initializing tracking control...');
-
     // Always create the tracking control to handle tracking state
     const trackingControl = new TrackingControl();
+
+    const signOutElement = document.getElementById('sign-out');
+    signOutElement.addEventListener('click', (event) => {
+        console.log('#sign-out clicked. Stopping tracking...');
+        // Call the stopTracking method on the instance we created earlier
+        trackingControl.stopTracking();
+    });
 });

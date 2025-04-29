@@ -371,7 +371,15 @@ class CourierController extends Controller {
             'timestamp' => time()
         ];
 
-        if ($courierLocationModel->save($locationData)) {
+        $courierLocation = $courierLocationModel->getFirstBy(['user_id' => $_SESSION['user']['id']]);
+        $status = false;
+        if (empty($courierLocation)) {
+            $status = $courierLocationModel->save($locationData);
+        } else {
+            $status = $courierLocationModel->update(['id' => $courierLocation['id']] + $locationData);
+        }
+
+        if ($status) {
             echo json_encode(['status' => 'success']);
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Failed to update location']);

@@ -1,12 +1,10 @@
 /* Custom style for select elements */
 select.form-select {
-    color: #000;
-    /* Set text color to white */
+    color: #000; /* Set text color to black */
 }
 
 select.form-select option {
-    color: #000;
-    /* Set option text color to white */
+    color: #000; /* Set option text color to black */
 }
 
 .password-toggle-icon {
@@ -208,17 +206,13 @@ body {
 .button-content {
     display: flex;
     align-items: center;
-    /* Ensure items are vertically aligned */
     gap: 8px;
-    /* Ensures spacing between the icon and text */
 }
 
 .button-content svg {
     width: 20px;
-    /* Set a fixed width for consistency */
     height: 20px;
     vertical-align: middle;
-    /* Helps align it properly with text */
 }
 
 .footer {
@@ -231,29 +225,17 @@ body {
 .secure-badge {
     display: flex;
     align-items: center;
-    /* Ensures vertical alignment */
     justify-content: center;
-    /* Centers content horizontally */
     margin-top: 20px;
     color: var(--success-color);
     font-weight: 600;
     gap: 8px;
-    /* Space between icon and text */
 }
 
 .secure-badge svg {
     width: 20px;
-    /* Set consistent size for icon */
     height: 20px;
     vertical-align: middle;
-    /* Aligns icon with text */
-}
-
-@media (max-width: 600px) {
-    .container {
-        padding: 20px;
-        margin: 20px;
-    }
 }
 
 .retry-payment {
@@ -287,13 +269,6 @@ body {
     background-color: #5a6268;
 }
 
-.footer {
-    text-align: center;
-    margin-top: 40px;
-    color: var(--accent-color);
-    font-size: 14px;
-}
-
 .message-container {
     text-align: center;
     margin: 30px 0;
@@ -311,41 +286,25 @@ body {
     margin-bottom: 25px;
 }
 
-.retry-payment {
-    display: inline-block;
-    padding: 12px 20px;
-    border-radius: 5px;
-    text-decoration: none;
-    background-color: var(--primary-color);
-    color: white;
-    font-weight: 600;
-    margin: 20px 10px;
-    transition: background-color 0.3s;
-}
-
-.retry-payment:hover {
-    background-color: #3955c8;
-}
-
 .unseen {
-    background-color: #f8d7da;
-    /* Light red background */
-    font-weight: bold;
-    /* Bold text */
+    background-color: #f8d7da; /* Light red background */
+    font-weight: bold; /* Bold text */
 }
 
+/* Dashboard & Tracking Styles */
 .card-dashboard {
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* Base shadow */
     border: none;
     border-radius: 0.5rem;
     overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, all 0.3s ease; /* Combined transitions */
 }
 .card-dashboard:hover {
     transform: translateY(-5px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); /* Hover shadow */
 }
-.stat-icon {
+
+.stat-icon { /* Base style (overridden by media queries below) */
     width: 48px;
     height: 48px;
     display: flex;
@@ -354,6 +313,7 @@ body {
     border-radius: 50%;
     font-size: 24px;
 }
+
 .bg-light-primary {
     background-color: rgba(13, 110, 253, 0.1);
     color: #0d6efd;
@@ -370,32 +330,12 @@ body {
     background-color: rgba(13, 202, 240, 0.1);
     color: #0dcaf0;
 }
-.status-badge {
+
+.status-badge { /* Base style (overridden by media query below) */
     padding: 0.25rem 0.5rem;
     border-radius: 0.25rem;
     font-size: 0.75rem;
     font-weight: 500;
-}
-
-/* Additional responsive fixes */
-@media (max-width: 767.98px) {
-    .border-end {
-        border-right: 0 !important;
-        border-bottom: 1px solid #dee2e6;
-        padding-bottom: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-}
-
-.custom-div-icon {
-    background: none;
-    border: none;
-}
-
-.custom-div-icon i {
-    display: block;
-    text-align: center;
-    line-height: 24px;
 }
 
 .info-item {
@@ -408,47 +348,6 @@ body {
     background-color: rgba(0,0,0,0.03);
 }
 
-.card-dashboard {
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
-}
-
-#deliveryMap {
-    border: 1px solid #e0e0e0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-#deliveryMap {
-    background: #f8f9fa;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-.map-loading {
-    background: rgba(255,255,255,0.9) !important;
-    border-radius: 10px;
-}
-
-.custom-div-icon {
-    background: none;
-    border: none;
-}
-
-.courier-icon i {
-    font-size: 24px;
-    color: #2196F3;
-    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
-}
-
-.destination-icon i {
-    font-size: 24px;
-    color: #F44336;
-    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
-}
-
-.leaflet-popup-content {
-    margin: 10px;
-    font-family: inherit;
-}
-
 .tracking-info-box {
     transition: all 0.3s ease;
 }
@@ -458,78 +357,6 @@ body {
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-.custom-div-icon {
-    background: none;
-    border: none;
-}
-
-.courier-icon {
-    color: #2196F3;
-    font-size: 24px;
-}
-
-.destination-icon {
-    color: #F44336;
-    font-size: 24px;
-}
-
-.courier-marker {
-    background: none;
-    border: none;
-}
-
-.destination-marker {
-    background: none;
-    border: none;
-}
-
-.leaflet-div-icon {
-    background: transparent;
-    border: none;
-}
-.map-loading-overlay {
-    transition: opacity 0.3s ease-out;
-    background-color: rgba(255, 255, 255, 0.9) !important;
-}
-
-#deliveryMap {
-    background-color: #f8f9fa;
-}
-#deliveryMap {
-    background-color: #f8f9fa;
-    min-height: 400px;
-    border-radius: 10px;
-    position: relative;
-}
-.delivery-route {
-    stroke: #4CAF50;
-    stroke-width: 4;
-    stroke-opacity: 0.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    animation: dash 2s linear infinite;
-}
-
-@keyframes dash {
-    to {
-        stroke-dashoffset: -20;
-    }
-}
-
-.courier-marker {
-    background: none;
-    border: none;
-}
-
-.destination-marker {
-    background: none;
-    border: none;
-}
-
-.leaflet-div-icon {
-    background: transparent;
-    border: none;
-}
 .tracking-status-panel {
     background-color: #f8f9fa;
     padding: 15px;
@@ -537,23 +364,9 @@ body {
     margin-bottom: 20px;
 }
 
-.courier-marker {
-    background: none;
-    border: none;
-}
-
-.gap-3 {
-    gap: 1rem;
-}
-
 #tracking-indicator {
     padding: 8px 12px;
     font-size: 14px;
-}
-
-#tracking-map {
-    border: 1px solid #dee2e6;
-    margin-top: 20px;
 }
 
 #global-tracking-indicator {
@@ -562,9 +375,6 @@ body {
     padding: 8px 12px;
     font-size: 14px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-
-#global-tracking-indicator {
     background-color: #198754;
     color: white;
     transition: all 0.3s ease;
@@ -572,6 +382,98 @@ body {
 
 #global-tracking-indicator .tracking-pulse {
     animation: pulse 2s infinite;
+}
+
+.tracking-text {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Map Specific Styles */
+#deliveryMap {
+    background-color: #f8f9fa;
+    min-height: 400px;
+    border-radius: 10px;
+    position: relative;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Consolidated shadow */
+}
+
+#tracking-map { /* Assuming this is the same element or similar usage to #deliveryMap */
+    border: 1px solid #dee2e6;
+    margin-top: 20px;
+    /* Add other map styles if #tracking-map is different from #deliveryMap */
+}
+
+.map-loading {
+    background: rgba(255,255,255,0.9) !important;
+    border-radius: 10px;
+}
+
+.map-loading-overlay {
+    transition: opacity 0.3s ease-out;
+    background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.leaflet-popup-content {
+    margin: 10px;
+    font-family: inherit;
+}
+
+/* Custom Map Icons / Markers */
+.custom-div-icon { /* Consolidated */
+    background: none;
+    border: none;
+}
+
+.custom-div-icon i {
+    display: block;
+    text-align: center;
+    line-height: 24px;
+}
+
+.courier-icon {
+    color: #2196F3;
+    font-size: 24px;
+}
+
+.courier-icon i { /* Style for icon *within* the courier div */
+    font-size: 24px;
+    color: #2196F3;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+}
+
+.destination-icon {
+    color: #F44336;
+    font-size: 24px;
+}
+
+.destination-icon i { /* Style for icon *within* the destination div */
+    font-size: 24px;
+    color: #F44336;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+}
+
+.courier-marker { /* Consolidated */
+    background: none;
+    border: none;
+}
+
+.destination-marker { /* Consolidated */
+    background: none;
+    border: none;
+}
+
+.leaflet-div-icon { /* Consolidated */
+    background: transparent;
+    border: none;
+}
+
+/* Animations */
+@keyframes dash {
+    to {
+        stroke-dashoffset: -20;
+    }
 }
 
 @keyframes pulse {
@@ -586,13 +488,28 @@ body {
     }
 }
 
-.tracking-text {
-    font-size: 14px;
-    font-weight: 500;
+/* Utility Classes */
+.gap-3 {
+    gap: 1rem;
 }
 
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Responsive Styles */
+@media (max-width: 600px) {
+    .container {
+        padding: 20px;
+        margin: 20px;
+    }
+}
+
+/* Combined media query for better organization */
 @media (max-width: 767px) {
-    .border-end-md {
+    /* Was .border-end */
+    .border-end-md { /* Changed selector for clarity, assuming this was intended for medium breakpoint */
         border-right: 0 !important;
         border-bottom: 1px solid #dee2e6;
         padding-bottom: 1.5rem;
@@ -602,17 +519,15 @@ body {
     .stat-icon {
         width: 40px;
         height: 40px;
-        min-width: 40px;
+        min-width: 40px; /* Added min-width */
         font-size: 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
+        /* display/align/justify already set in base */
+        border-radius: 8px; /* Override base border-radius */
     }
 
     .status-badge {
-        font-size: 0.7rem;
-        padding: 0.25rem 0.5rem;
+        font-size: 0.7rem; /* Override base font-size */
+        padding: 0.25rem 0.5rem; /* Same as base, could be removed if identical */
     }
 
     .table th, .table td {
@@ -623,44 +538,42 @@ body {
 @media (min-width: 768px) {
     .border-end-md {
         border-right: 1px solid #dee2e6;
+        /* Reset bottom border and margins if needed */
+        border-bottom: 0;
+        padding-bottom: 0;
+        margin-bottom: 0;
     }
 
     .stat-icon {
         width: 50px;
         height: 50px;
-        min-width: 50px;
-        font-size: 1.25rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 10px;
+        min-width: 50px; /* Added min-width */
+        font-size: 1.25rem; /* Override base/small font-size */
+        /* display/align/justify already set in base */
+        border-radius: 10px; /* Override base/small border-radius */
     }
 
+    /* Responsive Typography Helpers */
     .h5-md {
         font-size: 1.25rem;
     }
-
     .h4-md {
         font-size: 1.5rem;
     }
-
     .h3-md {
         font-size: 1.75rem;
     }
-
     .h2-md {
         font-size: 2rem;
     }
 }
 
-/* General responsive utility classes */
-.card-dashboard {
-    transition: all 0.3s ease;
-    border-radius: 0.5rem;
-    overflow: hidden;
+.route-line {
+    stroke-dasharray: none;
+    animation: none;
+    pointer-events: auto;
 }
 
-.table-responsive {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+.route-arrow {
+    z-index: 1000;
 }

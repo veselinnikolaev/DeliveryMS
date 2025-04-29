@@ -124,7 +124,7 @@ if (!empty($tpl['notifications'])) {
 
                         <a class="dropdown-item" href="<?php echo INSTALL_URL; ?>?controller=User&action=profile&id=<?php echo $_SESSION['user']['id']; ?>"><i class="dropdown-item-icon mdi mdi-account-outline text-primary me-2"></i> My Profile</a>
                         <a class="dropdown-item" href="<?php echo INSTALL_URL; ?>?controller=Notification&action=index"><i class="dropdown-item-icon mdi mdi-message-text-outline text-primary me-2"></i> Notifications</a>
-                        <a class="dropdown-item" href="<?php echo INSTALL_URL; ?>?controller=Auth&action=logout"><i class="dropdown-item-icon mdi mdi-power text-primary me-2"></i>Sign Out</a>
+                        <a id="sign-out" class="dropdown-item" href="<?php echo INSTALL_URL; ?>?controller=Auth&action=logout"><i class="dropdown-item-icon mdi mdi-power text-primary me-2"></i>Sign Out</a>
                     </div>
                 </li>
             </ul>
