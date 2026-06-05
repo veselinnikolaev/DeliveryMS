@@ -19,16 +19,17 @@ class AuthController extends Controller {
 
         $userModel = new \App\Models\User();
 
-        if (!empty($_POST['send'])) {
-            if ($userModel->existsBy(['email' => $_POST['email']])) {
+        if (!empty($this->post('send'))) {
+            if ($userModel->existsBy(['email' => $this->post('email')])) {
                 $error_message = "User with this email already exists.";
-            } else if ($_POST['password'] !== $_POST['repeat_password']) {
+            } else if ($this->post('password') !== $this->post('repeat_password')) {
                 $error_message = "Passwords do not match.";
             } else {
-                $_POST['password_hash'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
-                $_POST['role'] = 'user';
+                $postData = $this->post();
+                $postData['password_hash'] = password_hash($this->post('password'), PASSWORD_DEFAULT);
+                $postData['role'] = 'user';
 
-                if ($userModel->save($_POST)) {
+                if ($userModel->save($postData)) {
                     header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
                     exit;
                 } else {
@@ -53,10 +54,10 @@ class AuthController extends Controller {
 
         $userModel = new \App\Models\User();
 
-        if (!empty($_POST['send'])) {
-            $user = $userModel->getFirstBy(['email' => $_POST['email']]);
+        if (!empty($this->post('send'))) {
+            $user = $userModel->getFirstBy(['email' => $this->post('email')]);
 
-            if ($user && password_verify($_POST['password'], $user['password_hash'])) {
+            if ($user && password_verify($this->post('password'), $user['password_hash'])) {
                 $_SESSION['user'] = $user;
                 
                 $notificationModel = new \App\Models\Notification();

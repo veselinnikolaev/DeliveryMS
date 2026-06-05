@@ -1,38 +1,42 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Core;
+
+use Core\Exceptions\DatabaseException;
 
 class Model {
 
-    private $mysqli;
-    private $debug = false;
-    public $host = '';
-    public $database = '';
-    public $user = '';
-    public $pass = '';
-    public $table = null;
-    public $primaryKey = null;
+    private ?\mysqli $mysqli = null;
+    private bool $debug = false;
+    public string $host = '';
+    public string $database = '';
+    public string $user = '';
+    public string $pass = '';
+    public ?string $table = null;
+    public ?string $primaryKey = null;
 
-    public function connect() {
-        // Инициализиране на mysqli връзката
+    public function connect(): void {
+        // Initialize mysqli connection
         $this->host = DEFAULT_HOST;
         $this->user = DEFAULT_USER;
         $this->pass = DEFAULT_PASS;
         $this->database = DEFAULT_DB;
 
-        // Създаване на връзка с базата данни
+        // Create database connection
         if ($this->mysqli == null) {
             $this->mysqli = new \mysqli($this->host, $this->user, $this->pass, $this->database);
 
-            // Проверка за грешка при връзка
+            // Check for connection error
             if ($this->mysqli->connect_error) {
-                die("Connection failed: " . $this->mysqli->connect_error);
+                throw new DatabaseException("Connection failed: " . $this->mysqli->connect_error);
             }
         }
     }
 
-    public function checkConnection($host, $user, $password, $database) {
-        // Създаване на връзка към MySQL сървъра (без база данни)
+    public function checkConnection(string $host, string $user, string $password, string $database): array {
+        // Create connection to MySQL server (without database)
         try {
             $this->mysqli = new \mysqli($host, $user, $password);
         } catch (\Throwable) {
@@ -42,7 +46,7 @@ class Model {
             ];
         }
 
-        // Проверка за грешка при връзка към MySQL сървър
+        // Check for connection error to MySQL server
         if ($this->mysqli->connect_error) {
             return [
                 'status' => false,
@@ -50,7 +54,7 @@ class Model {
             ];
         }
 
-        // Създаване на база данни, ако не съществува
+        // Create database if it doesn't exist
         $query = "CREATE DATABASE IF NOT EXISTS `$database`";
         if (!$this->mysqli->query($query)) {
             $this->close();
@@ -60,10 +64,10 @@ class Model {
             ];
         }
 
-        // След създаване на базата данни, свързваме се към нея
+        // After creating the database, connect to it
         $this->mysqli->select_db($database);
 
-        // Проверка за грешка при връзка към конкретната база данни
+        // Check for connection error to the specific database
         if ($this->mysqli->error) {
             $this->close();
             return [
@@ -78,7 +82,7 @@ class Model {
         ];
     }
 
-    public function migrate($filePath = 'config/database.sql') {
+    public function migrate(string $filePath = 'config/database.sql'): array {
         $this->connect();
 
         // Check if file exists
@@ -96,11 +100,11 @@ class Model {
             // Execute the SQL script
             if ($this->mysqli->multi_query($sql)) {
                 do {
-                    // Изчистване на резултатите, дори и да няма такива
+                    // Clear results, even if there are none
                     if ($result = $this->mysqli->store_result()) {
                         $result->free();
                     }
-                } while ($this->mysqli->next_result()); // Изчаква всички заявки да завършат
+                } while ($this->mysqli->next_result()); // Wait for all queries to finish
 
                 return [
                     'status' => true,
@@ -120,98 +124,157 @@ class Model {
         }
     }
 
-    public function isDbMigrated($databaseName) {
+    public function isDbMigrated(string $databaseName): bool {
         $this->connect();
 
-        // Проверка дали базата данни съществува
-        $dbCheckQuery = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$databaseName'";
+        // Validate database name to prevent SQL injection
+        if (!$this->isValidIdentifier($databaseName)) {
+            return false;
+        }
+
+        // Check if database exists
+        $dbCheckQuery = "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?";
 
         try {
-            $dbExists = $this->mysqli->query($dbCheckQuery);
+            $stmt = $this->mysqli->prepare($dbCheckQuery);
+            if (!$stmt) {
+                return false;
+            }
+            $stmt->bind_param('s', $databaseName);
+            $stmt->execute();
+            $dbExists = $stmt->get_result();
+            $stmt->close();
+
             if (!$dbExists || $dbExists->num_rows === 0) {
-                return false; // Базата не съществува
+                return false; // Database does not exist
             }
 
-            // Проверка дали има таблици в базата
-            $tableCheckQuery = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '$databaseName'";
-            $tables = $this->mysqli->query($tableCheckQuery);
+            // Check if database has tables
+            $tableCheckQuery = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ?";
+            $stmt = $this->mysqli->prepare($tableCheckQuery);
+            if (!$stmt) {
+                return false;
+            }
+            $stmt->bind_param('s', $databaseName);
+            $stmt->execute();
+            $tables = $stmt->get_result();
+            $stmt->close();
 
             if ($tables && $tables->num_rows > 0) {
-                return true; // Има поне една таблица -> мигрирано е
+                return true; // Has at least one table -> migrated
             }
         } catch (\Throwable) {
             return false;
         }
 
-        return false; // Няма таблици -> не е мигрирано
+        return false; // No tables -> not migrated
     }
 
-    public function getAll($options = null, $column = null, $limit = null) {
-        // Създаване на основна SELECT заявка
+    public function getAll($options = null, $column = null, $limit = null): array {
+        // Create base SELECT query
         $query = "SELECT * FROM " . $this->getTable();
+        $params = [];
 
-        // Проверка дали има подаден масив с условия
+        // Check if options array is provided
         if ($options && is_array($options)) {
             $conditions = [];
             foreach ($options as $field => $value) {
-                // Изграждане на условията за WHERE
-                $conditions[] = "$field = '$value'";
+                // Check if field contains an operator (>=, <=, >, <, !=, LIKE)
+                if (preg_match('/^([a-zA-Z0-9_-]+)\s*(>=|<=|>|<|!=|LIKE)$/i', $field, $matches)) {
+                    $sanitizedField = $matches[1];
+                    $operator = strtoupper($matches[2]);
+                    
+                    if ($sanitizedField === false) {
+                        continue; // Skip invalid field names
+                    }
+                    
+                    // Build WHERE condition with operator
+                    if ($operator === 'LIKE') {
+                        $conditions[] = "`$sanitizedField` LIKE ?";
+                    } else {
+                        $conditions[] = "`$sanitizedField` $operator ?";
+                    }
+                    $params[] = $value;
+                } else {
+                    // Validate and sanitize field name for simple equality
+                    $sanitizedField = $this->sanitizeFieldName($field);
+                    if ($sanitizedField === false) {
+                        continue; // Skip invalid field names
+                    }
+                    // Build WHERE conditions with placeholders
+                    if (is_array($value)) {
+                        // Handle IN clause
+                        $placeholders = implode(',', array_fill(0, count($value), '?'));
+                        $conditions[] = "`$sanitizedField` IN ($placeholders)";
+                        $params = array_merge($params, $value);
+                    } else {
+                        $conditions[] = "`$sanitizedField` = ?";
+                        $params[] = $value;
+                    }
+                }
             }
-            // Добавяне на WHERE частта към заявката
-            $query .= " WHERE " . implode(" AND ", $conditions);
+            // Add WHERE clause to query
+            if (!empty($conditions)) {
+                $query .= " WHERE " . implode(" AND ", $conditions);
+            }
         } elseif ($options) {
-            // Ако $options не е масив, добавяме директно
+            // If $options is not an array, append directly (WARNING: caller must ensure this is safe)
             $query .= " WHERE " . $options;
         }
 
-        // Добавяне на ORDER BY частта, ако е подаден $column
+        // Add ORDER BY clause if $column is provided
         if ($column) {
-            $query .= " ORDER BY " . $column;
+            $sanitizedColumn = $this->sanitizeFieldName($column);
+            if ($sanitizedColumn !== false) {
+                $query .= " ORDER BY `$sanitizedColumn`";
+            }
         }
 
-        // Добавяне на LIMIT частта, ако е подаден $limit
+        // Add LIMIT clause if $limit is provided
         if ($limit) {
-            $query .= " LIMIT " . $limit;
+            $sanitizedLimit = intval($limit);
+            $query .= " LIMIT " . $sanitizedLimit;
         }
 
-        // Изпълняване на заявката
-        return $this->executeQuery($query);
+        // Execute query with bound parameters
+        $types = !empty($params) ? str_repeat('s', count($params)) : '';
+        return $this->executeQuery($query, $params, $types);
     }
 
-    public function get($id) {
-        // Връща един запис по primary key
+    public function get($id): array {
+        // Returns a single record by primary key
         $primaryKeyName = $this->primaryKey ?: 'id';
         $query = "SELECT * FROM " . $this->getTable() . " WHERE `$primaryKeyName` = ?";
-        $arr = $this->executeQuery($query, [$id], 'i'); // 'i' за integer
+        $arr = $this->executeQuery($query, [$id], 'i'); // 'i' for integer
 
         return $arr[0];
     }
 
-    public function getFirstBy($options = null) {
-        // Основна SELECT заявка
+    public function getFirstBy($options = null): ?array {
+        // Main SELECT query
         $query = "SELECT * FROM `" . $this->getTable() . "`";
         $params = [];
 
         if ($options && is_array($options)) {
             $conditions = [];
             foreach ($options as $field => $value) {
-                // Ограждане на имената на колоните с backticks
+                // Enclose column names with backticks
                 $conditions[] = "`$field` = ?";
                 $params[] = $value;
             }
             $query .= " WHERE " . implode(" AND ", $conditions);
         } elseif ($options) {
-            $query .= " WHERE " . $options; // Тук няма prepared statement, внимавай с инжекциите!
+            $query .= " WHERE " . $options; // No prepared statement here, be careful with injections!
         }
 
         $result = $this->executeQuery($query, $params, str_repeat("s", count($params)));
         if (!empty($result)) {
             return $result[0];
         }
-        // Изпълняване със защитени параметри
+        // Execute with protected parameters
     }
 
-    public function countAll($options = null) {
+    public function countAll($options = null): int {
         $query = "SELECT COUNT(*) as total FROM " . $this->getTable();
         $params = [];
 
@@ -239,44 +302,70 @@ class Model {
         return isset($result[0]['total']) ? (int) $result[0]['total'] : 0;
     }
 
-    public function getMultiple($ids) {
-        // Създаване на основна SELECT заявка
+    public function getMultiple($ids): array {
+        // Create base SELECT query
         $query = "SELECT * FROM " . $this->getTable();
         $primaryKeyName = $this->primaryKey ?: 'id';
-        // Проверка дали има подаден масив с условия
+        $params = [];
+
+        // Check if array of IDs is provided
         if ($ids && is_array($ids)) {
-            // Добавяне на WHERE частта към заявката
-            $query .= " WHERE `$primaryKeyName` IN (" . implode(", ", $ids) . ")";
+            // Validate all IDs are integers
+            $validIds = array_filter($ids, 'is_numeric');
+            if (empty($validIds)) {
+                return [];
+            }
+            // Add WHERE clause with placeholders
+            $placeholders = implode(',', array_fill(0, count($validIds), '?'));
+            $query .= " WHERE `$primaryKeyName` IN ($placeholders)";
+            $params = $validIds;
         } elseif ($ids) {
-            // Ако $options не е масив, добавяме директно
-            $query .= " WHERE `$primaryKeyName` IN (" . $ids . ")";
+            // If single ID, validate and add to query
+            if (!is_numeric($ids)) {
+                return [];
+            }
+            $query .= " WHERE `$primaryKeyName` = ?";
+            $params = [$ids];
         }
-        return $this->executeQuery($query)[0];
+
+        $types = !empty($params) ? str_repeat('i', count($params)) : '';
+        $result = $this->executeQuery($query, $params, $types);
+        return $result;
     }
 
-    public function existsBy($options = null) {
+    public function existsBy($options = null): bool {
         $query = "SELECT COUNT(*) as count FROM " . $this->getTable();
+        $params = [];
 
         if ($options && is_array($options)) {
             $conditions = [];
             foreach ($options as $field => $value) {
-                // Изграждане на условията за WHERE
-                $conditions[] = "$field = '$value'";
+                // Validate and sanitize field name
+                $sanitizedField = $this->sanitizeFieldName($field);
+                if ($sanitizedField === false) {
+                    continue; // Skip invalid field names
+                }
+                // Build WHERE conditions with placeholders
+                $conditions[] = "`$sanitizedField` = ?";
+                $params[] = $value;
             }
-            // Добавяне на WHERE частта към заявката
-            $query .= " WHERE " . implode(" AND ", $conditions);
+            // Add WHERE clause to query
+            if (!empty($conditions)) {
+                $query .= " WHERE " . implode(" AND ", $conditions);
+            }
         } elseif ($options) {
-            // Ако $options не е масив, добавяме директно
+            // If $options is not an array, append directly (WARNING: caller must ensure this is safe)
             $query .= " WHERE " . $options;
         }
 
-        $result = $this->executeQuery($query);
+        $types = !empty($params) ? str_repeat('s', count($params)) : '';
+        $result = $this->executeQuery($query, $params, $types);
         return isset($result[0]['count']) && $result[0]['count'] > 0;
     }
 
-    public function save($data) {
+    public function save($data): int|false {
         $this->connect();
-        // Вставка на нов запис
+        // Insert new record
 
         $save = array();
 
@@ -302,15 +391,15 @@ class Model {
         $placeholders = implode(',', array_fill(0, count($fields), '?'));
         $query = "INSERT INTO " . $this->getTable() . " (" . implode(',', $fields) . ") VALUES ($placeholders)";
 
-        if ($this->executeQuery($query, $values, str_repeat('s', count($values)))) { // 's' за string
+        if ($this->executeQuery($query, $values, str_repeat('s', count($values)))) { // 's' for string
             return $this->mysqli->insert_id;
         } else {
             return false;
         }
     }
 
-    public function update($data) {
-        // Обновяване на съществуващ запис
+    public function update($data): bool {
+        // Update existing record
         $save = array();
 
         foreach ($this->schema as $field) {
@@ -338,12 +427,12 @@ class Model {
         }
 
         $query = "UPDATE " . $this->getTable() . " SET " . implode(',', $set) . " WHERE `$primaryKeyName` = ?";
-        $values[] = $data[$primaryKeyName]; // Добавяме стойността за primary key накрая
+        $values[] = $data[$primaryKeyName]; // Add the primary key value at the end
 
-        return $this->executeQuery($query, $values, str_repeat('s', count($values) - 1) . 'i'); // Добавяме 'i' за integer
+        return $this->executeQuery($query, $values, str_repeat('s', count($values) - 1) . 'i'); // Add 'i' for integer
     }
 
-    public function updateBy($data, $options = null) {
+    public function updateBy($data, $options = null): bool {
         // Prepare an array of fields/values to update based on the defined schema
         $save = [];
         foreach ($this->schema as $field) {
@@ -408,87 +497,97 @@ class Model {
         return $this->executeQuery($query, $values, $types);
     }
 
-    public function delete($id) {
-        // Изтриване на запис
+    public function delete($id): bool {
+        // Delete record
         $primaryKeyName = $this->primaryKey ?: 'id';
         $query = "DELETE FROM " . $this->getTable() . " WHERE `$primaryKeyName` = ?";
-        return $this->executeQuery($query, [$id], 'i'); // 'i' за integer
+        return $this->executeQuery($query, [$id], 'i'); // 'i' for integer
     }
 
-    public function deleteBy($options = null) {
-        // Изтриване на запис
+    public function deleteBy($options = null): bool {
+        // Delete record
         $query = "DELETE FROM " . $this->getTable();
         $params = [];
 
-        // Проверка дали има подаден масив с условия
+        // Check if an array of conditions is provided
         if ($options && is_array($options)) {
             $conditions = [];
             foreach ($options as $field => $value) {
-                // Ако $value е масив, изграждаме IN частта
+                // If $value is an array, build the IN clause
                 if (is_array($value)) {
                     $conditions[] = "`$field` IN (" . implode(',', array_fill(0, count($value), '?')) . ")";
-                    $params = array_merge($params, $value); // Добавяме стойностите за IN
+                    $params = array_merge($params, $value); // Add values for IN
                 } else {
-                    // Изграждане на условията за WHERE
+                    // Build WHERE conditions
                     $conditions[] = "`$field` = ?";
-                    $params[] = $value; // Добавяме стойността за нормалното условие
+                    $params[] = $value; // Add value for normal condition
                 }
             }
-            // Добавяне на WHERE частта към заявката
+            // Add WHERE clause to query
             $query .= " WHERE " . implode(" AND ", $conditions);
         } elseif ($options) {
-            // Ако $options не е масив, добавяме директно
+            // If $options is not an array, add directly
             $query .= " WHERE " . $options;
         }
 
         $types = str_repeat('s', count($params));
-        // Изпълнение на заявката с параметри
+        // Execute query with parameters
         return $this->executeQuery($query, $params, $types);
     }
 
-    public function updateBatch($data = null, $keyColumn = null) {
+    public function updateBatch($data = null, $keyColumn = null): bool {
         $this->connect();
-        // Проверка дали има подадени данни
+        // Check if data is provided
         if (empty($data) || empty($keyColumn)) {
             return false;
         }
 
-        // Подготовка на заявката
+        // Validate key column name
+        $sanitizedKeyColumn = $this->sanitizeFieldName($keyColumn);
+        if ($sanitizedKeyColumn === false) {
+            return false;
+        }
+
+        // Prepare query
         $query = "UPDATE " . $this->getTable() . " SET value = CASE";
         $conditions = [];
         $params = [];
 
         foreach ($data as $row) {
-            // Добавяне на условията за CASE
-            $query .= " WHEN `{$keyColumn}` = ? THEN ?";
+            // Add CASE conditions
+            $query .= " WHEN `$sanitizedKeyColumn` = ? THEN ?";
             $conditions[] = $row['key'];
             $params[] = $row['key'];
             $params[] = $row['value'];
         }
 
-        // Завършване на заявката
-        $query .= " END WHERE `{$keyColumn}` IN ('" . implode("','", $conditions) . "')";
+        // Complete query with placeholders
+        $placeholders = implode(',', array_fill(0, count($conditions), '?'));
+        $query .= " END WHERE `$sanitizedKeyColumn` IN ($placeholders)";
+        $params = array_merge($params, $conditions);
 
-        // Подготовка на заявката за изпълнение
+        // Prepare statement for execution
         $stmt = $this->mysqli->prepare($query);
         if ($stmt) {
-            // Свързване на параметрите
+            // Bind parameters
             $types = str_repeat('s', count($params)); // Assuming all params are strings
             $stmt->bind_param($types, ...$params);
 
-            // Изпълнение на заявката
-            return $stmt->execute();
+            // Execute query
+            $result = $stmt->execute();
+            $stmt->close();
+            return $result;
         }
 
         return false;
     }
 
-    public function executeQuery($query, $params = [], $types = '') {
+    public function executeQuery(string $query, array $params = [], string $types = ''): array|bool {
         $this->connect();
-        // Подготовка на заявката
+        // Prepare the query
         $stmt = $this->mysqli->prepare($query);
 
-        // Проверка дали заявката е успешна
+        // Check if query preparation was successful
         if (!$stmt) {
             if ($this->debug) {
                 echo "Error preparing query: " . $this->mysqli->error;
@@ -496,29 +595,58 @@ class Model {
             return false;
         }
 
-        // Привързване на параметрите към заявката
+        // Bind parameters to the query
         if (!empty($params)) {
             $stmt->bind_param($types, ...$params);
         }
 
-        // Изпълнение на заявката
+        // Execute the query
         $stmt->execute();
 
-        // Връщане на резултати
+        // Return results
         $result = $stmt->get_result();
         if ($result) {
-            return $result->fetch_all(MYSQLI_ASSOC); // Връщаме резултатите като асоциативен масив
+            return $result->fetch_all(MYSQLI_ASSOC); // Return results as associative array
         }
-        return true; // За не-заявки с резултати, като UPDATE или DELETE
+        return true; // For queries without results, like UPDATE or DELETE
     }
 
-    public function getTable() {
-        // Връща името на таблицата
+    public function getTable(): ?string {
+        // Return table name
         return $this->table;
     }
 
-    public function close() {
-        // Затваряне на връзката с базата данни
-        $this->mysqli->close();
+    public function close(): void {
+        // Close database connection
+        if ($this->mysqli) {
+            $this->mysqli->close();
+        }
+    }
+
+    /**
+     * Sanitize field name to prevent SQL injection
+     * Only allows alphanumeric characters, underscores, and dashes
+     * 
+     * @param string $field The field name to sanitize
+     * @return string|false Sanitized field name or false if invalid
+     */
+    private function sanitizeFieldName($field): string|false {
+        // Check if field name contains only valid characters
+        if (!preg_match('/^[a-zA-Z0-9_-]+$/', $field)) {
+            return false;
+        }
+        return $field;
+    }
+
+    /**
+     * Validate SQL identifier (database name, table name, etc.)
+     * Only allows alphanumeric characters and underscores
+     * 
+     * @param string $identifier The identifier to validate
+     * @return bool True if valid, false otherwise
+     */
+    private function isValidIdentifier(string $identifier): bool {
+        // Check if identifier contains only valid characters
+        return preg_match('/^[a-zA-Z0-9_]+$/', $identifier) === 1;
     }
 }

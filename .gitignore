@@ -1,0 +1,16 @@
+# Environment variables
+.env
+
+# Vendor directory
+/vendor/
+
+# IDE
+.idea/
+.nbproject/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

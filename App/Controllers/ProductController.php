@@ -40,23 +40,23 @@ class ProductController extends Controller {
 
         $opts = array();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (!empty($_POST['name'])) {
-                $opts["name LIKE '%" . $_POST['name'] . "%' AND 1 "] = "1";
+            if (!empty($this->post('name'))) {
+                $opts['name LIKE'] = '%' . $this->post('name') . '%';
             }
-            if (!empty($_POST['description'])) {
-                $opts["description LIKE '%" . $_POST['description'] . "%' AND 1 "] = "1";
+            if (!empty($this->post('description'))) {
+                $opts['description LIKE'] = '%' . $this->post('description') . '%';
             }
-            if (!empty($_POST['minPrice'])) {
-                $opts["price >= " . $_POST['minPrice'] . " AND 1 "] = "1";
+            if (!empty($this->post('minPrice'))) {
+                $opts['price >='] = \Core\Security::float($this->post('minPrice'));
             }
-            if (!empty($_POST['maxPrice'])) {
-                $opts["price <= " . $_POST['maxPrice'] . " AND 1 "] = "1";
+            if (!empty($this->post('maxPrice'))) {
+                $opts['price <='] = \Core\Security::float($this->post('maxPrice'));
             }
-            if (!empty($_POST['minStock'])) {
-                $opts["stock >= " . $_POST['minStock'] . " AND 1 "] = "1";
+            if (!empty($this->post('minStock'))) {
+                $opts['stock >='] = \Core\Security::int($this->post('minStock'));
             }
-            if (!empty($_POST['maxStock'])) {
-                $opts["stock <= " . $_POST['maxStock'] . " AND 1 "] = "1";
+            if (!empty($this->post('maxStock'))) {
+                $opts['stock <='] = \Core\Security::int($this->post('maxStock'));
             }
         }
 
@@ -74,9 +74,10 @@ class ProductController extends Controller {
         $productModel = new \App\Models\Product();
 
         // Check if the form has been submitted
-        if (!empty($_POST['send'])) {
+        if (!empty($this->post('send'))) {
             // Save the data using the Product model
-            if ($productModel->save($_POST)) {
+            $postData = $this->post();
+            if ($productModel->save($postData)) {
                 // Redirect to the list of couriers on successful creation
                 header("Location: " . $_SESSION['previous_url'], true, 301);
                 exit;
@@ -100,8 +101,8 @@ class ProductController extends Controller {
     function delete() {
         $productModel = new \App\Models\Product();
 
-        if (!empty($_POST['id'])) {
-            $productModel->delete($_POST['id']);
+        if (!empty($this->post('id'))) {
+            $productModel->delete(\Core\Security::int($this->post('id')));
         }
 
         $products = $productModel->getAll();
@@ -111,8 +112,8 @@ class ProductController extends Controller {
     function bulkDelete() {
         $productModel = new \App\Models\Product();
 
-        if (!empty($_POST['ids']) && is_array($_POST['ids'])) {
-            $productModel->deleteBy(['id' => $_POST['ids']]);
+        if (!empty($this->post('ids')) && is_array($this->post('ids'))) {
+            $productModel->deleteBy(['id' => $this->post('ids')]);
         }
 
         $products = $productModel->getAll();
@@ -122,13 +123,14 @@ class ProductController extends Controller {
     function edit() {
         $productModel = new \App\Models\Product();
 
-        $arr = $productModel->get($_GET['id']);
+        $arr = $productModel->get(\Core\Security::int($this->get('id')));
 
         // Check if the form has been submitted
-        if (!empty($_POST['id'])) {
+        if (!empty($this->post('id'))) {
 
             // Save the data using the Product model
-            if ($productModel->update($_POST)) {
+            $postData = $this->post();
+            if ($productModel->update($postData)) {
                 // Redirect to the list of couriers on successful creation
                 header("Location: " . $_SESSION['previous_url'], true, 301);
                 exit;
@@ -146,9 +148,9 @@ class ProductController extends Controller {
     // In your Product.php controller
 
     function print() {
-        if (isset($_POST['productData'])) {
+        if (isset($this->post('productData'))) {
             // Decode the JSON data
-            $products = json_decode($_POST['productData'], true);
+            $products = json_decode($this->post('productData'), true);
 
             if (!$products || empty($products)) {
                 echo "No products to export";
@@ -161,9 +163,9 @@ class ProductController extends Controller {
 
     function export() {
         // Check if productData is provided
-        if (isset($_POST['productData'])) {
+        if (isset($this->post('productData'))) {
             // Decode the JSON data
-            $products = json_decode($_POST['productData'], true);
+            $products = json_decode($this->post('productData'), true);
 
             if (!$products || empty($products)) {
                 echo "No products to export";
@@ -171,7 +173,7 @@ class ProductController extends Controller {
             }
         }
 
-        $format = isset($_POST['format']) ? $_POST['format'] : 'pdf';
+        $format = isset($this->post('format')) ? $this->post('format') : 'pdf';
 
         // Export based on format
         switch ($format) {

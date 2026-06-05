@@ -28,27 +28,27 @@ class UserController extends Controller {
 
         $opts = array();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (!empty($_POST['name'])) {
-                $opts["name LIKE '%" . $_POST['name'] . "%' AND 1 "] = "1";
+            if (!empty($this->post('name'))) {
+                $opts['name LIKE'] = '%' . $this->post('name') . '%';
             }
-            if (!empty($_POST['phone'])) {
-                $opts["phone_number LIKE '%" . $_POST['phone'] . "%' AND 1 "] = "1";
+            if (!empty($this->post('phone'))) {
+                $opts['phone_number LIKE'] = '%' . $this->post('phone') . '%';
             }
-            if (!empty($_POST['email'])) {
-                $opts["email LIKE '%" . $_POST['email'] . "%' AND 1 "] = "1";
+            if (!empty($this->post('email'))) {
+                $opts['email LIKE'] = '%' . $this->post('email') . '%';
             }
-            if (!empty($_POST['roles']) && is_array($_POST['roles'])) {
-                $roles = "'" . implode("','", $_POST['roles']) . "'";
-                $opts["role IN (" . $roles . ") AND 1 "] = "1";
+            if (!empty($this->post('roles')) && is_array($this->post('roles'))) {
+                $roles = $this->post('roles');
+                $opts['role'] = $roles;
             }
-            if (!empty($_POST['address'])) {
-                $opts["address LIKE '%" . $_POST['address'] . "%' AND 1 "] = "1";
+            if (!empty($this->post('address'))) {
+                $opts['address LIKE'] = '%' . $this->post('address') . '%';
             }
-            if (!empty($_POST['country'])) {
-                $opts["country LIKE '%" . $_POST['country'] . "%' AND 1 "] = "1";
+            if (!empty($this->post('country'))) {
+                $opts['country LIKE'] = '%' . $this->post('country') . '%';
             }
-            if (!empty($_POST['region'])) {
-                $opts["region LIKE '%" . $_POST['region'] . "%' AND 1 "] = "1";
+            if (!empty($this->post('region'))) {
+                $opts['region LIKE'] = '%' . $this->post('region') . '%';
             }
         }
 
@@ -74,9 +74,9 @@ class UserController extends Controller {
             exit;
         }
 
-        if (isset($_POST['userData'])) {
+        if (isset($this->post('userData'))) {
             // Decode the JSON data
-            $users = json_decode($_POST['userData'], true);
+            $users = json_decode($this->post('userData'), true);
 
             if (!$users || empty($users)) {
                 echo "No users to print";
@@ -95,11 +95,12 @@ class UserController extends Controller {
 
         $userModel = new \App\Models\User();
 
-        if (!empty($_POST['id']) && !empty($_POST['role'])) {
-            $role = $_POST['role'];
+        if (!empty($this->post('id')) && !empty($this->post('role'))) {
+            $role = $this->post('role');
 
             if (in_array($role, ['user', 'admin'])) {
-                $userModel->update($_POST);
+                $postData = $this->post();
+                $userModel->update($postData);
 
                 $notificationModel = new \App\Models\Notification();
 
@@ -134,16 +135,17 @@ class UserController extends Controller {
         $userModel = new \App\Models\User();
 
         // Check if the form has been submitted
-        if (!empty($_POST['send'])) {
-            if ($userModel->existsBy(['email' => $_POST['email']])) {
+        if (!empty($this->post('send'))) {
+            if ($userModel->existsBy(['email' => $this->post('email')])) {
                 $error_message = "User with this email already exists.";
-            } else if ($_POST['password'] !== $_POST['repeat_password']) {
+            } else if ($this->post('password') !== $this->post('repeat_password')) {
                 $error_message = "Passwords do not match.";
             } else {
-                $_POST['password_hash'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
-                $_POST['role'] = 'user';
+                $postData = $this->post();
+                $postData['password_hash'] = password_hash($this->post('password'), PASSWORD_DEFAULT);
+                $postData['role'] = 'user';
 
-                if ($userModel->save($_POST)) {
+                if ($userModel->save($postData)) {
                     header("Location: " . $_SESSION['previous_url'], true, 301);
                     exit;
                 } else {
@@ -165,9 +167,10 @@ class UserController extends Controller {
     function delete() {
         $userModel = new \App\Models\User();
 
-        if (!empty($_POST['id'])) {
-            $userModel->delete($_POST['id']);
-            if ($_POST['id'] == $_SESSION['user']['id']) {
+        if (!empty($this->post('id'))) {
+            $userId = \Core\Security::int($this->post('id'));
+            $userModel->delete($userId);
+            if ($userId == $_SESSION['user']['id']) {
                 session_destroy();
             }
         }
@@ -184,8 +187,8 @@ class UserController extends Controller {
 
         $userModel = new \App\Models\User();
 
-        if (!empty($_POST['ids']) && is_array($_POST['ids'])) {
-            $userIds = $_POST['ids'];
+        if (!empty($this->post('ids')) && is_array($this->post('ids'))) {
+            $userIds = $this->post('ids');
 
             $userModel->deleteBy(['id' => $userIds]);
             if (in_array($_SESSION['user']['id'], $userIds)) {
@@ -200,12 +203,13 @@ class UserController extends Controller {
     function edit() {
         $userModel = new \App\Models\User();
 
-        $id = isset($_POST['id']) ? $_POST['id'] : (isset($_GET['id']) ? $_GET['id'] : null);
+        $id = isset($this->post('id')) ? $this->post('id') : (isset($this->get('id')) ? $this->get('id') : null);
         $arr = $userModel->get($id);
 
         // Check if the form has been submitted
-        if (!empty($_POST['id'])) {
-            if ($userModel->update($_POST)) {
+        if (!empty($this->post('id'))) {
+            $postData = $this->post();
+            if ($userModel->update($postData)) {
                 // Redirect to the list of users on successful creation
                 header("Location: " . $_SESSION['previous_url'], true, 301);
                 exit;
@@ -220,14 +224,14 @@ class UserController extends Controller {
     }
 
     function profile() {
-        if ($_SESSION['user']['role'] == 'user' && $_SESSION['user']['id'] != $_GET['id']) {
+        if ($_SESSION['user']['role'] == 'user' && $_SESSION['user']['id'] != $this->get('id')) {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
 
         $userModel = new \App\Models\User();
 
-        $user = $userModel->get($_GET['id']);
+        $user = $userModel->get(\Core\Security::int($this->get('id')));
 
         $this->view($this->layout, ['user' => $user]);
     }
@@ -236,7 +240,7 @@ class UserController extends Controller {
         header('Content-Type: application/json');
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['profile_picture'])) {
-            $user_id = $_POST['user_id']; // Get user ID
+            $user_id = \Core\Security::int($this->post('user_id')); // Get user ID
             $userModel = new \App\Models\User();
             $fileName = basename($_FILES["profile_picture"]["name"]);
             $fileExt = pathinfo($fileName, PATHINFO_EXTENSION);
@@ -282,7 +286,7 @@ class UserController extends Controller {
     }
 
     function editPassword() {
-        $id = isset($_POST['id']) ? $_POST['id'] : (isset($_GET['id']) ? $_GET['id'] : null);
+        $id = isset($this->post('id')) ? $this->post('id') : (isset($this->get('id')) ? $this->get('id') : null);
 
         if ($_SESSION['user']['role'] == 'user' && $_SESSION['user']['id'] != $id) {
             header("Location: " . INSTALL_URL, true, 301);
@@ -291,9 +295,9 @@ class UserController extends Controller {
 
         $userModel = new \App\Models\User();
 
-        if (!empty($_POST['id'])) {
-            $newPassword = $_POST['password'];
-            $repeatNewPassword = $_POST['repeat_password'];
+        if (!empty($this->post('id'))) {
+            $newPassword = $this->post('password');
+            $repeatNewPassword = $this->post('repeat_password');
 
             if ($newPassword != $repeatNewPassword) {
                 $errorMessage = 'Passwords do NOT match';
@@ -330,9 +334,9 @@ class UserController extends Controller {
 
     function export() {
         // Check if userData is provided
-        if (isset($_POST['userData'])) {
+        if (isset($this->post('userData'))) {
             // Decode the JSON data
-            $users = json_decode($_POST['userData'], true);
+            $users = json_decode($this->post('userData'), true);
 
             if (!$users || empty($users)) {
                 echo "No users to export";
@@ -340,7 +344,7 @@ class UserController extends Controller {
             }
         }
 
-        $format = isset($_POST['format']) ? $_POST['format'] : 'pdf';
+        $format = isset($this->post('format')) ? $this->post('format') : 'pdf';
 
         // Export based on format
         switch ($format) {

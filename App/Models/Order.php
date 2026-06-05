@@ -1,14 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 use Core\Model;
 
 class Order extends Model {
 
-    var $primaryKey = 'id';
-    var $table = 'orders';
+    public string $primaryKey = 'id';
+    public string $table = 'orders';
 
-    var $schema = array(
+    public array $schema = array(
         array('name' => 'id', 'type' => 'int', 'default' => ':NULL'),
         array('name' => 'user_id', 'type' => 'int', 'default' => ':NULL'),
         array('name' => 'address', 'type' => 'varchar', 'default' => ''),

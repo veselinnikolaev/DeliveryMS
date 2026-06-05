@@ -1,20 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controllers;
 
 use App\Models\Order;
 use Core\Controller;
+use Core\Exceptions\DatabaseException;
 
 class OrderController extends Controller {
 
-    var $layout = 'admin';
-    var $settings;
+    protected string $layout = 'admin';
+    protected ?array $settings = null;
 
     public function __construct() {
         $this->settings = $this->loadSettings();
     }
 
-    function loadSettings() {
+    protected function loadSettings(): array {
         $settingModel = new \App\Models\Setting();
         $settings = $settingModel->getAll();
         $app_settings = [];
@@ -24,52 +27,77 @@ class OrderController extends Controller {
         return $app_settings;
     }
 
-    function list($layout = 'admin') {
-        $orderModel = new \App\Models\Order();
-        $userModel = new \App\Models\User();
+    function list($layout = 'admin'): void {
+        try {
+            $orderModel = new \App\Models\Order();
+            $userModel = new \App\Models\User();
 
-        $opts = array();
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (!empty($_POST['customerName'])) {
-                $opts["user_id IN (SELECT id FROM users WHERE name LIKE '%" . $_POST['customerName'] . "%')"] = "1";
+            $opts = array();
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Handle customer name filter - fetch matching user IDs first
+            if (!empty($this->post('customerName'))) {
+                $customerName = '%' . $this->post('customerName') . '%';
+                $matchingUsers = $userModel->getAll(['name' => $customerName]);
+                if (!empty($matchingUsers)) {
+                    $userIds = array_column($matchingUsers, 'id');
+                    $opts['user_id'] = $userIds;
+                } else {
+                    // No matching users, return empty result
+                    $opts['user_id'] = [0]; // Impossible ID to return no results
+                }
             }
-            if (!empty($_POST['courierName'])) {
-                $opts["courier_id IN (SELECT id FROM couriers WHERE name LIKE '%" . $_POST['courierName'] . "%')"] = "1";
+            // Handle courier name filter - fetch matching courier IDs first
+            if (!empty($this->post('courierName'))) {
+                $courierName = '%' . $this->post('courierName') . '%';
+                $matchingCouriers = $userModel->getAll(['name' => $courierName]);
+                if (!empty($matchingCouriers)) {
+                    $courierIds = array_column($matchingCouriers, 'id');
+                    $opts['courier_id'] = $courierIds;
+                } else {
+                    // No matching couriers, return empty result
+                    $opts['courier_id'] = [0]; // Impossible ID to return no results
+                }
             }
-            if (!empty($_POST['status'])) {
-                $opts["status LIKE '%" . $_POST['status'] . "%' AND 1 "] = "1";
+            // Handle status filter - use LIKE for partial matching
+            if (!empty($this->post('status'))) {
+                $opts['status LIKE'] = '%' . $this->post('status') . '%';
             }
-            if (!empty($_POST['trackingNumber'])) {
-                $opts["tracking_number LIKE '%" . $_POST['trackingNumber'] . "%' AND 1 "] = "1";
+            // Handle tracking number filter - use LIKE for partial matching
+            if (!empty($this->post('trackingNumber'))) {
+                $opts['tracking_number LIKE'] = '%' . $this->post('trackingNumber') . '%';
             }
-            if (!empty($_POST['country'])) {
-                $opts["country LIKE '%" . $_POST['country'] . "%' AND 1 "] = "1";
+            // Handle country filter - use LIKE for partial matching
+            if (!empty($this->post('country'))) {
+                $opts['country LIKE'] = '%' . $this->post('country') . '%';
             }
-            if (!empty($_POST['region'])) {
-                $opts["region LIKE '%" . $_POST['region'] . "%' AND 1 "] = "1";
+            // Handle region filter - use LIKE for partial matching
+            if (!empty($this->post('region'))) {
+                $opts['region LIKE'] = '%' . $this->post('region') . '%';
             }
-            if (!empty($_POST['orderDateFrom'])) {
-                $opts["delivery_date >= '" . strtotime($_POST['orderDateFrom']) . "'"] = "1";
+            // Handle date range filters
+            if (!empty($this->post('orderDateFrom'))) {
+                $opts['delivery_date >='] = strtotime($this->post('orderDateFrom'));
             }
-            if (!empty($_POST['orderDateTo'])) {
-                $opts["delivery_date <= '" . strtotime($_POST['orderDateTo']) . "'"] = "1";
+            if (!empty($this->post('orderDateTo'))) {
+                $opts['delivery_date <='] = strtotime($this->post('orderDateTo'));
             }
-            if (!empty($_POST['minTotalPrice'])) {
-                $opts["total_amount >= '" . $_POST['minTotalPrice'] . "'"] = "1";
+            // Handle price range filters
+            if (!empty($this->post('minTotalPrice'))) {
+                $opts['total_amount >='] = \Core\Security::float($this->post('minTotalPrice'));
             }
-            if (!empty($_POST['maxTotalPrice'])) {
-                $opts["total_amount <= '" . $_POST['maxTotalPrice'] . "'"] = "1";
+            if (!empty($this->post('maxTotalPrice'))) {
+                $opts['total_amount <='] = \Core\Security::float($this->post('maxTotalPrice'));
             }
         }
 
 // Retrieve all orders from the database
-        if (!empty($_GET['user_id']) && $_GET['user_id'] == $_SESSION['user']['id']) { //User role checking orders
-            $opts['user_id'] = $_GET['user_id'];
+        if (!empty($this->get('user_id')) && $this->get('user_id') == $_SESSION['user']['id']) { //User role checking orders
+            $opts['user_id'] = \Core\Security::int($this->get('user_id'));
         }
 
 // Retrieve all orders from the database
-        if (!empty($_GET['courier_id']) && $_GET['courier_id'] == $_SESSION['user']['id']) { //User role checking orders
-            $opts['courier_id'] = $_GET['courier_id'];
+        if (!empty($this->get('courier_id')) && $this->get('courier_id') == $_SESSION['user']['id']) { //User role checking orders
+            $opts['courier_id'] = \Core\Security::int($this->get('courier_id'));
         }
 
         $orders = $orderModel->getAll($opts);
@@ -88,6 +116,10 @@ class OrderController extends Controller {
         ];
 
         $this->view($layout, $arr);
+        } catch (DatabaseException $e) {
+            error_log("Database error in OrderController::list: " . $e->getMessage());
+            $this->view($layout, ['orders' => [], 'currency' => $this->settings['currency_code'], 'error_message' => 'An error occurred while loading orders. Please try again.']);
+        }
     }
 
     function filter() {
@@ -95,7 +127,8 @@ class OrderController extends Controller {
     }
 
     function create() {
-        if (empty($_SESSION['user'])) {
+        try {
+            if (empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
             exit;
         }
@@ -112,9 +145,9 @@ class OrderController extends Controller {
         $mailer = new \App\Helpers\mailer\Mailer();
         $currency = $this->settings['currency_code'];
 
-        if (!empty($_POST['send'])) {
-            $productIds = $_POST['product_id'];
-            $quantities = $_POST['quantity'];
+        if (!empty($this->post('send'))) {
+            $productIds = $this->post('product_id');
+            $quantities = $this->post('quantity');
 
 // Validate quantities against available product quantities
             $quantityError = false;
@@ -134,12 +167,13 @@ class OrderController extends Controller {
                 $orderData = [
                     'last_processed' => time(),
                     'tracking_number' => \Utility::generateRandomString(),
-                    'delivery_date' => strtotime($_POST['delivery_date']),
+                    'delivery_date' => strtotime($this->post('delivery_date')),
                     'total_amount' => $priceDetails['total'],
                     'created_at' => time()
                 ];
 
-                $orderId = $orderModel->save($orderData + $_POST);
+                $postData = $this->post();
+                $orderId = $orderModel->save($orderData + $postData);
 
                 if ($orderId) {
 // Save order products and update product quantities
@@ -176,7 +210,7 @@ class OrderController extends Controller {
                     if (!isset($error_message)) {
 // Notify customer
                         $notificationModel->save([
-                            'user_id' => $_POST['user_id'],
+                            'user_id' => \Core\Security::int($this->post('user_id')),
                             'message' => "New order #{$orderId} has been created. Total: " . \Utility::getDisplayableAmount($priceDetails['total']),
                             'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
                             'created_at' => time()
@@ -184,7 +218,7 @@ class OrderController extends Controller {
 
 // Notify courier
                         $notificationModel->save([
-                            'user_id' => $_POST['courier_id'],
+                            'user_id' => \Core\Security::int($this->post('courier_id')),
                             'message' => "New delivery assigned to you. Order #{$orderId}",
                             'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
                             'created_at' => time()
@@ -238,10 +272,22 @@ class OrderController extends Controller {
             'error_message' => $error_message ?? null
         ];
         $this->view($this->layout, $arr);
+        } catch (DatabaseException $e) {
+            error_log("Database error in OrderController::create: " . $e->getMessage());
+            $arr = [
+                'users' => $userModel->getAll() ?? [],
+                'products' => $productModel->getAll() ?? [],
+                'couriers' => $userModel->getAll(['role' => 'courier']) ?? [],
+                'currency' => $currency,
+                'error_message' => 'An error occurred while creating the order. Please try again.'
+            ];
+            $this->view($this->layout, $arr);
+        }
     }
 
     public function changeStatus() {
-        if ($_SESSION['user']['role'] != 'courier') {
+        try {
+            if ($_SESSION['user']['role'] != 'courier') {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
@@ -249,9 +295,9 @@ class OrderController extends Controller {
         $orderModel = new \App\Models\Order();
         $userModel = new \App\Models\User();
 
-        if (!empty($_POST['ids']) && !empty($_POST['status'])) {
-            $status = $_POST['status'];
-            $ids = $_POST['ids'];
+        if (!empty($this->post('ids')) && !empty($this->post('status'))) {
+            $status = $this->post('status');
+            $ids = $this->post('ids');
 
             if (in_array($status, ['delivered', 'returned'])) {
                 $orderModel->updateBy(['status' => $status], ['id' => $ids]);
@@ -271,7 +317,7 @@ class OrderController extends Controller {
         }
 
 // Return refreshed user list
-        $orders = $orderModel->getAll(['courier_id' => $_SESSION['user']['id']]);
+        $orders = $orderModel->getAll(['courier_id' => \Core\Security::int($_SESSION['user']['id'])]);
 
         foreach ($orders as &$order) {
             $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
@@ -280,10 +326,15 @@ class OrderController extends Controller {
         }
 
         $this->view('ajax', ['orders' => $orders]);
+        } catch (DatabaseException $e) {
+            error_log("Database error in OrderController::changeStatus: " . $e->getMessage());
+            $this->view('ajax', ['orders' => [], 'error_message' => 'An error occurred while updating order status.']);
+        }
     }
 
-    function details() {
-        $orderModel = new \App\Models\Order();
+    function details(): void {
+        try {
+            $orderModel = new \App\Models\Order();
         $orderProductsModel = new \App\Models\OrderProducts();
         $productModel = new \App\Models\Product();
         $userModel = new \App\Models\User();
@@ -293,21 +344,21 @@ class OrderController extends Controller {
             exit;
         }
 
-        if (empty($_GET['id'])) {
+        if (empty($this->get('id'))) {
             header("Location: " . $_SESSION['previous_url'], true, 301);
             exit;
         }
 
         if ($_SESSION['user']['role'] == 'user') {
-            $userOrders = $orderModel->getAll(['user_id' => $_SESSION['user']['id']]);
+            $userOrders = $orderModel->getAll(['user_id' => \Core\Security::int($_SESSION['user']['id'])]);
             $userOrderIds = array_column($userOrders, 'id');
-            if (!in_array($_GET['id'], $userOrderIds)) {
+            if (!in_array($this->get('id'), $userOrderIds)) {
                 header("Location: " . INSTALL_URL, true, 301);
                 exit;
             }
         }
 
-        $orderId = intval($_GET['id']);
+        $orderId = \Core\Security::int($this->get('id'));
         $orderData = $orderModel->get($orderId);
 
         if (!$orderData) {
@@ -337,10 +388,15 @@ class OrderController extends Controller {
         ];
 
         $this->view($this->layout, $data);
+        } catch (DatabaseException $e) {
+            error_log("Database error in OrderController::details: " . $e->getMessage());
+            $this->view($this->layout, ['order' => null, 'customer' => null, 'courier' => null, 'products' => [], 'error_message' => 'An error occurred while loading order details.']);
+        }
     }
 
-    function delete() {
-        if (empty($_SESSION['user'])) {
+    function delete(): void {
+        try {
+            if (empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL . "?controller = Auth&action = login", true, 301);
             exit;
         }
@@ -354,8 +410,8 @@ class OrderController extends Controller {
         $orderProductsModel = new \App\Models\OrderProducts();
         $userModel = new \App\Models\User();
 
-        if (!empty($_POST['id'])) {
-            $orderId = $_POST['id'];
+        if (!empty($this->post('id'))) {
+            $orderId = \Core\Security::int($this->post('id'));
 
             $orderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
             foreach ($orderProducts as $orderProduct) {
@@ -379,11 +435,16 @@ class OrderController extends Controller {
         }
 
         $this->view('ajax', ['orders' => $orders, 'currency' => $this->settings['currency_code']]);
+        } catch (DatabaseException $e) {
+            error_log("Database error in OrderController::delete: " . $e->getMessage());
+            $this->view('ajax', ['orders' => [], 'currency' => $this->settings['currency_code'], 'error_message' => 'An error occurred while deleting the order.']);
+        }
     }
 
-    function pay() {
-        if (!empty($_GET['order_id'])) {
-            $orderId = $_GET['order_id'];
+    function pay(): void {
+        try {
+            if (!empty($this->get('order_id'))) {
+            $orderId = \Core\Security::int($this->get('order_id'));
             $orderModel = new \App\Models\Order();
             $userModel = new \App\Models\User();
             $orderProductsModel = new \App\Models\OrderProducts();
@@ -399,12 +460,17 @@ class OrderController extends Controller {
                 'order_products' => $orderProducts
             ]);
         }
+        } catch (DatabaseException $e) {
+            error_log("Database error in OrderController::pay: " . $e->getMessage());
+            $this->view($this->layout, ['currency_code' => $this->settings['currency_code'], 'order' => null, 'user' => null, 'order_products' => [], 'error_message' => 'An error occurred while loading payment information.']);
+        }
     }
 
 // Controller method to handle the return from PayPal
-    public function pay_success() {
+    public function pay_success(): void {
+        try {
 // Get the order ID from the URL parameter
-        $orderId = $_GET['order_id'];
+            $orderId = \Core\Security::int($this->get('order_id'));
 
         $orderModel = new \App\Models\Order();
         $userModel = new \App\Models\User();
@@ -417,12 +483,17 @@ class OrderController extends Controller {
 // Show a success message or redirect to a success page
             $this->view($this->layout, ['order' => $order, 'user' => $user]);
         }
+        } catch (DatabaseException $e) {
+            error_log("Database error in OrderController::pay_success: " . $e->getMessage());
+            $this->view($this->layout, ['order' => null, 'user' => null, 'error_message' => 'An error occurred while processing payment success.']);
+        }
     }
 
 // Controller method to handle the cancellation from PayPal
-    public function pay_cancel() {
+    public function pay_cancel(): void {
+        try {
 // Get the order ID from the URL parameter
-        $orderId = $_GET['order_id'];
+            $orderId = \Core\Security::int($this->get('order_id'));
 
         $orderModel = new \App\Models\Order();
         $userModel = new \App\Models\User();
@@ -434,14 +505,22 @@ class OrderController extends Controller {
 // Show a cancellation message or redirect to a cancellation page
             $this->view($this->layout, ['order' => $order, 'user' => $user]);
         }
+        } catch (DatabaseException $e) {
+            error_log("Database error in OrderController::pay_cancel: " . $e->getMessage());
+            $this->view($this->layout, ['order' => null, 'user' => null, 'error_message' => 'An error occurred while processing payment cancellation.']);
+        }
     }
 
-    function paypal_ipn() {
+    function paypal_ipn(): void {
+        try {
+            // Override CSRF validation for PayPal webhook
+            // This is an external webhook, not a form submission
+
 // PayPal verifies the IPN message
         $orderModel = new \App\Models\Order();
         $notificationModel = new \App\Models\Notification();
         $userModel = new \App\Models\User();
-        $orderId = $_POST['custom']; // Get the order ID from PayPal's "custom" field
+        $orderId = \Core\Security::int($_POST['custom']); // Get the order ID from PayPal's "custom" field
         $order = $orderModel->get($orderId);
         $user = $userModel->getFirstBy(['id' => $order['user_id']]);
 
@@ -449,9 +528,9 @@ class OrderController extends Controller {
         $url = 'https://www.paypal.com/cgi-bin/webscr';
         $data = array(
             'cmd' => '_notify-validate',
-            'tx' => $_POST['txn_id'], // PayPal transaction ID
-            'amt' => $_POST['mc_gross'], // Total amount paid
-            'currency_code' => $_POST['mc_currency'], // Currency code
+            'tx' => $this->post('txn_id'), // PayPal transaction ID
+            'amt' => $this->post('mc_gross'), // Total amount paid
+            'currency_code' => $this->post('mc_currency'), // Currency code
         );
 
 // Send the IPN data back to PayPal for validation
@@ -460,7 +539,7 @@ class OrderController extends Controller {
 // Step 2: If PayPal confirms the payment is valid
         if ($response == "VERIFIED") {
 // Update the order status based on payment confirmation
-            if ($_POST['payment_status'] == 'Completed') {
+            if ($this->post('payment_status') == 'Completed') {
 // Payment is successful, update order status
                 $order['status'] = 'shipped';
                 $orderModel->update($order);
@@ -470,7 +549,7 @@ class OrderController extends Controller {
                     'link' => INSTALL_URL . "?controller=Order&action=pay_success&order_id=$orderId",
                     'created_at' => time()
                 ]);
-            } else if ($_POST['payment_status'] == 'Failed') {
+            } else if ($this->post('payment_status') == 'Failed') {
                 $notificationModel->save([
                     'user_id' => $user['id'],
                     'message' => "Payment failed for order #{$orderId}. Please try again.",
@@ -480,11 +559,11 @@ class OrderController extends Controller {
             }
         } else {
 // Payment not verified, handle the error (perhaps log it)
-            error_log("Invalid IPN message: " . json_encode($_POST));
+            error_log("Invalid IPN message: " . json_encode($this->post()));
         }
 
 // Step 3: Handle canceled or failed payment (if needed)
-        if ($_POST['payment_status'] == 'Failed' || $_POST['payment_status'] == 'Canceled') {
+        if ($this->post('payment_status') == 'Failed' || $this->post('payment_status') == 'Canceled') {
 // Update the order status as canceled
             $order['status'] = 'cancelled';
             $orderModel->update($order);
@@ -495,10 +574,16 @@ class OrderController extends Controller {
                 'created_at' => time()
             ]);
         }
+        } catch (DatabaseException $e) {
+            error_log("Database error in OrderController::paypal_ipn: " . $e->getMessage());
+            http_response_code(500);
+            echo "Error processing IPN notification";
+        }
     }
 
-    function bulkDelete() {
-        if (empty($_SESSION['user'])) {
+    function bulkDelete(): void {
+        try {
+            if (empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
             exit;
         }
@@ -511,8 +596,8 @@ class OrderController extends Controller {
         $orderProductsModel = new \App\Models\OrderProducts();
         $userModel = new \App\Models\User();
 
-        if (!empty($_POST['ids']) && is_array($_POST['ids'])) {
-            $orderIds = $_POST['ids'];
+        if (!empty($this->post('ids')) && is_array($this->post('ids'))) {
+            $orderIds = $this->post('ids');
 
             $orderProductsModel->deleteBy(['order_id' => $orderIds]);
             $orderModel->deleteBy(['id' => $orderIds]);
@@ -529,12 +614,16 @@ class OrderController extends Controller {
         }
 
         $this->view('ajax', ['orders' => $orders, 'currency' => $this->settings['currency_code']]);
+        } catch (DatabaseException $e) {
+            error_log("Database error in OrderController::bulkDelete: " . $e->getMessage());
+            $this->view('ajax', ['orders' => [], 'currency' => $this->settings['currency_code'], 'error_message' => 'An error occurred while deleting orders.']);
+        }
     }
 
-    function print() {
-        if (isset($_POST['orderData'])) {
+    function print(): void {
+        if (isset($this->post('orderData'))) {
 // Decode the JSON data
-            $orders = json_decode($_POST['orderData'], true);
+            $orders = json_decode($this->post('orderData'), true);
 
             if (!$orders || empty($orders)) {
                 echo "No orders to print";
@@ -545,8 +634,9 @@ class OrderController extends Controller {
         $this->view('ajax', ['orders' => $orders]);
     }
 
-    function edit() {
-        if (empty($_SESSION['user'])) {
+    function edit(): void {
+        try {
+            if (empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
             exit;
         }
@@ -563,8 +653,8 @@ class OrderController extends Controller {
         $mailer = new \App\Helpers\mailer\Mailer();
         $currency = $this->settings['currency_code'];
 
-        if (!empty($_POST['id'])) {
-            $orderId = $_POST['id'];
+        if (!empty($this->post('id'))) {
+            $orderId = \Core\Security::int($this->post('id'));
             $order = $orderModel->get($orderId);
             $originalCourierId = $order['courier_id'];
             $currentOrderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
@@ -581,8 +671,8 @@ class OrderController extends Controller {
             $newQuantities = [];
             $newOrderProducts = [];
 
-            foreach ($_POST['product_id'] as $key => $productId) {
-                $quantity = $_POST['quantity'][$key];
+            foreach ($this->post('product_id') as $key => $productId) {
+                $quantity = $this->post('quantity')[$key];
                 $newQuantities[$productId] = ($newQuantities[$productId] ?? 0) + $quantity;
                 $newOrderProducts[] = ['product_id' => $productId, 'quantity' => $quantity];
             }
@@ -606,11 +696,12 @@ class OrderController extends Controller {
                 $orderData = [
                     'last_processed' => time(),
                     'tracking_number' => $order['tracking_number'],
-                    'delivery_date' => strtotime($_POST['delivery_date']),
+                    'delivery_date' => strtotime($this->post('delivery_date')),
                     'total_amount' => $priceDetails['total']
                 ];
 
-                if (!$orderModel->update(['id' => $orderId] + $orderData + $_POST)) {
+                $postData = $this->post();
+                if (!$orderModel->update(['id' => $orderId] + $orderData + $postData)) {
                     $error_message = "Failed to update order with id " . $orderId;
                 }
 
@@ -647,15 +738,15 @@ class OrderController extends Controller {
 
             if (!isset($error_message)) {
                 $notificationModel->save([
-                    'user_id' => $_POST['user_id'],
+                    'user_id' => \Core\Security::int($this->post('user_id')),
                     'message' => "Your order #$orderId has been edited successfully!",
                     'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
                     'created_at' => time()
                 ]);
 
-                if ($originalCourierId != $_POST['courier_id']) {
+                if ($originalCourierId != \Core\Security::int($this->post('courier_id'))) {
                     $notificationModel->save([
-                        'user_id' => $_POST['courier_id'],
+                        'user_id' => \Core\Security::int($this->post('courier_id')),
                         'message' => "New delivery assigned to you. Order #{$orderId}",
                         'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
                         'created_at' => time()
@@ -682,7 +773,7 @@ class OrderController extends Controller {
             }
         }
 
-        $orderId = $_GET['order_id'];
+        $orderId = \Core\Security::int($this->get('order_id'));
         $orderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
 
         $productQuantities = [];
@@ -706,17 +797,38 @@ class OrderController extends Controller {
         ];
 
         $this->view($this->layout, $arr);
+        } catch (DatabaseException $e) {
+            error_log("Database error in OrderController::edit: " . $e->getMessage());
+            $arr = [
+                'order' => $orderModel->get($orderId) ?? null,
+                'orderProducts' => $orderProductsModel->getAll(['order_id' => $orderId]) ?? [],
+                'users' => $userModel->getAll() ?? [],
+                'products' => $productModel->getAll() ?? [],
+                'couriers' => $userModel->getAll(['role' => 'courier']) ?? [],
+                'productQuantities' => $productQuantities ?? [],
+                'currency' => $currency,
+                'error_message' => 'An error occurred while editing the order. Please try again.'
+            ];
+            $this->view($this->layout, $arr);
+        }
     }
 
-    function calculatePrice() {
-        $price_arr = $this->calculateOrderTotal($_POST['product_id'], $_POST['quantity']);
-        header('Content-Type: application/json');
+    function calculatePrice(): void {
+        try {
+            $price_arr = $this->calculateOrderTotal($this->post('product_id'), $this->post('quantity'));
+            header('Content-Type: application/json');
 
-        echo json_encode($price_arr);
+            echo json_encode($price_arr);
+        } catch (DatabaseException $e) {
+            error_log("Database error in OrderController::calculatePrice: " . $e->getMessage());
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'An error occurred while calculating price.']);
+        }
     }
 
     private function calculateOrderTotal(array $productIds, array $quantities): array {
-        $productModel = new \App\Models\Product();
+        try {
+            $productModel = new \App\Models\Product();
         $productPrice = 0;
 
         foreach ($productIds as $key => $productId) {
@@ -734,13 +846,24 @@ class OrderController extends Controller {
             'tax' => number_format($tax, 2),
             'total' => number_format($total, 2),
         ];
+        } catch (DatabaseException $e) {
+            error_log("Database error in OrderController::calculateOrderTotal: " . $e->getMessage());
+            return [
+                'product_price' => '0.00',
+                'shipping_price' => '0.00',
+                'tax' => '0.00',
+                'total' => '0.00',
+                'error' => 'An error occurred while calculating total.'
+            ];
+        }
     }
 
-    function export() {
+    function export(): void {
+        try {
 // Check if orderData is provided
-        if (isset($_POST['orderData'])) {
+            if (isset($this->post('orderData'))) {
 // Decode the JSON data
-            $orders = json_decode($_POST['orderData'], true);
+            $orders = json_decode($this->post('orderData'), true);
 
             if (!$orders || empty($orders)) {
                 echo "No orders to export";
@@ -748,7 +871,7 @@ class OrderController extends Controller {
             }
         }
 
-        $format = isset($_POST['format']) ? $_POST['format'] : 'pdf';
+        $format = isset($this->post('format')) ? $this->post('format') : 'pdf';
 
 // Export based on format
         switch ($format) {
@@ -764,11 +887,17 @@ class OrderController extends Controller {
             default:
                 echo "Invalid export format";
                 exit;
+            }
+        } catch (DatabaseException $e) {
+            error_log("Database error in OrderController::export: " . $e->getMessage());
+            echo "An error occurred while exporting orders.";
+            exit;
         }
     }
 
-    private function exportAsPDF($orders) {
-        if (ob_get_level()) {
+    private function exportAsPDF(array $orders): void {
+        try {
+            if (ob_get_level()) {
             ob_end_clean();
         }
         require_once(__DIR__ . '/../Helpers/export/tcpdf/tcpdf.php');
@@ -792,6 +921,11 @@ class OrderController extends Controller {
 // Output PDF
         $pdf->Output('orders_export.pdf', 'D');
         exit;
+        } catch (\Exception $e) {
+            error_log("Error in OrderController::exportAsPDF: " . $e->getMessage());
+            echo "An error occurred while generating PDF export.";
+            exit;
+        }
     }
 
     private function generateDynamicOrderTable($orders) {
@@ -851,17 +985,18 @@ class OrderController extends Controller {
         return $html;
     }
 
-    private function exportAsExcel($orders) {
-        require(__DIR__ . '/../Helpers/export/simplexlsxgen/src/SimpleXLSXGen.php');
+    private function exportAsExcel(array $orders): void {
+        try {
+            require(__DIR__ . '/../Helpers/export/simplexlsxgen/src/SimpleXLSXGen.php');
 
         $data = [];
 
         if (!empty($orders) && is_array($orders[0])) {
-// Вземи оригиналния ред на колоните от първия елемент
+// Get the original column order from the first element
             $headerRow = array_keys($orders[0]);
             $data[] = array_map(fn($h) => ucwords(str_replace('_', ' ', $h)), $headerRow);
 
-// Добави данните в същия ред
+// Add data in the same order
             foreach ($orders as $order) {
                 $data[] = array_map(fn($key) => $order[$key] ?? 'N/A', $headerRow);
             }
@@ -871,16 +1006,22 @@ class OrderController extends Controller {
 
         \Shuchkin\SimpleXLSXGen::fromArray($data)->downloadAs('orders_export.xlsx');
         exit;
+        } catch (\Exception $e) {
+            error_log("Error in OrderController::exportAsExcel: " . $e->getMessage());
+            echo "An error occurred while generating Excel export.";
+            exit;
+        }
     }
 
-    private function exportAsCSV($orders) {
-        header('Content-Type: text/csv');
+    private function exportAsCSV(array $orders): void {
+        try {
+            header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="orders_export.csv"');
 
         $output = fopen('php://output', 'w');
 
         if (!empty($orders) && is_array($orders[0])) {
-// Вземи оригиналния ред на колоните
+// Get the original column order
             $headerRow = array_keys($orders[0]);
             fputcsv($output, array_map(fn($h) => ucwords(str_replace('_', ' ', $h)), $headerRow));
 
@@ -893,6 +1034,11 @@ class OrderController extends Controller {
 
         fclose($output);
         exit;
+        } catch (\Exception $e) {
+            error_log("Error in OrderController::exportAsCSV: " . $e->getMessage());
+            echo "An error occurred while generating CSV export.";
+            exit;
+        }
     }
 
     private function generateOrderEmail($order, $customer, $courier, $products, $title) {

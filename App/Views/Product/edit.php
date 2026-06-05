@@ -9,6 +9,7 @@
                         <div class="alert alert-danger"><?php echo $error_message; ?></div>
                     <?php endif; ?>
                     <form class="forms-sample" method="POST" action="<?php echo INSTALL_URL; ?>?controller=Product&action=edit">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                         <input type="hidden" name="id" value="<?php echo $tpl['id']; ?>" />
                         <div class="row">
                             <div class="form-group col-md-6 mb-3">

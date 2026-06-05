@@ -50,15 +50,7 @@ $_REQUEST['action'] = 'index';
 }
 }
 
-spl_autoload_register(function ($class) {
-$file = __DIR__ . '/' . str_replace('\\', '/', $class) . '.php';
-
-if (file_exists($file)) {
-require_once $file;
-} else {
-echo "Class file '{$file}' not found.<br>";
-}
-});
+// Composer autoloading is now handled in config/constant.php
 
 $router = new Core\Router();
 $router->resolve();

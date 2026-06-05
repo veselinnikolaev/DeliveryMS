@@ -20,7 +20,9 @@ CREATE TABLE IF NOT EXISTS `users` (
   `country` VARCHAR(255),
   `region` VARCHAR(255),
   `photo_path` VARCHAR(255),
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`),
+  KEY `role` (`role`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create the `products` table
@@ -31,7 +33,9 @@ CREATE TABLE IF NOT EXISTS `products` (
   `price` DECIMAL(10, 2) NOT NULL,
   `stock` INT NOT NULL DEFAULT 0,
   `created_at` BIGINT DEFAULT UNIX_TIMESTAMP(),
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `name` (`name`),
+  KEY `stock` (`stock`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create the `orders` table
@@ -51,7 +55,14 @@ CREATE TABLE IF NOT EXISTS `orders` (
   `courier_id` INT(11) NOT NULL,
   `tracking_number` VARCHAR(100) DEFAULT NULL,
   `delivery_date` BIGINT DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  KEY `courier_id` (`courier_id`),
+  KEY `status` (`status`),
+  KEY `tracking_number` (`tracking_number`),
+  KEY `delivery_date` (`delivery_date`),
+  CONSTRAINT `fk_orders_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_orders_courier` FOREIGN KEY (`courier_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create the `order_products` table
@@ -62,7 +73,11 @@ CREATE TABLE IF NOT EXISTS `order_products` (
   `quantity` INT(11) NOT NULL,
   `price` DECIMAL(10, 2) NOT NULL,
   `subtotal` DECIMAL(10, 2) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `order_id` (`order_id`),
+  KEY `product_id` (`product_id`),
+  CONSTRAINT `fk_order_products_order` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_order_products_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create table for real-time courier location tracking
@@ -73,7 +88,9 @@ CREATE TABLE `courier_locations` (
   `longitude` DECIMAL(11, 8) NOT NULL,
   `timestamp` BIGINT DEFAULT UNIX_TIMESTAMP(),
   PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`)
+  KEY `user_id` (`user_id`),
+  KEY `timestamp` (`timestamp`),
+  CONSTRAINT `fk_courier_locations_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create the `settings` table
@@ -81,7 +98,8 @@ CREATE TABLE IF NOT EXISTS `settings` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `key` VARCHAR(255) NOT NULL,
   `value` VARCHAR(255) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `setting_key` (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create the `notifications` table
@@ -92,7 +110,11 @@ CREATE TABLE `notifications` (
     `link` VARCHAR(255) NULL, -- Optional, to open a specific page
     `is_seen` TINYINT(1) DEFAULT 0, -- 0 = unseen, 1 = seen
     `created_at` BIGINT DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `user_id` (`user_id`),
+    KEY `is_seen` (`is_seen`),
+    KEY `created_at` (`created_at`),
+    CONSTRAINT `fk_notifications_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `settings` (`key`, `value`) 

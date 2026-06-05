@@ -27,7 +27,7 @@ class SettingsController extends Controller {
         $notificationModel = new \App\Models\Notification();
         $userModel = new \App\Models\User();
     
-        if (!empty($_POST['settings'])) {
+        if (!empty($this->post('settings'))) {
             $updateData = [];
             $criticalChanges = [];
             $currentSettings = [];
@@ -38,7 +38,7 @@ class SettingsController extends Controller {
                 $currentSettings[$setting['key']] = $setting['value'];
             }
     
-            foreach ($_POST['settings'] as $key => $value) {
+            foreach ($this->post('settings') as $key => $value) {
                 $updateData[] = [
                     'key' => $key,
                     'value' => $value

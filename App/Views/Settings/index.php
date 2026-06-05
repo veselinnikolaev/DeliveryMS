@@ -10,6 +10,7 @@
                     <?php endif; ?>
 
                     <form id="settings-form" class="forms-sample" method="POST" action="<?php echo INSTALL_URL; ?>?controller=Settings&action=index">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                         <div class="settings-section mb-4">
                             <h5 class="section-title border-bottom pb-2 mb-3">Financial Settings</h5>
                             <div class="row">

@@ -29,6 +29,7 @@
                         </div>
                         <div class="collapse show card-body" id="filters-container">
                             <form id="order-filter-form">
+                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                                 <div class="card p-4">
                                     <div class="row">
                                         <div class="col-md-6 mb-3">

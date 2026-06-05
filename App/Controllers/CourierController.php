@@ -39,23 +39,23 @@ class CourierController extends Controller {
 
         $opts = array();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (!empty($_POST['name'])) {
-                $opts["name LIKE '%" . $_POST['name'] . "%' AND 1 "] = "1";
+            if (!empty($this->post('name'))) {
+                $opts['name LIKE'] = '%' . $this->post('name') . '%';
             }
-            if (!empty($_POST['phone'])) {
-                $opts["phone_number LIKE '%" . $_POST['phone'] . "%' AND 1 "] = "1";
+            if (!empty($this->post('phone'))) {
+                $opts['phone_number LIKE'] = '%' . $this->post('phone') . '%';
             }
-            if (!empty($_POST['email'])) {
-                $opts["email LIKE '%" . $_POST['email'] . "%' AND 1 "] = "1";
+            if (!empty($this->post('email'))) {
+                $opts['email LIKE'] = '%' . $this->post('email') . '%';
             }
-            if (!empty($_POST['address'])) {
-                $opts["address LIKE '%" . $_POST['address'] . "%' AND 1 "] = "1";
+            if (!empty($this->post('address'))) {
+                $opts['address LIKE'] = '%' . $this->post('address') . '%';
             }
-            if (!empty($_POST['country'])) {
-                $opts["country LIKE '%" . $_POST['country'] . "%' AND 1 "] = "1";
+            if (!empty($this->post('country'))) {
+                $opts['country LIKE'] = '%' . $this->post('country') . '%';
             }
-            if (!empty($_POST['region'])) {
-                $opts["region LIKE '%" . $_POST['region'] . "%' AND 1 "] = "1";
+            if (!empty($this->post('region'))) {
+                $opts['region LIKE'] = '%' . $this->post('region') . '%';
             }
         }
 
@@ -73,9 +73,9 @@ class CourierController extends Controller {
 
     function print() {
 // Check if courierData is provided
-        if (isset($_POST['courierData'])) {
+        if (isset($this->post('courierData'))) {
 // Decode the JSON data
-            $couriers = json_decode($_POST['courierData'], true);
+            $couriers = json_decode($this->post('courierData'), true);
 
             if (!$couriers || empty($couriers)) {
                 echo "No couriers to print";
@@ -91,16 +91,17 @@ class CourierController extends Controller {
         $userModel = new \App\Models\User();
 
 // Check if the form has been submitted
-        if (!empty($_POST['send'])) {
-            if ($userModel->existsBy(['email' => $_POST['email']])) {
-                $error_message = "User with this email already exists.";
-            } else if ($_POST['password'] !== $_POST['repeat_password']) {
+        if (!empty($this->post('send'))) {
+            if ($userModel->existsBy(['email' => $this->post('email')])) {
+                $error_message = "Courier with this email already exists.";
+            } else if ($this->post('password') !== $this->post('repeat_password')) {
                 $error_message = "Passwords do not match.";
             } else {
-                $_POST['password_hash'] = password_hash($_POST['password'], PASSWORD_DEFAULT);
-                $_POST['role'] = 'courier';
+                $postData = $this->post();
+                $postData['password_hash'] = password_hash($this->post('password'), PASSWORD_DEFAULT);
+                $postData['role'] = 'courier';
 
-                if ($userModel->save($_POST)) {
+                if ($userModel->save($postData)) {
                     header("Location: " . $_SESSION['previous_url'], true, 301);
                     exit;
                 } else {
@@ -122,9 +123,9 @@ class CourierController extends Controller {
     function delete() {
         $userModel = new \App\Models\User();
 
-        if (!empty($_POST['id'])) {
-            $userModel->delete($_POST['id']);
-            if ($_POST['id'] == $_SESSION['user']['id']) {
+        if (!empty($this->post('id'))) {
+            $userModel->delete(\Core\Security::int($this->post('id')));
+            if (\Core\Security::int($this->post('id')) == $_SESSION['user']['id']) {
                 session_destroy();
             }
         }
@@ -136,8 +137,8 @@ class CourierController extends Controller {
     function bulkDelete() {
         $userModel = new \App\Models\User();
 
-        if (!empty($_POST['ids']) && is_array($_POST['ids'])) {
-            $userModel->deleteBy(['id' => $_POST['ids']]);
+        if (!empty($this->post('ids')) && is_array($this->post('ids'))) {
+            $userModel->deleteBy(['id' => $this->post('ids')]);
         }
 
         $couriers = $userModel->getAll(['role' => 'courier']);
@@ -147,20 +148,19 @@ class CourierController extends Controller {
     function edit() {
         $userModel = new \App\Models\User();
 
-        $arr = $userModel->get($_GET['id']);
+        $arr = $userModel->get(\Core\Security::int($this->get('id')));
 
 // Check if the form has been submitted
-        if (!empty($_POST['id'])) {
-            $id = $_POST['id'];
-// Save the data using the Courier model
-            if ($userModel->update($_POST)) {
+        if (!empty($this->post('id'))) {
+            $postData = $this->post();
+            if ($userModel->update($postData)) {
 // Redirect to the list of couriers on successful creation
                 $notificationModel = new \App\Models\Notification();
                 $adminName = $_SESSION['user']['name'];
                 $notificationModel->save([
-                    'user_id' => $id,
+                    'user_id' => \Core\Security::int($this->post('id')),
                     'message' => "Your profile has been edited by: $adminName",
-                    'link' => INSTALL_URL . "?controller=User&action=profile&id=$id",
+                    'link' => INSTALL_URL . "?controller=User&action=profile&id=" . \Core\Security::int($this->post('id')),
                     'created_at' => time()
                 ]);
 
@@ -178,9 +178,9 @@ class CourierController extends Controller {
 
     function export() {
 // Check if courierData is provided
-        if (isset($_POST['courierData'])) {
+        if (isset($this->post('courierData'))) {
 // Decode the JSON data
-            $couriers = json_decode($_POST['courierData'], true);
+            $couriers = json_decode($this->post('courierData'), true);
 
             if (!$couriers || empty($couriers)) {
                 echo "No couriers to export";
@@ -188,7 +188,7 @@ class CourierController extends Controller {
             }
         }
 
-        $format = isset($_POST['format']) ? $_POST['format'] : 'pdf';
+        $format = isset($this->post('format')) ? $this->post('format') : 'pdf';
 
 // Export based on format
         switch ($format) {
@@ -366,8 +366,8 @@ class CourierController extends Controller {
 
         $locationData = [
             'user_id' => $_SESSION['user']['id'],
-            'latitude' => $_POST['latitude'],
-            'longitude' => $_POST['longitude'],
+            'latitude' => \Core\Security::float($this->post('latitude')),
+            'longitude' => \Core\Security::float($this->post('longitude')),
             'timestamp' => time()
         ];
 
@@ -390,9 +390,9 @@ class CourierController extends Controller {
     function getLocation() {
         header('Content-Type: application/json');
 
-        if (!empty($_GET['courier_id'])) {
+        if (!empty($this->get('courier_id'))) {
             $courierLocationModel = new \App\Models\CourierLocation();
-            $location = $courierLocationModel->getLatestLocation($_GET['courier_id']);
+            $location = $courierLocationModel->getLatestLocation(\Core\Security::int($this->get('courier_id')));
 
             if ($location) {
                 echo json_encode([

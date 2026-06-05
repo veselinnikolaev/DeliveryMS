@@ -21,6 +21,7 @@
                     <?php endif; ?>
 
                     <form method="POST" id="booking-frm-id" action="<?php echo INSTALL_URL; ?>?controller=Order&action=create">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                         <input type="hidden" name="send" value="1" />
                         <div class="row">
                             <div class="col-md-6">
