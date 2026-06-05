@@ -1,16 +1,29 @@
-# DeliveryMS
+# DeliveryMS - Professional Delivery Management System
 
-DeliveryMS is a PHP-based delivery management system tailored for e-commerce platforms. It allows the tracking and administration of orders, inventory, couriers, and user roles with real-time logistics updates and secure payment integrations.
+## 📋 Executive Summary
+
+DeliveryMS is a comprehensive, enterprise-grade delivery management system built with PHP and a custom MVC framework. Designed specifically for e-commerce platforms and logistics providers, it streamlines the entire fulfillment pipeline from order intake through final delivery, with real-time courier tracking, inventory automation, and secure payment processing.
+
+### Business Value & Solutions
+
+- **Operational Efficiency**: Automated order routing and inventory management reduce manual overhead and order processing time
+- **Real-time Visibility**: Live courier tracking via OpenStreetMap integration provides customers and management with shipment transparency
+- **Revenue Protection**: Integrated PayPal payments with role-based security ensure secure transactions and reduce fraud risk
+- **Business Intelligence**: Built-in reporting and analytics tools support data-driven decision-making for inventory and logistics optimization
+- **Scalability**: Role-based access control (root, admin, user, courier) enables multi-team collaboration in growing organizations
+
+---
 
 ## 🚀 Key Features
 
-* Order management (creation, tracking, updating status)
-* Warehouse and inventory management
-* Courier and delivery logistics (OpenStreetMap integration)
-* User roles (root, admin, user, courier)
-* PayPal payment integration
-* Email service integration via Mailtrap
-* Reports and analytics for decision-making
+* **Order Management** - Create, track, and update orders with status management and full order history
+* **Inventory Management** - Real-time stock monitoring with automatic updates based on order fulfillment
+* **Courier & Logistics** - Assign deliveries, track courier location with OpenStreetMap, optimize routes
+* **User Roles & Permissions** - Four-tier role system (root, admin, user, courier) with granular access control
+* **Payment Integration** - Secure PayPal integration for online transactions with transaction tracking
+* **Email Notifications** - Automated notifications via Mailtrap for orders, deliveries, and system alerts
+* **Reports & Analytics** - Comprehensive reporting on orders, inventory, courier performance, and revenue
+* **Data Export** - Generate PDF and Excel reports for analysis and archival
 
 ---
 
@@ -94,65 +107,179 @@ Use the root account you created during installation to log in and start managin
 
 ---
 
-## 📊 System Modules Overview
+## 🏗️ Architecture Overview
 
-1. **Order Management**
+DeliveryMS follows a **Model-View-Controller (MVC)** architecture with clear separation of concerns:
 
-   * Create and manage customer orders
-   * Track and update statuses
-   * Generate order reports
+### Project Structure
 
-2. **Inventory Management**
+```
+DeliveryMS/
+├── Core/                          # Framework foundation & utilities
+│   ├── Controller.php            # Base controller class
+│   ├── Model.php                 # Base model with ORM functionality
+│   ├── Router.php                # URL routing and request dispatch
+│   ├── Security.php              # Authentication, authorization, validation
+│   ├── View.php                  # Template rendering
+│   ├── Services/                 # Business services
+│   │   ├── ExportService.php     # PDF/Excel export functionality
+│   │   └── MailService.php       # Email handling
+│   └── Exceptions/               # Custom exceptions
+├── App/
+│   ├── Controllers/              # Feature controllers (Auth, Order, Product, etc.)
+│   ├── Models/                   # Domain models (User, Order, Product, etc.)
+│   └── Views/                    # HTML templates organized by feature
+├── config/                        # Configuration & helper functions
+├── web/                          # Frontend assets (CSS, JS, images)
+├── tests/                        # PHPUnit test suite
+├── index.php                     # Application entry point
+└── phpunit.xml                   # Test configuration
+```
 
-   * Monitor stock levels
-   * Perform inventory operations
-   * Auto-update inventory based on order activity
+### Design Patterns Used
 
-3. **Courier Logistics**
-
-   * Assign and track couriers
-   * Use OpenStreetMap for real-time tracking and optimized routing
-
-4. **User Roles**
-
-   * `root`, `admin`, `user`, `courier`
-   * Each role has different access rights and responsibilities
-
-5. **Payment Integration**
-
-   * Secure payments via PayPal
-
-6. **Email Integration**
-
-   * Uses Mailtrap for testing email functionality
-
-7. **Reports & Analytics**
-
-   * Generate insights for operations and business analysis
+- **MVC Pattern**: Separation of business logic, data access, and presentation
+- **ORM Pattern**: Database abstraction through Model base class
+- **Service Layer**: Business logic isolation (MailService, ExportService)
+- **Factory Pattern**: Controller instantiation via Router
+- **Singleton Pattern**: Database and configuration management
 
 ---
 
-## 🎯 Project Objective
+## 📊 System Modules Overview
 
-To develop an integrated delivery management system for online stores that streamlines the logistics chain, optimizes internal processes, and ensures secure transactions.
+1. **Order Management** (`OrderController`, `Order` model)
+   * Create and manage customer orders
+   * Track delivery status with real-time updates
+   * Generate order reports and analytics
+
+2. **Inventory Management** (`ProductController`, `Product` model)
+   * Monitor stock levels in real-time
+   * Auto-update inventory based on order fulfillment
+   * Prevent overselling with stock validation
+
+3. **Courier Logistics** (`CourierController`, `CourierLocation` model)
+   * Assign deliveries to couriers
+   * Real-time location tracking via OpenStreetMap
+   * Route optimization for efficient delivery
+
+4. **User Management** (`UserController`, `User` model)
+   * Four-tier role system: root (superadmin), admin (manager), user (staff), courier
+   * Fine-grained permission control per role
+   * Account management and activity logging
+
+5. **Notification System** (`NotificationController`, `Notification` model)
+   * Automated order status notifications
+   * Delivery alerts to customers
+   * System notifications for staff
+
+6. **Payment Processing**
+   * Secure PayPal integration for online payments
+   * Order status tied to payment completion
+   * Transaction tracking and reconciliation
+
+7. **Reports & Analytics**
+   * Order fulfillment reports
+   * Courier performance metrics
+   * Revenue and sales analytics
+   * Exportable reports (PDF, Excel)
+
+---
+
+## 🎯 Core Business Objectives
+
+- Streamline the logistics chain from order placement to delivery confirmation
+- Optimize internal processes through automation and real-time visibility
+- Ensure secure, compliant transactions with integrated payment processing
+- Provide business intelligence tools for informed operational decisions
+- Support multi-user collaboration with role-based access control
 
 ---
 
 ## 📌 Technologies Used
 
-* **Backend:** PHP (Custom MVC Framework)
-* **Frontend:** HTML, CSS, JavaScript, jQuery
-* **Database:** MySQL
-* **Email:** Mailtrap with PHPMailer
-* **PDF/Excel Export:** TCPDF, SimpleXLSXGen
-* **Payments:** PayPal API
-* **Location Services:** OpenStreetMap API
+| Layer | Technologies |
+|-------|--------------|
+| **Backend** | PHP 7.x+ (Custom MVC Framework) |
+| **Frontend** | HTML5, CSS3, JavaScript, jQuery |
+| **Database** | MySQL 5.7+ |
+| **Email** | Mailtrap + PHPMailer |
+| **File Export** | TCPDF (PDF), SimpleXLSXGen (Excel) |
+| **Payments** | PayPal API |
+| **Location/Maps** | OpenStreetMap API |
+| **Testing** | PHPUnit 9.x |
 
 ---
 
-## 📬 Contact & Support
+## 🧪 Testing
 
-For help, issues, or feature requests, please contact the project maintainer.
+The project uses **PHPUnit** for automated testing. Tests are located in the `tests/` directory and mirror the project structure.
+
+### Running Tests
+
+```bash
+# Run all tests
+vendor/bin/phpunit
+
+# Run specific test file
+vendor/bin/phpunit tests/Unit/Controllers/OrderControllerTest.php
+
+# Run with coverage report
+vendor/bin/phpunit --coverage-html coverage/
+```
+
+### Test Structure
+
+```
+tests/
+├── bootstrap.php                 # Test configuration
+├── Core/                         # Core framework tests
+│   └── SecurityTest.php         # Security & validation tests
+├── Unit/
+│   ├── Controllers/             # Controller tests
+│   ├── Models/                  # Model tests
+│   └── Services/                # Service tests
+```
+
+### Writing Tests
+
+When contributing, include tests for:
+- **Controllers**: Request handling, authorization checks, response validation
+- **Models**: Data persistence, validation rules, relationships
+- **Services**: Business logic, error handling, integration points
+
+See existing tests in `tests/Unit/` for examples and patterns.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these guidelines:
+
+1. **Code Style**: Follow PSR-12 PHP coding standards
+2. **Testing**: Add tests for all new features (PHPUnit)
+3. **Documentation**: Update README for new features or significant changes
+4. **Commits**: Use clear, descriptive commit messages
+
+### Code Review Checklist
+
+- [ ] Tests written and passing
+- [ ] README updated if needed
+- [ ] Code follows PSR-12 standards
+- [ ] No security vulnerabilities introduced
+- [ ] Performance implications reviewed
+
+---
+
+## 📬 Support
+
+For questions, bug reports, or feature requests, please open an issue in the repository.
+
+---
+
+## 📄 License
+
+This project is available for educational and commercial use.
 
 ---
 
