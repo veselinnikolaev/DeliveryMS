@@ -1,23 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controllers;
 
-use Models;
+use App\Models\User;
+use App\Models\Notification;
 use Core;
 use Core\View;
 use Core\Controller;
 
 class AuthController extends Controller {
 
-    var $layout = 'admin';
+    public string $layout = 'admin';
 
-    function register() {
+    public function register(): void {
         if (!empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
 
-        $userModel = new \App\Models\User();
+        $userModel = new User();
 
         if (!empty($this->post('send'))) {
             if ($userModel->existsBy(['email' => $this->post('email')])) {
@@ -46,13 +49,13 @@ class AuthController extends Controller {
         $this->view($this->layout, $arr);
     }
 
-    function login() {
+    public function login(): void {
         if (!empty($_SESSION['user'])) {
             header("Location: " . $_SESSION['previous_url'], true, 301);
             exit;
         }
 
-        $userModel = new \App\Models\User();
+        $userModel = new User();
 
         if (!empty($this->post('send'))) {
             $user = $userModel->getFirstBy(['email' => $this->post('email')]);
@@ -60,7 +63,7 @@ class AuthController extends Controller {
             if ($user && password_verify($this->post('password'), $user['password_hash'])) {
                 $_SESSION['user'] = $user;
                 
-                $notificationModel = new \App\Models\Notification();
+                $notificationModel = new Notification();
                 $notificationModel->save([
                     'user_id' => $user['id'],
                     'message' => 'New login detected.',
@@ -83,7 +86,7 @@ class AuthController extends Controller {
         $this->view($this->layout, $arr);
     }
 
-    function logout() {
+    public function logout(): void {
         if (empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL, true, 301);
             exit;

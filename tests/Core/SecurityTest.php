@@ -135,11 +135,13 @@ class SecurityTest extends TestCase
 
     /**
      * Test CSRF token generation
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
      */
     public function testGenerateCsrfToken(): void
     {
         $token = Security::generateCsrfToken();
-        
+
         $this->assertIsString($token);
         $this->assertEquals(64, strlen($token)); // 32 bytes = 64 hex chars
     }
@@ -157,6 +159,8 @@ class SecurityTest extends TestCase
 
     /**
      * Test CSRF token validation with valid token
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
      */
     public function testValidateCsrfTokenValid(): void
     {

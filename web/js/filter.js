@@ -1,3 +1,17 @@
+/**
+ * CSRF TOKEN REQUIREMENT FOR AJAX POST REQUESTS
+ * 
+ * For every AJAX POST request in this project, always include the CSRF token by reading it from 
+ * $('input[name="csrf_token"]').val() if a form is present on the page, or from 
+ * $('meta[name="csrf_token"]').attr('content') as a fallback. 
+ * 
+ * The meta tag <meta name="csrf_token" content="<?= Security::getCsrfToken() ?>"> is always present 
+ * in the layout head. Never send a POST request without including csrf_token in the request data 
+ * or as the X-CSRF-Token header for XML HTTP requests. 
+ * 
+ * The backend validates CSRF on every POST in Core\Controller::validateCsrfOnPost().
+ */
+
 (function ($) {
     $(function () {
         // Apply Filters
@@ -14,7 +28,10 @@
             $.ajax({
                 url: 'index.php?controller=Courier&action=filter',
                 type: 'POST',
-                data: filters,
+                data: {
+                    ...filters,
+                    csrf_token: $('input[name="csrf_token"]').val() || $('meta[name="csrf_token"]').attr('content')
+                },
                 success: function (response) {
                     $(`#container-courier-id`).html(response);
 
@@ -65,7 +82,10 @@
             $.ajax({
                 url: 'index.php?controller=User&action=filter',
                 type: 'POST',
-                data: filters,
+                data: {
+                    ...filters,
+                    csrf_token: $('input[name="csrf_token"]').val() || $('meta[name="csrf_token"]').attr('content')
+                },
                 success: function (response) {
                     $(`#container-user-id`).html(response);
 
@@ -105,7 +125,10 @@
             $.ajax({
                 url: 'index.php?controller=Product&action=filter',
                 type: 'POST',
-                data: filters,
+                data: {
+                    ...filters,
+                    csrf_token: $('input[name="csrf_token"]').val() || $('meta[name="csrf_token"]').attr('content')
+                },
                 success: function (response) {
                     $(`#container-product-id`).html(response);
 
@@ -148,7 +171,10 @@
             $.ajax({
                 url: 'index.php?controller=Order&action=filter',
                 type: 'POST',
-                data: filters,
+                data: {
+                    ...filters,
+                    csrf_token: $('input[name="csrf_token"]').val() || $('meta[name="csrf_token"]').attr('content')
+                },
                 success: function (response) {
                     $('#container-order-id').html(response);
 

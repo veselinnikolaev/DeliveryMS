@@ -1,19 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controllers;
 
 use App\Models\Setting;
-use Models;
+use App\Models\Product;
 use Core;
+use Core\Services\ExportService;
 use Core\View;
 use Core\Controller;
 
 class ProductController extends Controller {
 
-    var $layout = 'admin';
-    var $settings;
+    public string $layout = 'admin';
 
     public function __construct() {
+        parent::__construct();
         if (empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
             exit;
@@ -22,21 +25,10 @@ class ProductController extends Controller {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
-        $this->settings = $this->loadSettings();
     }
 
-    function loadSettings() {
-        $settingModel = new \App\Models\Setting();
-        $settings = $settingModel->getAll();
-        $app_settings = [];
-        foreach ($settings as $setting) {
-            $app_settings[$setting['key']] = $setting['value'];
-        }
-        return $app_settings;
-    }
-
-    function list($layout = 'admin') {
-        $productModel = new \App\Models\Product();
+    public function list($layout = 'admin'): void {
+        $productModel = new Product();
 
         $opts = array();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -65,13 +57,13 @@ class ProductController extends Controller {
         $this->view($layout, ['products' => $products, 'currency' => $this->settings['currency_code']]);
     }
 
-    function filter() {
+    public function filter(): void {
         $this->list('ajax');
     }
 
-    function create() {
+    public function create(): void {
         // Create an instance of the Product model
-        $productModel = new \App\Models\Product();
+        $productModel = new Product();
 
         // Check if the form has been submitted
         if (!empty($this->post('send'))) {
@@ -98,8 +90,8 @@ class ProductController extends Controller {
         $this->view($this->layout, $arr);
     }
 
-    function delete() {
-        $productModel = new \App\Models\Product();
+    public function delete(): void {
+        $productModel = new Product();
 
         if (!empty($this->post('id'))) {
             $productModel->delete(\Core\Security::int($this->post('id')));
@@ -109,8 +101,8 @@ class ProductController extends Controller {
         $this->view('ajax', ['products' => $products]);
     }
 
-    function bulkDelete() {
-        $productModel = new \App\Models\Product();
+    public function bulkDelete(): void {
+        $productModel = new Product();
 
         if (!empty($this->post('ids')) && is_array($this->post('ids'))) {
             $productModel->deleteBy(['id' => $this->post('ids')]);
@@ -120,8 +112,8 @@ class ProductController extends Controller {
         $this->view('ajax', ['products' => $products]);
     }
 
-    function edit() {
-        $productModel = new \App\Models\Product();
+    public function edit(): void {
+        $productModel = new Product();
 
         $arr = $productModel->get(\Core\Security::int($this->get('id')));
 
@@ -147,8 +139,8 @@ class ProductController extends Controller {
 
     // In your Product.php controller
 
-    function print() {
-        if (isset($this->post('productData'))) {
+    public function print(): void {
+        if ($this->post('productData') !== null) {
             // Decode the JSON data
             $products = json_decode($this->post('productData'), true);
 
@@ -161,9 +153,9 @@ class ProductController extends Controller {
         $this->view('ajax', ['products' => $products]);
     }
 
-    function export() {
+    public function export(): void {
         // Check if productData is provided
-        if (isset($this->post('productData'))) {
+        if ($this->post('productData') !== null) {
             // Decode the JSON data
             $products = json_decode($this->post('productData'), true);
 
@@ -173,154 +165,19 @@ class ProductController extends Controller {
             }
         }
 
-        $format = isset($this->post('format')) ? $this->post('format') : 'pdf';
+        $format = $this->post('format') !== null ? $this->post('format') : 'pdf';
 
         // Export based on format
         switch ($format) {
             case 'pdf':
-                $this->exportAsPDF($products);
-                break;
+                ExportService::exportToPDF($products, 'Products Export', 'products_export.pdf');
             case 'excel':
-                $this->exportAsExcel($products);
-                break;
+                ExportService::exportToExcel($products, 'products_export.xlsx');
             case 'csv':
-                $this->exportAsCSV($products);
-                break;
+                ExportService::exportToCSV($products, 'products_export.csv');
             default:
                 echo "Invalid export format";
                 exit;
         }
-    }
-
-    private function exportAsPDF($products) {
-        if (ob_get_level()) {
-            ob_end_clean();
-        }
-        require_once(__DIR__ . '/../Helpers/export/tcpdf/tcpdf.php');
-
-        $pdf = new \TCPDF('L', 'mm', 'A4', true, 'UTF-8');
-        $pdf->SetCreator('Your App');
-        $pdf->SetTitle('Products Export');
-        $pdf->SetHeaderData('', 0, 'Products List', '');
-        $pdf->setHeaderFont(Array('helvetica', '', 12));
-        $pdf->setFooterFont(Array('helvetica', '', 10));
-        $pdf->SetDefaultMonospacedFont('courier');
-        $pdf->SetMargins(15, 15, 15);
-        $pdf->SetAutoPageBreak(TRUE, 15);
-
-        $pdf->AddPage();
-
-        // Generate HTML table with dynamic headers
-        $html = $this->generateDynamicProductTable($products);
-        $pdf->writeHTML($html, true, false, true, false, '');
-
-        // Output PDF
-        $pdf->Output('products_export.pdf', 'D');
-        exit;
-    }
-
-    private function generateDynamicProductTable($products) {
-        // Start HTML table
-        $html = '<table border="1" cellpadding="5">
-    <thead>
-        <tr>';
-
-        // If we have products, use their keys as headers
-        if (!empty($products) && is_array($products[0])) {
-            $headers = array_keys($products[0]);
-
-            // Add headers to table
-            foreach ($headers as $header) {
-                $displayHeader = ucwords(str_replace('_', ' ', $header));
-                $html .= '<th>' . $displayHeader . '</th>';
-            }
-
-            $html .= '</tr>
-        </thead>
-        <tbody>';
-
-            // Add product data
-            foreach ($products as $product) {
-                $html .= '<tr>';
-                foreach ($product as $value) {
-                    $html .= '<td>' . htmlspecialchars($value) . '</td>';
-                }
-                $html .= '</tr>';
-            }
-        } else {
-            // Fallback for no data
-            $html .= '<th>No Data Available</th></tr></thead><tbody><tr><td>No products found</td></tr>';
-        }
-
-        $html .= '</tbody></table>';
-
-        return $html;
-    }
-
-    private function exportAsExcel($products) {
-        // Include SimpleXLSXGen
-        require(__DIR__ . '/../Helpers/export/simplexlsxgen/src/SimpleXLSXGen.php');
-
-        // Prepare data
-        $data = [];
-
-        // First product in array determines headers
-        if (!empty($products) && is_array($products[0])) {
-            // Use keys from first product for headers, ensuring proper capitalization
-            $headers = array_keys($products[0]);
-            $headerRow = [];
-
-            foreach ($headers as $header) {
-                // Convert product_id to Product ID, etc.
-                $headerRow[] = ucwords(str_replace('_', ' ', $header));
-            }
-
-            $data[] = $headerRow;
-
-            // Add products
-            foreach ($products as $product) {
-                $data[] = array_values($product);
-            }
-        } else {
-            // Fallback for no data
-            $data[] = ['No Data Available'];
-            $data[] = ['No products found'];
-        }
-
-        // Create and send file
-        \Shuchkin\SimpleXLSXGen::fromArray($data)->downloadAs('products_export.xlsx');
-        exit;
-    }
-
-    private function exportAsCSV($products) {
-        // Set headers for CSV download
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="products_export.csv"');
-
-        // Open output stream
-        $output = fopen('php://output', 'w');
-
-        // Determine headers dynamically from the first product
-        if (!empty($products) && is_array($products[0])) {
-            $headers = array_keys($products[0]);
-            // Convert keys to readable headers (e.g., product_id to Product ID)
-            $readableHeaders = array_map(function ($header) {
-                return ucwords(str_replace('_', ' ', $header));
-            }, $headers);
-
-            // Add headers
-            fputcsv($output, $readableHeaders);
-
-            // Add data using the actual keys from the data
-            foreach ($products as $product) {
-                fputcsv($output, array_values($product));
-            }
-        } else {
-            // Fallback for empty data
-            fputcsv($output, ['No data available']);
-        }
-
-        fclose($output);
-        exit;
     }
 }

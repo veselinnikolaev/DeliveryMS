@@ -1,14 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 use Core\Model;
 
 class Product extends Model {
 
-    var $primaryKey = 'id';
-    var $table = 'products';
+    public ?string $primaryKey = 'id';
+    public ?string $table = 'products';
 
-    var $schema = array(
+    public array $schema = array(
         array('name' => 'id', 'type' => 'int', 'default' => ':NULL'),
         array('name' => 'name', 'type' => 'varchar', 'default' => ''),
         array('name' => 'description', 'type' => 'text', 'default' => ':NULL'),
@@ -17,4 +19,3 @@ class Product extends Model {
         array('name' => 'created_at', 'type' => 'timestamp', 'default' => 'CURRENT_TIMESTAMP')
     );
 }
-?>

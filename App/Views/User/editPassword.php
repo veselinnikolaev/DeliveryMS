@@ -20,6 +20,7 @@
                     <?php endif; ?>
 
                     <form class="forms-sample" method="POST" action="<?php echo INSTALL_URL; ?>?controller=User&action=editPassword">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                         <input type="hidden" name="id" value="<?php echo isset($_GET['id']) ? htmlspecialchars($_GET['id']) : $tpl['id']; ?>">
 
                         <div class="row">

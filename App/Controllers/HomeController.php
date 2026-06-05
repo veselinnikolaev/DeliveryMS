@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controllers;
 
 use App\Models\Order;
@@ -10,24 +12,14 @@ use Core\Controller;
 
 class HomeController extends Controller {
 
-    var $layout = 'admin';
-    var $settings;
+    public string $layout = 'admin';
 
     public function __construct() {
-        $this->settings = $this->loadSettings();
+        parent::__construct();
     }
 
-    function loadSettings() {
-        $settingModel = new \App\Models\Setting();
-        $settings = $settingModel->getAll();
-        $app_settings = [];
-        foreach ($settings as $setting) {
-            $app_settings[$setting['key']] = $setting['value'];
-        }
-        return $app_settings;
-    }
-
-    public function index() {
+    public function index(): void
+    {
         // Check if user is logged in
         $isLoggedIn = !empty($_SESSION['user']);
 
@@ -124,7 +116,7 @@ class HomeController extends Controller {
         $this->view($this->layout, $data);
     }
 
-    public function getSalesData() {
+    public function getSalesData(): array {
         $orderModel = new Order();
 
         // Last 30 days sales data

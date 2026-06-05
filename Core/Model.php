@@ -39,7 +39,7 @@ class Model {
         // Create connection to MySQL server (without database)
         try {
             $this->mysqli = new \mysqli($host, $user, $password);
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return [
                 'status' => false,
                 'message' => "Connection to database failed."
@@ -163,7 +163,7 @@ class Model {
             if ($tables && $tables->num_rows > 0) {
                 return true; // Has at least one table -> migrated
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return false;
         }
 
@@ -251,27 +251,26 @@ class Model {
     }
 
     public function getFirstBy($options = null): ?array {
-        // Main SELECT query
         $query = "SELECT * FROM `" . $this->getTable() . "`";
         $params = [];
 
         if ($options && is_array($options)) {
             $conditions = [];
             foreach ($options as $field => $value) {
-                // Enclose column names with backticks
                 $conditions[] = "`$field` = ?";
                 $params[] = $value;
             }
             $query .= " WHERE " . implode(" AND ", $conditions);
         } elseif ($options) {
-            $query .= " WHERE " . $options; // No prepared statement here, be careful with injections!
+            $query .= " WHERE " . $options;
         }
 
         $result = $this->executeQuery($query, $params, str_repeat("s", count($params)));
         if (!empty($result)) {
             return $result[0];
         }
-        // Execute with protected parameters
+
+        return null;
     }
 
     public function countAll($options = null): int {

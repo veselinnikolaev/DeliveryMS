@@ -19,3 +19,4 @@ define("MAIL_USERNAME", $_ENV['MAIL_USERNAME'] ?? '{mail_username}');
 define("MAIL_PASSWORD", $_ENV['MAIL_PASSWORD'] ?? '{mail_password}');
 define("INSTALLED", filter_var($_ENV['INSTALLED'] ?? 'false', FILTER_VALIDATE_BOOLEAN));
 define("MAIL_CONFIGURED", filter_var($_ENV['MAIL_CONFIGURED'] ?? 'false', FILTER_VALIDATE_BOOLEAN));
+define("UPLOAD_PATH", __DIR__ . '/../web/upload/');

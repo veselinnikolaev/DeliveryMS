@@ -1,18 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controllers;
 
+use Core\Model;
+use Core\Services\MailService;
+use App\Models\User;
+use App\Models\Setting;
 use Core\Controller;
 
 class InstallController extends Controller {
 
-    var $layout = 'front';
+    public string $layout = 'front';
 
     public function __construct() {
-        if (INSTALLED && MAIL_CONFIGURED && strpos($_SESSION['previous_url'], '?controller=Settings&action=index') === false) {
+        parent::__construct();
+        if (INSTALLED && MAIL_CONFIGURED && !str_contains($_SESSION['previous_url'], '?controller=Settings&action=index')) {
             header("Location: " . $_SESSION['previous_url'], true, 301);
             exit;
         }
+    }
+
+    protected function loadSettings(): array {
+        return [];
     }
 
     function step0() {
@@ -24,34 +35,37 @@ class InstallController extends Controller {
         $this->view($this->layout);
     }
 
-    function step1() {
+    public function step1(): void {
         if (INSTALLED && !MAIL_CONFIGURED) {
             header("Location: " . INSTALL_URL . '?controller=Install&action=step4', true, 301);
             exit;
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $hostname = $_POST['hostname'];
-            $connectionUsername = $_POST['username'];
-            $connectionPassword = $_POST['password'] ?? '';
-            $databaseName = $_POST['database'];
-            $model = new \Core\Model();
+            $hostname = $this->post('hostname');
+            $connectionUsername = $this->post('username');
+            $connectionPassword = $this->post('password', '');
+            $databaseName = $this->post('database');
+            $model = new Model();
 
-            // Проверка за грешка
+            // Check for error
             $connected = $model->checkConnection($hostname, $connectionUsername, $connectionPassword, $databaseName);
             if (!$connected['status']) {
                 $errorMessage = $connected['message'];
             }
 
             if (!isset($errorMessage)) {
-                $file = file_get_contents("config\constant.php");
-
-                $file = str_replace('{hostname}', $hostname, $file);
-                $file = str_replace('{host_username}', $connectionUsername, $file);
-                $file = str_replace('{host_password}', $connectionPassword, $file);
-                $file = str_replace('{database_name}', $databaseName, $file);
-
-                file_put_contents("config/constant.php", $file);
+                // Write to .env file instead of config/constant.php
+                $envPath = __DIR__ . '/../../.env';
+                $envContent = file_get_contents($envPath);
+                
+                // Update .env with database credentials
+                $envContent = preg_replace('/DB_HOST=.*/', 'DB_HOST=' . $hostname, $envContent);
+                $envContent = preg_replace('/DB_NAME=.*/', 'DB_NAME=' . $databaseName, $envContent);
+                $envContent = preg_replace('/DB_USER=.*/', 'DB_USER=' . $connectionUsername, $envContent);
+                $envContent = preg_replace('/DB_PASS=.*/', 'DB_PASS=' . $connectionPassword, $envContent);
+                
+                file_put_contents($envPath, $envContent);
 
                 $migrated = $model->migrate();
                 if (!$migrated['status']) {
@@ -60,14 +74,16 @@ class InstallController extends Controller {
             }
 
             if (isset($errorMessage)) {
-                $file = file_get_contents("config\constant.php");
-
-                $file = str_replace($hostname, '{hostname}', $file);
-                $file = str_replace($connectionUsername, '{host_username}', $file);
-                $file = str_replace($connectionPassword, '{host_password}', $file);
-                $file = str_replace($databaseName, '{database_name}', $file);
-
-                file_put_contents("config/constant.php", $file);
+                // Revert .env changes on error
+                $envPath = __DIR__ . '/../../.env';
+                $envContent = file_get_contents($envPath);
+                
+                $envContent = preg_replace('/DB_HOST=.*/', 'DB_HOST={hostname}', $envContent);
+                $envContent = preg_replace('/DB_NAME=.*/', 'DB_NAME={database_name}', $envContent);
+                $envContent = preg_replace('/DB_USER=.*/', 'DB_USER={host_username}', $envContent);
+                $envContent = preg_replace('/DB_PASS=.*/', 'DB_PASS={host_password}', $envContent);
+                
+                file_put_contents($envPath, $envContent);
             }
 
             if (!isset($errorMessage)) {
@@ -78,30 +94,30 @@ class InstallController extends Controller {
         $this->view($this->layout, ['error_message' => $errorMessage ?? null]);
     }
 
-    function step2() {
+    public function step2(): void {
         if (INSTALLED && !MAIL_CONFIGURED) {
             header("Location: " . INSTALL_URL . '?controller=Install&action=step4', true, 301);
             exit;
         }
 
-        $model = new \Core\Model();
+        $model = new Model();
         try {
             if (!$model->isDbMigrated(DEFAULT_DB)) {
                 header("Location: " . INSTALL_URL . "?controller=Install&action=step1", true, 301);
                 exit;
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             header("Location: " . INSTALL_URL . "?controller=Install&action=step1", true, 301);
             exit;
         }
 
-        $userModel = new \App\Models\User();
+        $userModel = new User();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $rootName = $_POST['root_name'];
-            $rootEmail = $_POST['root_email'];
-            $rootPassword = $_POST['root_password'];
-            $rootPasswordConfirm = $_POST['root_password_confirm'];
+            $rootName = $this->post('root_name');
+            $rootEmail = $this->post('root_email');
+            $rootPassword = $this->post('root_password');
+            $rootPasswordConfirm = $this->post('root_password_confirm');
 
             if ($rootPassword != $rootPasswordConfirm) {
                 $errorMessage = 'Password do not match';
@@ -140,22 +156,18 @@ class InstallController extends Controller {
         $this->view($this->layout, $arr);
     }
 
-    function step3() {
+    public function step3(): void {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $file = file_get_contents("config/constant.php");
-            $paypalEmail = $_POST['paypal_email'];
+            $paypalEmail = $this->post('paypal_email');
 
-            // Pattern to match the PAYPAL_EMAIL definition with any email
-            $pattern = '/define\("PAYPAL_EMAIL",\s*"[^"]*"\);/';
-
-            // Replace with new email
-            $replacement = 'define("PAYPAL_EMAIL", "' . $paypalEmail . '");';
-
-            // Perform the replacement
-            $file = preg_replace($pattern, $replacement, $file);
-
-            // Save the file
-            file_put_contents("config/constant.php", $file);
+            // Write to .env file instead of config/constant.php
+            $envPath = __DIR__ . '/../../.env';
+            $envContent = file_get_contents($envPath);
+            
+            // Update PAYPAL_EMAIL in .env
+            $envContent = preg_replace('/PAYPAL_EMAIL=.*/', 'PAYPAL_EMAIL=' . $paypalEmail, $envContent);
+            
+            file_put_contents($envPath, $envContent);
 
             if (strpos($_SESSION['previous_url'], '?controller=Settings&action=index') !== false) {
                 header("Location: " . INSTALL_URL . "?controller=Settings&action=index", true, 301);
@@ -168,15 +180,14 @@ class InstallController extends Controller {
         $this->view($this->layout);
     }
 
-    function step4() {
+    public function step4(): void {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $file = file_get_contents("config/constant.php");
-            if (!empty($_POST['skip_mail'])) {
+            if (!empty($this->post('skip_mail'))) {
                 try {
-                    $settingModel = new \App\Models\Setting();
+                    $settingModel = new Setting();
                     $settingModel->updateBy(['value' => 'disabled'], ['key' => 'email_sending']);
-                } catch (\Throwable) {
-                    echo json_encode(["error" => "Failed to update settings."]);
+                } catch (\Throwable $e) {
+                    echo json_encode(["error" => $e->getMessage()]);
                     exit();
                 }
 
@@ -184,11 +195,11 @@ class InstallController extends Controller {
                 exit;
             }
 
-            $mailHost = $_POST['mail_host'];
-            $mailPort = $_POST['mail_port'];
-            $mailUsername = $_POST['mail_username'];
-            $mailPassword = $_POST['mail_password'];
-            $mailer = new \App\Helpers\mailer\Mailer();
+            $mailHost = $this->post('mail_host');
+            $mailPort = $this->post('mail_port');
+            $mailUsername = $this->post('mail_username');
+            $mailPassword = $this->post('mail_password');
+            $mailer = new MailService();
 
             $connected = $mailer->checkConnection($mailHost, $mailPort, $mailUsername, $mailPassword);
             if (!$connected['status']) {
@@ -196,15 +207,18 @@ class InstallController extends Controller {
             }
 
             if (!isset($errorMessage)) {
-                $file = file_get_contents("config/constant.php");
-
-                $file = str_replace('{mail_host}', $mailHost, $file);
-                $file = str_replace('{mail_port}', $mailPort, $file);
-                $file = str_replace('{mail_username}', $mailUsername, $file);
-                $file = str_replace('{mail_password}', $mailPassword, $file);
-                $file = str_replace('"MAIL_CONFIGURED", false', '"MAIL_CONFIGURED", true', $file);
-
-                file_put_contents("config/constant.php", $file);
+                // Write to .env file instead of config/constant.php
+                $envPath = __DIR__ . '/../../.env';
+                $envContent = file_get_contents($envPath);
+                
+                // Update mail settings in .env
+                $envContent = preg_replace('/MAIL_HOST=.*/', 'MAIL_HOST=' . $mailHost, $envContent);
+                $envContent = preg_replace('/MAIL_PORT=.*/', 'MAIL_PORT=' . $mailPort, $envContent);
+                $envContent = preg_replace('/MAIL_USERNAME=.*/', 'MAIL_USERNAME=' . $mailUsername, $envContent);
+                $envContent = preg_replace('/MAIL_PASSWORD=.*/', 'MAIL_PASSWORD=' . $mailPassword, $envContent);
+                $envContent = preg_replace('/MAIL_CONFIGURED=.*/', 'MAIL_CONFIGURED=true', $envContent);
+                
+                file_put_contents($envPath, $envContent);
 
                 header("Location: " . INSTALL_URL . "?controller=Install&action=step5", true, 301);
                 exit;
@@ -213,13 +227,13 @@ class InstallController extends Controller {
         $this->view($this->layout, ['error_message' => $errorMessage ?? null]);
     }
 
-    function step5() {
+    public function step5(): void {
         if (INSTALLED && !MAIL_CONFIGURED) {
             header("Location: " . INSTALL_URL . '?controller=Install&action=step4', true, 301);
             exit;
         }
 
-        $model = new \Core\Model();
+        $model = new Model();
         try {
             if (!$model->isDbMigrated(DEFAULT_DB)) {
                 header("Location: " . INSTALL_URL . "?controller=Install&action=step1", true, 301);
@@ -230,13 +244,13 @@ class InstallController extends Controller {
             exit;
         }
 
-        $userModel = new \App\Models\User();
+        $userModel = new User();
         try {
             if (empty($userModel->getFirstBy(['role' => 'root']))) {
                 header("Location: " . INSTALL_URL . "?controller=Install&action=step2", true, 301);
                 exit;
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             header("Location: " . INSTALL_URL . "?controller=Install&action=step1", true, 301);
             exit;
         }
@@ -246,11 +260,14 @@ class InstallController extends Controller {
             exit;
         }
 
-        $file = file_get_contents("config/constant.php");
-
-        $file = str_replace('"INSTALLED", false', '"INSTALLED", true', $file);
-
-        file_put_contents("config/constant.php", $file);
+        // Write to .env file instead of config/constant.php
+        $envPath = __DIR__ . '/../../.env';
+        $envContent = file_get_contents($envPath);
+        
+        // Update INSTALLED in .env
+        $envContent = preg_replace('/INSTALLED=.*/', 'INSTALLED=true', $envContent);
+        
+        file_put_contents($envPath, $envContent);
 
         $this->view($this->layout);
     }

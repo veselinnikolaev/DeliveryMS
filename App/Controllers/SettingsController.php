@@ -1,17 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controllers;
 
-use Models;
+use App\Models\Setting;
+use App\Models\Notification;
+use App\Models\User;
 use Core;
 use Core\View;
 use Core\Controller;
 
 class SettingsController extends Controller {
 
-    var $layout = 'admin';
-    
+    public string $layout = 'admin';
+
     public function __construct() {
+        parent::__construct();
         if (empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
             exit;
@@ -22,10 +27,10 @@ class SettingsController extends Controller {
         }
     }
     
-    function index() {
-        $settingModel = new \App\Models\Setting();
-        $notificationModel = new \App\Models\Notification();
-        $userModel = new \App\Models\User();
+    public function index(): void {
+        $settingModel = new Setting();
+        $notificationModel = new Notification();
+        $userModel = new User();
     
         if (!empty($this->post('settings'))) {
             $updateData = [];

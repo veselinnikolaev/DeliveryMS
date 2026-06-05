@@ -18,9 +18,12 @@
             <h2 class="card-title text-center mb-4">PayPal Account Settings</h2>
             <p class="card-text mb-4">Please enter your PayPal business account details:</p>
 
-            <form action="<?php echo INSTALL_URL; ?>?controller=Install&action=step3" method="POST">
+            <form action="<?php use Core\Security;
+
+            echo INSTALL_URL; ?>?controller=Install&action=step3" method="POST">
+                <?= Security::csrfField() ?>
                 <div class="mb-3">
-                    <label for="paypal_business_email" class="form-label">PayPal Business Email</label>
+                    <label for="paypalBusinessEmail" class="form-label">PayPal Business Email</label>
                     <input type="email" class="form-control" id="paypalBusinessEmail" name="paypal_email" 
                            value="<?php
                            if (!empty($tpl['paypal_email'])) {
@@ -43,7 +46,7 @@
 
                 <div class="d-flex justify-content-between mt-4">
                     <a href="<?php echo $_SESSION['previous_url']; ?>" class="btn btn-secondary">Back</a>
-                    <?php if (strpos($_SESSION['previous_url'], '?controller=Settings&action=index') !== false): ?>
+                    <?php if (str_contains($_SESSION['previous_url'], '?controller=Settings&action=index')): ?>
                         <button type="submit" class="btn btn-primary">Done</button>
                     <?php else: ?>
                         <button type="submit" class="btn btn-primary">Next Step</button>

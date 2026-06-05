@@ -1,6 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Core;
+
+use App\Models\Notification;
+use App\Models\Setting;
 
 class View
 {
@@ -25,17 +30,17 @@ class View
         if (INSTALLED) {
             //Notifications
             if (!empty($_SESSION['user'])) {
-                $notificationModel = new \App\Models\Notification();
+                $notificationModel = new Notification();
                 $tpl['notifications'] = $notificationModel->getAll(['user_id' => $_SESSION['user']['id']], 'created_at DESC');
             }
 
-            $settingModel = new \App\Models\Setting();
+            $settingModel = new Setting();
             date_default_timezone_set($settingModel->getFirstBy(['key' => 'timezone'])['value']);
             $tpl['date_format'] = $settingModel->getFirstBy(['key' => 'date_format'])['value'];
         }
-        // Извличане на променливите
+        // Extract variables
         extract($tpl);
-        // Зареждане на изгледа
+        // Load the view
         include "App/Views/Layouts/" . $layout . ".php";
     }
 }

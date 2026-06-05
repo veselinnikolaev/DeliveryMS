@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Core;
 
 class Router {
@@ -29,7 +32,7 @@ class Router {
             return;
         }
 
-        // Извикване на метода на контролера
+        // Call the controller method
         $controller->$actionName();
     }
 }

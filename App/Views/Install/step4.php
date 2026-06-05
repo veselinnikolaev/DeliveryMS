@@ -18,15 +18,18 @@
             <h2 class="card-title text-center mb-4">Mail Configuration</h2>
             <p class="card-text mb-4">Please enter your mail server details below:</p>
 
-            <?php if (isset($tpl['error_message'])): ?>
+            <?php use Core\Security;
+
+            if (isset($tpl['error_message'])): ?>
                 <div class="alert alert-danger" role="alert">
                     <?php echo $tpl['error_message']; ?>
                 </div>
             <?php endif; ?>
 
             <form action="<?php echo INSTALL_URL; ?>?controller=Install&action=step3" method="POST">
+                <?= Security::csrfField() ?>
                 <div class="mb-3">
-                    <label for="mail_host" class="form-label">Mail Host</label>
+                    <label for="mailHost" class="form-label">Mail Host</label>
                     <input type="text" class="form-control" id="mailHost" name="mail_host" placeholder="smtp.example.com" 
                            value="<?php
                            if (MAIL_HOST != '{mail_host}') {
@@ -35,7 +38,7 @@
                            ?>"  required>
                 </div>
                 <div class="mb-3">
-                    <label for="mail_port" class="form-label">Mail Port</label>
+                    <label for="mailPort" class="form-label">Mail Port</label>
                     <input type="number" class="form-control" id="mailPort" name="mail_port" placeholder="587"
                            value="<?php
                            if (MAIL_PORT != '{mail_port}') {
@@ -45,7 +48,7 @@
                     <div class="form-text">Common ports: 25, 465, 587, 2525</div>
                 </div>
                 <div class="mb-3">
-                    <label for="mail_username" class="form-label">Mail Username</label>
+                    <label for="mailUsername" class="form-label">Mail Username</label>
                     <input type="text" class="form-control" id="mailUsername" name="mail_username" 
                            value="<?php
                            if (MAIL_USERNAME != '{mail_username}') {
@@ -54,7 +57,7 @@
                            ?>" required>
                 </div>
                 <div class="mb-3">
-                    <label for="mail_password" class="form-label">Mail Password</label>
+                    <label for="mailPassword" class="form-label">Mail Password</label>
                     <div class="position-relative">
                         <input type="password" class="form-control" id="mailPassword" name="mail_password" required>
                         <i class="password-toggle-icon fa fa-eye" data-target="mailPassword"></i>
@@ -68,7 +71,7 @@
                         echo '<a class="btn btn-warning skip-mail-config">Skip</a>';
                     }
                     ?>
-                    <?php if (strpos($_SESSION['previous_url'], '?controller=Settings&action=index') !== false): ?>
+                    <?php if (str_contains($_SESSION['previous_url'], '?controller=Settings&action=index')): ?>
                         <button type="submit" class="btn btn-primary">Done</button>
                     <?php else: ?>
                         <button type="submit" class="btn btn-primary">Next Step</button>

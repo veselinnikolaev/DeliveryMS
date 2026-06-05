@@ -1,18 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controllers;
 
-use Models;
+use App\Models\User;
+use App\Models\Notification;
+use App\Models\CourierLocation;
+use App\Models\Order;
 use Core;
+use Core\Services\ExportService;
 use Core\View;
 use Core\Controller;
 
 class CourierController extends Controller {
 
-    var $layout = 'admin';
-    var $settings;
+    public string $layout = 'admin';
 
     public function __construct() {
+        parent::__construct();
         if (empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
             exit;
@@ -21,23 +27,13 @@ class CourierController extends Controller {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
-        $this->settings = $this->loadSettings();
     }
 
-    function loadSettings() {
-        $settingModel = new \App\Models\Setting();
-        $settings = $settingModel->getAll();
-        $app_settings = [];
-        foreach ($settings as $setting) {
-            $app_settings[$setting['key']] = $setting['value'];
-        }
-        return $app_settings;
-    }
-
-    function list($layout = 'admin') {
-        $userModel = new \App\Models\User();
+    public function list($layout = 'admin') {
+        $userModel = new User();
 
         $opts = array();
+        $opts['role'] = 'courier';
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!empty($this->post('name'))) {
                 $opts['name LIKE'] = '%' . $this->post('name') . '%';
@@ -59,21 +55,19 @@ class CourierController extends Controller {
             }
         }
 
-// Извличане на всички записи на куриери от таблицата users
-        $opts['role'] = 'courier';
         $couriers = $userModel->getAll($opts);
 
-// Прехвърляне на данни към изгледа
+// Pass data to the view
         $this->view($layout, ['couriers' => $couriers]);
     }
 
-    function filter() {
+    public function filter(): void {
         $this->list('ajax');
     }
 
-    function print() {
+    public function print(): void {
 // Check if courierData is provided
-        if (isset($this->post('courierData'))) {
+        if ($this->post('courierData') !== null) {
 // Decode the JSON data
             $couriers = json_decode($this->post('courierData'), true);
 
@@ -86,9 +80,9 @@ class CourierController extends Controller {
         $this->view('ajax', ['couriers' => $couriers]);
     }
 
-    function create() {
+    public function create(): void {
 // Create an instance of the User model
-        $userModel = new \App\Models\User();
+        $userModel = new User();
 
 // Check if the form has been submitted
         if (!empty($this->post('send'))) {
@@ -120,8 +114,8 @@ class CourierController extends Controller {
         $this->view($this->layout, $arr);
     }
 
-    function delete() {
-        $userModel = new \App\Models\User();
+    public function delete(): void {
+        $userModel = new User();
 
         if (!empty($this->post('id'))) {
             $userModel->delete(\Core\Security::int($this->post('id')));
@@ -134,28 +128,34 @@ class CourierController extends Controller {
         $this->view('ajax', ['couriers' => $couriers]);
     }
 
-    function bulkDelete() {
-        $userModel = new \App\Models\User();
+    public function bulkDelete(): void {
+        $userModel = new User();
 
         if (!empty($this->post('ids')) && is_array($this->post('ids'))) {
-            $userModel->deleteBy(['id' => $this->post('ids')]);
+            $userModel->deleteBy(['id' => $this->post('ids'), 'role' => 'courier']);
         }
 
         $couriers = $userModel->getAll(['role' => 'courier']);
         $this->view('ajax', ['couriers' => $couriers]);
     }
 
-    function edit() {
-        $userModel = new \App\Models\User();
+    public function edit(): void {
+        $userModel = new User();
 
         $arr = $userModel->get(\Core\Security::int($this->get('id')));
+        
+        // Ensure the user is a courier
+        if ($arr && $arr['role'] !== 'courier') {
+            header("Location: " . INSTALL_URL . "?controller=Courier&action=list", true, 301);
+            exit;
+        }
 
 // Check if the form has been submitted
         if (!empty($this->post('id'))) {
             $postData = $this->post();
             if ($userModel->update($postData)) {
 // Redirect to the list of couriers on successful creation
-                $notificationModel = new \App\Models\Notification();
+                $notificationModel = new Notification();
                 $adminName = $_SESSION['user']['name'];
                 $notificationModel->save([
                     'user_id' => \Core\Security::int($this->post('id')),
@@ -176,9 +176,9 @@ class CourierController extends Controller {
         $this->view($this->layout, $arr);
     }
 
-    function export() {
+    public function export(): void {
 // Check if courierData is provided
-        if (isset($this->post('courierData'))) {
+        if ($this->post('courierData') !== null) {
 // Decode the JSON data
             $couriers = json_decode($this->post('courierData'), true);
 
@@ -188,173 +188,23 @@ class CourierController extends Controller {
             }
         }
 
-        $format = isset($this->post('format')) ? $this->post('format') : 'pdf';
+        $format = $this->post('format') !== null ? $this->post('format') : 'pdf';
 
 // Export based on format
         switch ($format) {
             case 'pdf':
-                $this->exportAsPDF($couriers);
-                break;
+                ExportService::exportToPDF($couriers, 'Couriers Export', 'couriers_export.pdf');
             case 'excel':
-                $this->exportAsExcel($couriers);
-                break;
+                ExportService::exportToExcel($couriers, 'couriers_export.xlsx');
             case 'csv':
-                $this->exportAsCSV($couriers);
-                break;
+                ExportService::exportToCSV($couriers, 'couriers_export.csv');
             default:
                 echo "Invalid export format";
                 exit;
         }
     }
 
-    private function exportAsPDF($couriers) {
-        if (ob_get_level()) {
-            ob_end_clean();
-        }
-        require_once(__DIR__ . '/../Helpers/export/tcpdf/tcpdf.php');
-
-        $pdf = new \TCPDF('L', 'mm', 'A4', true, 'UTF-8');
-        $pdf->SetCreator('Your App');
-        $pdf->SetTitle('Couriers Export');
-        $pdf->SetHeaderData('', 0, 'Couriers List', '');
-        $pdf->setHeaderFont(Array('helvetica', '', 12));
-        $pdf->setFooterFont(Array('helvetica', '', 10));
-        $pdf->SetDefaultMonospacedFont('courier');
-        $pdf->SetMargins(15, 15, 15);
-        $pdf->SetAutoPageBreak(TRUE, 15);
-
-        $pdf->AddPage();
-
-// Generate HTML table with dynamic headers
-        $html = $this->generateDynamicCourierTable($couriers);
-        $pdf->writeHTML($html, true, false, true, false, '');
-
-// Output PDF
-        $pdf->Output('couriers_export.pdf', 'D');
-        exit;
-    }
-
-    private function generateDynamicCourierTable($couriers) {
-// Start HTML table
-        $html = '<table border="1" cellpadding="5">
-<thead>
-    <tr>';
-
-// If we have couriers, use their keys as headers
-        if (!empty($couriers) && is_array($couriers[0])) {
-            $headers = array_keys($couriers[0]);
-
-// Add headers to table
-            foreach ($headers as $header) {
-                $displayHeader = ucwords(str_replace('_', ' ', $header));
-                $html .= '<th>' . $displayHeader . '</th>';
-            }
-
-            $html .= '</tr>
-    </thead>
-    <tbody>';
-
-// Add courier data
-            foreach ($couriers as $courier) {
-                $html .= '<tr>';
-                foreach ($courier as $key => $value) {
-// Handle empty values
-                    if (empty($value) && $value !== 0) {
-                        $value = 'N/A';
-                    }
-// Sanitize output
-                    $html .= '<td>' . htmlspecialchars($value) . '</td>';
-                }
-                $html .= '</tr>';
-            }
-        } else {
-// Fallback for no data
-            $html .= '<th>No Data Available</th></tr></thead><tbody><tr><td>No couriers found</td></tr>';
-        }
-
-        $html .= '</tbody></table>';
-
-        return $html;
-    }
-
-    private function exportAsExcel($couriers) {
-// Include SimpleXLSXGen
-        require(__DIR__ . '/../Helpers/export/simplexlsxgen/src/SimpleXLSXGen.php');
-
-// Prepare data
-        $data = [];
-
-// First courier in array determines headers
-        if (!empty($couriers) && is_array($couriers[0])) {
-// Use keys from first courier for headers, ensuring proper capitalization
-            $headers = array_keys($couriers[0]);
-            $headerRow = [];
-
-            foreach ($headers as $header) {
-// Convert courier_id to Courier ID, etc.
-                $headerRow[] = ucwords(str_replace('_', ' ', $header));
-            }
-
-            $data[] = $headerRow;
-
-// Add couriers
-            foreach ($couriers as $courier) {
-                $row = [];
-                foreach ($courier as $value) {
-// Handle empty values
-                    $row[] = (empty($value) && $value !== 0) ? 'N/A' : $value;
-                }
-                $data[] = $row;
-            }
-        } else {
-// Fallback for no data
-            $data[] = ['No Data Available'];
-            $data[] = ['No couriers found'];
-        }
-
-// Create and send file
-        \Shuchkin\SimpleXLSXGen::fromArray($data)->downloadAs('couriers_export.xlsx');
-        exit;
-    }
-
-    private function exportAsCSV($couriers) {
-// Set headers for CSV download
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="couriers_export.csv"');
-
-// Open output stream
-        $output = fopen('php://output', 'w');
-
-// Determine headers dynamically from the first courier
-        if (!empty($couriers) && is_array($couriers[0])) {
-            $headers = array_keys($couriers[0]);
-// Convert keys to readable headers (e.g., courier_id to Courier ID)
-            $readableHeaders = array_map(function ($header) {
-                return ucwords(str_replace('_', ' ', $header));
-            }, $headers);
-
-// Add headers
-            fputcsv($output, $readableHeaders);
-
-// Add data using the actual keys from the data
-            foreach ($couriers as $courier) {
-                $row = [];
-                foreach ($courier as $value) {
-// Handle empty values
-                    $row[] = (empty($value) && $value !== 0) ? 'N/A' : $value;
-                }
-                fputcsv($output, $row);
-            }
-        } else {
-// Fallback for empty data
-            fputcsv($output, ['No data available']);
-        }
-
-        fclose($output);
-        exit;
-    }
-
-    public function updateLocation() {
+    public function updateLocation(): void {
         header('Content-Type: application/json');
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_SESSION['user']) || $_SESSION['user']['role'] !== 'courier') {
@@ -362,7 +212,7 @@ class CourierController extends Controller {
             exit;
         }
 
-        $courierLocationModel = new \App\Models\CourierLocation();
+        $courierLocationModel = new CourierLocation();
 
         $locationData = [
             'user_id' => $_SESSION['user']['id'],
@@ -387,11 +237,11 @@ class CourierController extends Controller {
         exit;
     }
 
-    function getLocation() {
+    public function getLocation(): void {
         header('Content-Type: application/json');
 
         if (!empty($this->get('courier_id'))) {
-            $courierLocationModel = new \App\Models\CourierLocation();
+            $courierLocationModel = new CourierLocation();
             $location = $courierLocationModel->getLatestLocation(\Core\Security::int($this->get('courier_id')));
 
             if ($location) {
@@ -418,7 +268,7 @@ class CourierController extends Controller {
         exit;
     }
 
-    public function startTracking() {
+    public function startTracking(): void {
         if ($_SESSION['user']['role'] !== 'courier') {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
@@ -429,8 +279,8 @@ class CourierController extends Controller {
         ]);
     }
 
-    private function getActiveOrders($courierId) {
-        $orderModel = new \App\Models\Order();
+    private function getActiveOrders($courierId): array {
+        $orderModel = new Order();
         return $orderModel->getAll([
                     'courier_id' => $courierId,
                     'status' => 'shipped'

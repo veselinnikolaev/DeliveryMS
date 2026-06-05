@@ -7,8 +7,8 @@ use Core\Model;
 
 class Order extends Model {
 
-    public string $primaryKey = 'id';
-    public string $table = 'orders';
+    public ?string $primaryKey = 'id';
+    public ?string $table = 'orders';
 
     public array $schema = array(
         array('name' => 'id', 'type' => 'int', 'default' => ':NULL'),

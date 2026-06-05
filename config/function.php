@@ -4,14 +4,14 @@ use App\Models\Setting;
 
 class Utility {
 
-    static $order_status = [
+    static array $order_status = [
         'pending' => 'Pending',
         'shipped' => 'Shipped',
         'cancelled' => 'Cancelled',
         'delivered' => 'Delivered',
         'returned' => 'Returned'
     ];
-    static $currencies = [
+    static array $currencies = [
         '$' => 'USD',
         '€' => 'EUR',
         '£' => 'GBP',
@@ -22,7 +22,7 @@ class Utility {
         '元' => 'CNY',
         '₣' => 'CHF'
     ];
-    static $dateFormats = [
+    static array $dateFormats = [
         'm/d/Y' => '03/24/2025', // MM/DD/YYYY
         'd/m/Y' => '24/03/2025', // DD/MM/YYYY
         'Y-m-d' => '2025-03-24', // YYYY-MM-DD
@@ -35,7 +35,8 @@ class Utility {
         return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $length);
     }
 
-    static function getDisplayableAmount($amount) {
+    static function getDisplayableAmount($amount): string
+    {
         $settingModel = new Setting();
         $currency = $settingModel->getFirstBy(['key' => 'currency_code'])['value'];
 

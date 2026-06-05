@@ -1,3 +1,17 @@
+/**
+ * CSRF TOKEN REQUIREMENT FOR AJAX POST REQUESTS
+ * 
+ * For every AJAX POST request in this project, always include the CSRF token by reading it from 
+ * $('input[name="csrf_token"]').val() if a form is present on the page, or from 
+ * $('meta[name="csrf_token"]').attr('content') as a fallback. 
+ * 
+ * The meta tag <meta name="csrf_token" content="<?= Security::getCsrfToken() ?>"> is always present 
+ * in the layout head. Never send a POST request without including csrf_token in the request data 
+ * or as the X-CSRF-Token header for XML HTTP requests. 
+ * 
+ * The backend validates CSRF on every POST in Core\Controller::validateCsrfOnPost().
+ */
+
 class TrackingStateManager {
     static KEY = 'courier_tracking_state';
     static setTracking(isTracking) {
@@ -191,7 +205,8 @@ class TrackingControl {
                 // Data to send. jQuery automatically formats this as 'application/x-www-form-urlencoded'
                 // for POST requests by default, matching the original fetch setup.
                 latitude: latitude,
-                longitude: longitude
+                longitude: longitude,
+                csrf_token: $('input[name="csrf_token"]').val() || $('meta[name="csrf_token"]').attr('content')
             },
             success: (data) => { // Callback function for successful requests (status 2xx)
                 // 'data' is already parsed JSON because of dataType: 'json'

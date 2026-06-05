@@ -1,14 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Core\Model;
 
 class User extends Model {
 
-    var $primaryKey = 'id';
-    var $table = 'users';
-    var $schema = array(
+    public ?string $primaryKey = 'id';
+    public ?string $table = 'users';
+
+    public array $schema = array(
         array('name' => 'id', 'type' => 'int', 'default' => ':NULL'),
         array('name' => 'name', 'type' => 'varchar', 'default' => ''),
         array('name' => 'email', 'type' => 'varchar', 'default' => ':NULL'),
@@ -22,4 +25,3 @@ class User extends Model {
         array('name' => 'photo_path', 'type' => 'varchar', 'default' => ':NULL')
     );
 }
-?>

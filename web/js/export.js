@@ -1,3 +1,17 @@
+/**
+ * CSRF TOKEN REQUIREMENT FOR AJAX POST REQUESTS
+ * 
+ * For every AJAX POST request in this project, always include the CSRF token by reading it from 
+ * $('input[name="csrf_token"]').val() if a form is present on the page, or from 
+ * $('meta[name="csrf_token"]').attr('content') as a fallback. 
+ * 
+ * The meta tag <meta name="csrf_token" content="<?= Security::getCsrfToken() ?>"> is always present 
+ * in the layout head. Never send a POST request without including csrf_token in the request data 
+ * or as the X-CSRF-Token header for XML HTTP requests. 
+ * 
+ * The backend validates CSRF on every POST in Core\Controller::validateCsrfOnPost().
+ */
+
 (function ($) {
     $(function () {
         function setupExportButton(entity) {
@@ -38,8 +52,7 @@
                         if (!$(td).find('input[type="checkbox"]').length) {
                             // Skip the action column (last column)
                             if (index < $(this).parent().find('td').length - 1 && cellIndex < headers.length) {
-                                var cellValue = $(td).text().trim();
-                                entityObj[headers[cellIndex].key] = cellValue;
+                                entityObj[headers[cellIndex].key] = $(td).text().trim();
                                 cellIndex++;
                             }
                         }
@@ -62,6 +75,12 @@
                     'action': `index.php?controller=${entity.charAt(0).toUpperCase() + entity.slice(1)}&action=export`,
                     'target': '_blank'
                 });
+                // Add CSRF token
+                $('<input>').attr({
+                    type: 'hidden',
+                    name: 'csrf_token',
+                    value: $('input[name="csrf_token"]').val() || $('meta[name="csrf_token"]').attr('content')
+                }).appendTo($form);
                 // Add product data as JSON
                 $('<input>').attr({
                     type: 'hidden',

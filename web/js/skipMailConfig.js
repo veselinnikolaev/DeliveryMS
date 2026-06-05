@@ -1,3 +1,17 @@
+/**
+ * CSRF TOKEN REQUIREMENT FOR AJAX POST REQUESTS
+ * 
+ * For every AJAX POST request in this project, always include the CSRF token by reading it from 
+ * $('input[name="csrf_token"]').val() if a form is present on the page, or from 
+ * $('meta[name="csrf_token"]').attr('content') as a fallback. 
+ * 
+ * The meta tag <meta name="csrf_token" content="<?= Security::getCsrfToken() ?>"> is always present 
+ * in the layout head. Never send a POST request without including csrf_token in the request data 
+ * or as the X-CSRF-Token header for XML HTTP requests. 
+ * 
+ * The backend validates CSRF on every POST in Core\Controller::validateCsrfOnPost().
+ */
+
 (function ($) {
     $(function () {
         function setupSkipButton() {
@@ -11,14 +25,19 @@
                 e.preventDefault();
 
                 $.ajax({
-                    url: "index.php?controller=Install&action=step4", // Target step4
+                    url: "index.php?controller=Install&action=step4",
                     type: "POST",
-                    data: {skip_mail: true}, // Sending a flag to indicate skipping
+                    headers: {
+                        "X-CSRF-Token": $('meta[name="csrf_token"]').attr('content')
+                    },
+                    data: {
+                        skip_mail: true
+                    },
                     success: function (response) {
-                        // Redirect to step4 after successful processing
                         window.location.href = "index.php?controller=Install&action=step5";
                     },
-                    error: function () {
+                    error: function (xhr) {
+                        console.log(xhr.status, xhr.responseText);
                         alert("An error occurred while skipping mail configuration.");
                     }
                 });

@@ -32,7 +32,7 @@ require_once 'config/constant.php';
 require_once 'config/function.php';
 
 if (!INSTALLED) {
-// Пренасочване към инсталационната страница
+// Redirect to installation page
 if (empty($_REQUEST['controller'])) {
 $_REQUEST['controller'] = 'Install';
 }
@@ -49,8 +49,6 @@ if (empty($_REQUEST['action'])) {
 $_REQUEST['action'] = 'index';
 }
 }
-
-// Composer autoloading is now handled in config/constant.php
 
 $router = new Core\Router();
 $router->resolve();

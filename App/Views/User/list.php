@@ -28,6 +28,7 @@
                         </div>
                         <div class="collapse show card-body" id="filters-container">
                             <form id="user-filter-form">
+                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                                 <div class="card p-4">
                                     <div class="row">
                                         <div class="col-md-4 mb-3">
@@ -163,6 +164,7 @@
             <div class="modal-body">
                 <p id="role-message"></p>
                 <form id="role-form">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                     <input type="hidden" id="user-id" name="id" value="">
                     <input type="hidden" id="new-role" name="role" value="">
                 </form>

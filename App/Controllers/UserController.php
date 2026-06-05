@@ -1,30 +1,35 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controllers;
 
-use Models;
+use App\Models\User;
+use App\Models\Notification;
 use Core;
+use Core\Services\ExportService;
 use Core\View;
 use Core\Controller;
 
 class UserController extends Controller {
 
-    var $layout = 'admin';
+    public string $layout = 'admin';
 
     public function __construct() {
+        parent::__construct();
         if (empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
             exit;
         }
     }
 
-    function list($layout = 'admin') {
+    public function list($layout = 'admin'): void {
         if ($_SESSION['user']['role'] == 'user') {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
 
-        $userModel = new \App\Models\User();
+        $userModel = new User();
 
         $opts = array();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -52,14 +57,14 @@ class UserController extends Controller {
             }
         }
 
-        // Извличане на всички записи от таблицата gallery
+        // Retrieve all records from the users table
         $users = $userModel->getAll($opts);
 
-        // Прехвърляне на данни към изгледа
+        // Pass data to the view
         $this->view($layout, ['users' => $users]);
     }
 
-    function filter() {
+    public function filter(): void {
         if ($_SESSION['user']['role'] == 'user') {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
@@ -68,15 +73,16 @@ class UserController extends Controller {
         $this->list('ajax');
     }
 
-    function print() {
+    public function print(): void {
         if ($_SESSION['user']['role'] == 'user') {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
 
-        if (isset($this->post('userData'))) {
+        $userData = $this->post('userData');
+        if (isset($userData)) {
             // Decode the JSON data
-            $users = json_decode($this->post('userData'), true);
+            $users = json_decode($userData, true);
 
             if (!$users || empty($users)) {
                 echo "No users to print";
@@ -87,22 +93,23 @@ class UserController extends Controller {
         $this->view('ajax', ['users' => $users]);
     }
 
-    public function changeRole() {
+    public function changeRole(): void {
         if ($_SESSION['user']['role'] == 'user') {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
 
-        $userModel = new \App\Models\User();
+        $userModel = new User();
 
         if (!empty($this->post('id')) && !empty($this->post('role'))) {
+            $userId = \Core\Security::int($this->post('id'));
             $role = $this->post('role');
 
-            if (in_array($role, ['user', 'admin'])) {
+            if (in_array($role, ['user', 'admin', 'courier'])) {
                 $postData = $this->post();
                 $userModel->update($postData);
 
-                $notificationModel = new \App\Models\Notification();
+                $notificationModel = new Notification();
 
                 // Notify the user whose role changed
                 $notificationModel->save([
@@ -111,6 +118,9 @@ class UserController extends Controller {
                     'link' => INSTALL_URL . "?controller=User&action=profile&id=$userId",
                     'created_at' => time()
                 ]);
+
+                // Fetch user data for notification
+                $user = $userModel->get($userId);
 
                 // Notify admins
                 $this->notifyAdmins(
@@ -125,14 +135,14 @@ class UserController extends Controller {
         $this->view('ajax', ['users' => $users]);
     }
 
-    function create() {
+    public function create(): void {
         if ($_SESSION['user']['role'] == 'user') {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
 
         // Create an instance of the User model
-        $userModel = new \App\Models\User();
+        $userModel = new User();
 
         // Check if the form has been submitted
         if (!empty($this->post('send'))) {
@@ -164,8 +174,8 @@ class UserController extends Controller {
         $this->view($this->layout, $arr);
     }
 
-    function delete() {
-        $userModel = new \App\Models\User();
+    public function delete(): void {
+        $userModel = new User();
 
         if (!empty($this->post('id'))) {
             $userId = \Core\Security::int($this->post('id'));
@@ -179,13 +189,13 @@ class UserController extends Controller {
         $this->view('ajax', ['users' => $users]);
     }
 
-    function bulkDelete() {
+    public function bulkDelete(): void {
         if ($_SESSION['user']['role'] == 'user') {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
 
-        $userModel = new \App\Models\User();
+        $userModel = new User();
 
         if (!empty($this->post('ids')) && is_array($this->post('ids'))) {
             $userIds = $this->post('ids');
@@ -200,10 +210,10 @@ class UserController extends Controller {
         $this->view('ajax', ['users' => $users]);
     }
 
-    function edit() {
-        $userModel = new \App\Models\User();
+    public function edit(): void {
+        $userModel = new User();
 
-        $id = isset($this->post('id')) ? $this->post('id') : (isset($this->get('id')) ? $this->get('id') : null);
+        $id = $this->post('id') ?? $this->get('id') ?? null;
         $arr = $userModel->get($id);
 
         // Check if the form has been submitted
@@ -216,84 +226,89 @@ class UserController extends Controller {
             }
 
             // If saving fails, set an error message
-            $arr['error_message'] = "Failed to create the courier. Please try again.";
+            $arr['error_message'] = "Failed to update the user. Please try again.";
         }
 
         // Load the view and pass the data to it
         $this->view($this->layout, $arr);
     }
 
-    function profile() {
+    public function profile(): void {
         if ($_SESSION['user']['role'] == 'user' && $_SESSION['user']['id'] != $this->get('id')) {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
 
-        $userModel = new \App\Models\User();
+        $userModel = new User();
 
         $user = $userModel->get(\Core\Security::int($this->get('id')));
 
         $this->view($this->layout, ['user' => $user]);
     }
 
-    function uploadProfilePicture() {
+    public function uploadProfilePicture(): void {
         header('Content-Type: application/json');
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['profile_picture'])) {
-            $user_id = \Core\Security::int($this->post('user_id')); // Get user ID
-            $userModel = new \App\Models\User();
-            $fileName = basename($_FILES["profile_picture"]["name"]);
-            $fileExt = pathinfo($fileName, PATHINFO_EXTENSION);
-            $allowedTypes = ["jpg", "jpeg", "png", "gif"];
-
-            if (!in_array(strtolower($fileExt), $allowedTypes)) {
-                echo json_encode(['status' => 'error', 'message' => 'Invalid file format!']);
-                exit;
-            }
-
-            require 'App\Helpers\uploader\src\class.upload.php';
-
-            $handle = new \Verot\Upload\Upload($_FILES['profile_picture']);
-            if ($handle->uploaded) {
-                $handle->file_new_name_body = 'profile_' . $user_id . '_' . uniqid();
-                $handle->image_resize = true;
-                $handle->image_x = 300;
-                $handle->image_ratio_y = true;
-                $upload_path = 'web/upload/';
-                $handle->process($upload_path);
-
-                if ($handle->processed) {
-                    $photoPath = $upload_path . $handle->file_dst_name;
-                    $handle->clean();
-
-                    // ✅ Update user photo in database
-                    $userModel->update(['id' => $user_id, 'photo_path' => $photoPath]);
-                    $_SESSION['user']['photo_path'] = $photoPath;
-
-                    echo json_encode([
-                        'status' => 'success',
-                        'photo_path' => $photoPath
-                    ]);
-                } else {
-                    echo json_encode(['status' => 'error', 'message' => $handle->error]);
-                }
-            } else {
-                echo json_encode(['status' => 'error', 'message' => 'File upload failed.']);
-            }
-        } else {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_FILES['profile_picture'])) {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request.']);
+            exit;
         }
-    }
 
-    function editPassword() {
-        $id = isset($this->post('id')) ? $this->post('id') : (isset($this->get('id')) ? $this->get('id') : null);
+        $user_id = \Core\Security::int($this->post('user_id'));
+        $file = $_FILES['profile_picture'];
+        $fileExt = strtolower(pathinfo(basename($file['name']), PATHINFO_EXTENSION));
+        $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'];
+
+        if (!in_array($fileExt, $allowedTypes)) {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid file format!']);
+            exit;
+        }
+
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            echo json_encode(['status' => 'error', 'message' => 'File upload failed.']);
+            exit;
+        }
+
+        $newFileName = 'profile_' . $user_id . '_' . uniqid() . '.' . $fileExt;
+        $destination = UPLOAD_PATH . $newFileName;
+
+        // Resize using GD
+        $src = match($fileExt) {
+            'jpg', 'jpeg' => imagecreatefromjpeg($file['tmp_name']),
+            'png'         => imagecreatefrompng($file['tmp_name']),
+            'gif'         => imagecreatefromgif($file['tmp_name']),
+        };
+
+        [$origW, $origH] = getimagesize($file['tmp_name']);
+        $newW = 300;
+        $newH = (int) ($origH * $newW / $origW);
+        $dst = imagecreatetruecolor($newW, $newH);
+        imagecopyresampled($dst, $src, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
+
+        match($fileExt) {
+            'jpg', 'jpeg' => imagejpeg($dst, $destination, 90),
+            'png'         => imagepng($dst, $destination),
+            'gif'         => imagegif($dst, $destination),
+        };
+
+        imagedestroy($src);
+        imagedestroy($dst);
+
+        $userModel = new User();
+        $userModel->update(['id' => $user_id, 'photo_path' => $destination]);
+        $_SESSION['user']['photo_path'] = $destination;
+
+        echo json_encode(['status' => 'success', 'photo_path' => $destination]);
+    }
+    public function editPassword(): void {
+        $id = $this->post('id') ?? $this->get('id') ?? null;
 
         if ($_SESSION['user']['role'] == 'user' && $_SESSION['user']['id'] != $id) {
             header("Location: " . INSTALL_URL, true, 301);
             exit;
         }
 
-        $userModel = new \App\Models\User();
+        $userModel = new User();
 
         if (!empty($this->post('id'))) {
             $newPassword = $this->post('password');
@@ -305,7 +320,7 @@ class UserController extends Controller {
 
             if (!isset($errorMessage)) {
                 if ($userModel->update(['id' => $id, 'password_hash' => password_hash($newPassword, PASSWORD_DEFAULT)])) {
-                    $notificationModel = new \App\Models\Notification();
+                    $notificationModel = new Notification();
                     $notificationModel->save([
                         'user_id' => $id,
                         'message' => "Your password has been changed successfully",
@@ -332,11 +347,12 @@ class UserController extends Controller {
         $this->view($this->layout, ['id' => $id, 'error_message' => $errorMessage ?? null]);
     }
 
-    function export() {
+    public function export(): void {
         // Check if userData is provided
-        if (isset($this->post('userData'))) {
+        $userData = $this->post('userData');
+        if (isset($userData)) {
             // Decode the JSON data
-            $users = json_decode($this->post('userData'), true);
+            $users = json_decode($userData, true);
 
             if (!$users || empty($users)) {
                 echo "No users to export";
@@ -344,175 +360,25 @@ class UserController extends Controller {
             }
         }
 
-        $format = isset($this->post('format')) ? $this->post('format') : 'pdf';
+        $format = $this->post('format') ?? 'pdf';
 
         // Export based on format
         switch ($format) {
             case 'pdf':
-                $this->exportAsPDF($users);
-                break;
+                ExportService::exportToPDF($users, 'Users Export', 'users_export.pdf');
             case 'excel':
-                $this->exportAsExcel($users);
-                break;
+                ExportService::exportToExcel($users, 'users_export.xlsx');
             case 'csv':
-                $this->exportAsCSV($users);
-                break;
+                ExportService::exportToCSV($users, 'users_export.csv');
             default:
                 echo "Invalid export format";
                 exit;
         }
     }
 
-    private function exportAsPDF($users) {
-        if (ob_get_level()) {
-            ob_end_clean();
-        }
-        require_once(__DIR__ . '/../Helpers/export/tcpdf/tcpdf.php');
-
-        $pdf = new \TCPDF('L', 'mm', 'A4', true, 'UTF-8');
-        $pdf->SetCreator('Your App');
-        $pdf->SetTitle('Users Export');
-        $pdf->SetHeaderData('', 0, 'Users List', '');
-        $pdf->setHeaderFont(Array('helvetica', '', 12));
-        $pdf->setFooterFont(Array('helvetica', '', 10));
-        $pdf->SetDefaultMonospacedFont('courier');
-        $pdf->SetMargins(15, 15, 15);
-        $pdf->SetAutoPageBreak(TRUE, 15);
-
-        $pdf->AddPage();
-
-        // Generate HTML table with dynamic headers
-        $html = $this->generateDynamicUserTable($users);
-        $pdf->writeHTML($html, true, false, true, false, '');
-
-        // Output PDF
-        $pdf->Output('users_export.pdf', 'D');
-        exit;
-    }
-
-    private function generateDynamicUserTable($users) {
-        // Start HTML table
-        $html = '<table border="1" cellpadding="5">
-<thead>
-    <tr>';
-
-        // If we have users, use their keys as headers
-        if (!empty($users) && is_array($users[0])) {
-            $headers = array_keys($users[0]);
-
-            // Add headers to table
-            foreach ($headers as $header) {
-                $displayHeader = ucwords(str_replace('_', ' ', $header));
-                $html .= '<th>' . $displayHeader . '</th>';
-            }
-
-            $html .= '</tr>
-    </thead>
-    <tbody>';
-
-            // Add user data
-            foreach ($users as $user) {
-                $html .= '<tr>';
-                foreach ($user as $key => $value) {
-                    // Handle empty values
-                    if (empty($value) && $value !== 0) {
-                        $value = 'N/A';
-                    }
-                    // Sanitize output
-                    $html .= '<td>' . htmlspecialchars($value) . '</td>';
-                }
-                $html .= '</tr>';
-            }
-        } else {
-            // Fallback for no data
-            $html .= '<th>No Data Available</th></tr></thead><tbody><tr><td>No users found</td></tr>';
-        }
-
-        $html .= '</tbody></table>';
-
-        return $html;
-    }
-
-    private function exportAsExcel($users) {
-        // Include SimpleXLSXGen
-        require(__DIR__ . '/../Helpers/export/simplexlsxgen/src/SimpleXLSXGen.php');
-
-        // Prepare data
-        $data = [];
-
-        // First user in array determines headers
-        if (!empty($users) && is_array($users[0])) {
-            // Use keys from first user for headers, ensuring proper capitalization
-            $headers = array_keys($users[0]);
-            $headerRow = [];
-
-            foreach ($headers as $header) {
-                // Convert user_id to User ID, etc.
-                $headerRow[] = ucwords(str_replace('_', ' ', $header));
-            }
-
-            $data[] = $headerRow;
-
-            // Add users
-            foreach ($users as $user) {
-                $row = [];
-                foreach ($user as $value) {
-                    // Handle empty values
-                    $row[] = (empty($value) && $value !== 0) ? 'N/A' : $value;
-                }
-                $data[] = $row;
-            }
-        } else {
-            // Fallback for no data
-            $data[] = ['No Data Available'];
-            $data[] = ['No users found'];
-        }
-
-        // Create and send file
-        \Shuchkin\SimpleXLSXGen::fromArray($data)->downloadAs('users_export.xlsx');
-        exit;
-    }
-
-    private function exportAsCSV($users) {
-        // Set headers for CSV download
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="users_export.csv"');
-
-        // Open output stream
-        $output = fopen('php://output', 'w');
-
-        // Determine headers dynamically from the first user
-        if (!empty($users) && is_array($users[0])) {
-            $headers = array_keys($users[0]);
-            // Convert keys to readable headers (e.g., user_id to User ID)
-            $readableHeaders = array_map(function ($header) {
-                return ucwords(str_replace('_', ' ', $header));
-            }, $headers);
-
-            // Add headers
-            fputcsv($output, $readableHeaders);
-
-            // Add data using the actual keys from the data
-            foreach ($users as $user) {
-                $row = [];
-                foreach ($user as $value) {
-                    // Handle empty values
-                    $row[] = (empty($value) && $value !== 0) ? 'N/A' : $value;
-                }
-                fputcsv($output, $row);
-            }
-        } else {
-            // Fallback for empty data
-            fputcsv($output, ['No data available']);
-        }
-
-        fclose($output);
-        exit;
-    }
-
-    private function notifyAdmins($message, $link = null) {
-        $userModel = new \App\Models\User();
-        $notificationModel = new \App\Models\Notification();
+    private function notifyAdmins($message, $link = null): void {
+        $userModel = new User();
+        $notificationModel = new Notification();
 
         $admins = $userModel->getAll(['role' => 'admin']);
         foreach ($admins as $admin) {

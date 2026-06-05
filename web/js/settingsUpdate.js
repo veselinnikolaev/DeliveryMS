@@ -1,3 +1,17 @@
+/**
+ * CSRF TOKEN REQUIREMENT FOR AJAX POST REQUESTS
+ * 
+ * For every AJAX POST request in this project, always include the CSRF token by reading it from 
+ * $('input[name="csrf_token"]').val() if a form is present on the page, or from 
+ * $('meta[name="csrf_token"]').attr('content') as a fallback. 
+ * 
+ * The meta tag <meta name="csrf_token" content="<?= Security::getCsrfToken() ?>"> is always present 
+ * in the layout head. Never send a POST request without including csrf_token in the request data 
+ * or as the X-CSRF-Token header for XML HTTP requests. 
+ * 
+ * The backend validates CSRF on every POST in Core\Controller::validateCsrfOnPost().
+ */
+
 (function ($) {
     $(function () {
         var form = $("#settings-form");
@@ -35,11 +49,18 @@
         // AJAX form submission
         form.on("submit", function (e) {
             e.preventDefault();
+            var formData = form.serialize();
+            // Add CSRF token to form data
+            var csrfToken = $('input[name="csrf_token"]').val() || $('meta[name="csrf_token"]').attr('content');
+            if (csrfToken) {
+                formData += '&csrf_token=' + encodeURIComponent(csrfToken);
+            }
+            
             $.ajax({
                 url: "index.php?controller=Settings&action=index",
                 type: "POST",
                 dataType: "json",
-                data: form.serialize(),
+                data: formData,
                 success: function (response) {
                     if (response.success) {
                         alert(response.message);

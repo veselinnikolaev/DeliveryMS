@@ -5,32 +5,28 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Models\Order;
+use App\Models\User;
+use App\Models\OrderProducts;
+use App\Models\Product;
+use App\Models\Notification;
+use Core\Services\ExportService;
+use Core\Services\MailService;
+use Core\Security;
 use Core\Controller;
 use Core\Exceptions\DatabaseException;
 
 class OrderController extends Controller {
 
     protected string $layout = 'admin';
-    protected ?array $settings = null;
 
     public function __construct() {
-        $this->settings = $this->loadSettings();
-    }
-
-    protected function loadSettings(): array {
-        $settingModel = new \App\Models\Setting();
-        $settings = $settingModel->getAll();
-        $app_settings = [];
-        foreach ($settings as $setting) {
-            $app_settings[$setting['key']] = $setting['value'];
-        }
-        return $app_settings;
+        parent::__construct();
     }
 
     function list($layout = 'admin'): void {
         try {
-            $orderModel = new \App\Models\Order();
-            $userModel = new \App\Models\User();
+            $orderModel = new Order();
+            $userModel = new User();
 
             $opts = array();
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -49,7 +45,7 @@ class OrderController extends Controller {
             // Handle courier name filter - fetch matching courier IDs first
             if (!empty($this->post('courierName'))) {
                 $courierName = '%' . $this->post('courierName') . '%';
-                $matchingCouriers = $userModel->getAll(['name' => $courierName]);
+                $matchingCouriers = $userModel->getAll(['name' => $courierName, 'role' => 'courier']);
                 if (!empty($matchingCouriers)) {
                     $courierIds = array_column($matchingCouriers, 'id');
                     $opts['courier_id'] = $courierIds;
@@ -83,21 +79,21 @@ class OrderController extends Controller {
             }
             // Handle price range filters
             if (!empty($this->post('minTotalPrice'))) {
-                $opts['total_amount >='] = \Core\Security::float($this->post('minTotalPrice'));
+                $opts['total_amount >='] = Security::float($this->post('minTotalPrice'));
             }
             if (!empty($this->post('maxTotalPrice'))) {
-                $opts['total_amount <='] = \Core\Security::float($this->post('maxTotalPrice'));
+                $opts['total_amount <='] = Security::float($this->post('maxTotalPrice'));
             }
         }
 
 // Retrieve all orders from the database
         if (!empty($this->get('user_id')) && $this->get('user_id') == $_SESSION['user']['id']) { //User role checking orders
-            $opts['user_id'] = \Core\Security::int($this->get('user_id'));
+            $opts['user_id'] = Security::int($this->get('user_id'));
         }
 
 // Retrieve all orders from the database
         if (!empty($this->get('courier_id')) && $this->get('courier_id') == $_SESSION['user']['id']) { //User role checking orders
-            $opts['courier_id'] = \Core\Security::int($this->get('courier_id'));
+            $opts['courier_id'] = Security::int($this->get('courier_id'));
         }
 
         $orders = $orderModel->getAll($opts);
@@ -105,7 +101,8 @@ class OrderController extends Controller {
 // Format orders for display
         foreach ($orders as &$order) {
             $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
-            $order['courier_name'] = $userModel->get($order['courier_id'])['name'] ?? 'Unknown';
+            $courier = $userModel->get($order['courier_id']);
+            $order['courier_name'] = ($courier && $courier['role'] === 'courier') ? $courier['name'] : 'Unknown';
             $order['delivery_date'] = date($this->settings['date_format'], $order['delivery_date']);
         }
 
@@ -137,12 +134,12 @@ class OrderController extends Controller {
             exit;
         }
 
-        $orderModel = new \App\Models\Order();
-        $orderProductsModel = new \App\Models\OrderProducts();
-        $productModel = new \App\Models\Product();
-        $userModel = new \App\Models\User();
-        $notificationModel = new \App\Models\Notification();
-        $mailer = new \App\Helpers\mailer\Mailer();
+        $orderModel = new Order();
+        $orderProductsModel = new OrderProducts();
+        $productModel = new Product();
+        $userModel = new User();
+        $notificationModel = new Notification();
+        $mailer = new MailService();
         $currency = $this->settings['currency_code'];
 
         if (!empty($this->post('send'))) {
@@ -210,7 +207,7 @@ class OrderController extends Controller {
                     if (!isset($error_message)) {
 // Notify customer
                         $notificationModel->save([
-                            'user_id' => \Core\Security::int($this->post('user_id')),
+                            'user_id' => Security::int($this->post('user_id')),
                             'message' => "New order #{$orderId} has been created. Total: " . \Utility::getDisplayableAmount($priceDetails['total']),
                             'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
                             'created_at' => time()
@@ -218,7 +215,7 @@ class OrderController extends Controller {
 
 // Notify courier
                         $notificationModel->save([
-                            'user_id' => \Core\Security::int($this->post('courier_id')),
+                            'user_id' => Security::int($this->post('courier_id')),
                             'message' => "New delivery assigned to you. Order #{$orderId}",
                             'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
                             'created_at' => time()
@@ -292,8 +289,8 @@ class OrderController extends Controller {
             exit;
         }
 
-        $orderModel = new \App\Models\Order();
-        $userModel = new \App\Models\User();
+        $orderModel = new Order();
+        $userModel = new User();
 
         if (!empty($this->post('ids')) && !empty($this->post('status'))) {
             $status = $this->post('status');
@@ -306,6 +303,7 @@ class OrderController extends Controller {
                     $order = $orderModel->get($orderId);
 
 // Notify customer about delivery/return
+                    $notificationModel = new Notification();
                     $notificationModel->save([
                         'user_id' => $order['user_id'],
                         'message' => "Your order #{$orderId} has been " . $status,
@@ -317,11 +315,12 @@ class OrderController extends Controller {
         }
 
 // Return refreshed user list
-        $orders = $orderModel->getAll(['courier_id' => \Core\Security::int($_SESSION['user']['id'])]);
+        $orders = $orderModel->getAll(['courier_id' => Security::int($_SESSION['user']['id'])]);
 
         foreach ($orders as &$order) {
             $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
-            $order['courier_name'] = $userModel->get($order['courier_id'])['name'] ?? 'Unknown';
+            $courier = $userModel->get($order['courier_id']);
+            $order['courier_name'] = ($courier && $courier['role'] === 'courier') ? $courier['name'] : 'Unknown';
             $order['delivery_date'] = date($this->settings['date_format'], $order['delivery_date']);
         }
 
@@ -334,10 +333,10 @@ class OrderController extends Controller {
 
     function details(): void {
         try {
-            $orderModel = new \App\Models\Order();
-        $orderProductsModel = new \App\Models\OrderProducts();
-        $productModel = new \App\Models\Product();
-        $userModel = new \App\Models\User();
+            $orderModel = new Order();
+        $orderProductsModel = new OrderProducts();
+        $productModel = new Product();
+        $userModel = new User();
 
         if (empty($_SESSION['user'])) {
             header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
@@ -350,7 +349,7 @@ class OrderController extends Controller {
         }
 
         if ($_SESSION['user']['role'] == 'user') {
-            $userOrders = $orderModel->getAll(['user_id' => \Core\Security::int($_SESSION['user']['id'])]);
+            $userOrders = $orderModel->getAll(['user_id' => Security::int($_SESSION['user']['id'])]);
             $userOrderIds = array_column($userOrders, 'id');
             if (!in_array($this->get('id'), $userOrderIds)) {
                 header("Location: " . INSTALL_URL, true, 301);
@@ -358,7 +357,7 @@ class OrderController extends Controller {
             }
         }
 
-        $orderId = \Core\Security::int($this->get('id'));
+        $orderId = Security::int($this->get('id'));
         $orderData = $orderModel->get($orderId);
 
         if (!$orderData) {
@@ -368,6 +367,11 @@ class OrderController extends Controller {
 
         $customerData = $userModel->get($orderData['user_id']);
         $courierData = $userModel->get($orderData['courier_id']);
+        
+        // Ensure courier has courier role
+        if ($courierData && $courierData['role'] !== 'courier') {
+            $courierData = null;
+        }
 
         $opts = array();
         $opts['order_id'] = $orderId;
@@ -405,13 +409,13 @@ class OrderController extends Controller {
             exit;
         }
 
-        $productModel = new \App\Models\Product();
-        $orderModel = new \App\Models\Order();
-        $orderProductsModel = new \App\Models\OrderProducts();
-        $userModel = new \App\Models\User();
+        $productModel = new Product();
+        $orderModel = new Order();
+        $orderProductsModel = new OrderProducts();
+        $userModel = new User();
 
         if (!empty($this->post('id'))) {
-            $orderId = \Core\Security::int($this->post('id'));
+            $orderId = Security::int($this->post('id'));
 
             $orderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
             foreach ($orderProducts as $orderProduct) {
@@ -430,7 +434,8 @@ class OrderController extends Controller {
 // Format orders for display
         foreach ($orders as &$order) {
             $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
-            $order['name'] = $userModel->get($order['courier_id'])['name'] ?? 'Unknown';
+            $courier = $userModel->get($order['courier_id']);
+            $order['name'] = ($courier && $courier['role'] === 'courier') ? $courier['name'] : 'Unknown';
             $order['delivery_date'] = date($this->settings['date_format'], $order['delivery_date']);
         }
 
@@ -444,10 +449,10 @@ class OrderController extends Controller {
     function pay(): void {
         try {
             if (!empty($this->get('order_id'))) {
-            $orderId = \Core\Security::int($this->get('order_id'));
-            $orderModel = new \App\Models\Order();
-            $userModel = new \App\Models\User();
-            $orderProductsModel = new \App\Models\OrderProducts();
+            $orderId = Security::int($this->get('order_id'));
+            $orderModel = new Order();
+            $userModel = new User();
+            $orderProductsModel = new OrderProducts();
 
             $order = $orderModel->get($orderId);
             $user = $userModel->get($order['user_id']);
@@ -470,10 +475,10 @@ class OrderController extends Controller {
     public function pay_success(): void {
         try {
 // Get the order ID from the URL parameter
-            $orderId = \Core\Security::int($this->get('order_id'));
+            $orderId = Security::int($this->get('order_id'));
 
-        $orderModel = new \App\Models\Order();
-        $userModel = new \App\Models\User();
+        $orderModel = new Order();
+        $userModel = new User();
 // Load the order from the database
         $order = $orderModel->get($orderId);
         $user = $userModel->getFirstBy(['id' => $order['user_id']]);
@@ -493,10 +498,10 @@ class OrderController extends Controller {
     public function pay_cancel(): void {
         try {
 // Get the order ID from the URL parameter
-            $orderId = \Core\Security::int($this->get('order_id'));
+            $orderId = Security::int($this->get('order_id'));
 
-        $orderModel = new \App\Models\Order();
-        $userModel = new \App\Models\User();
+        $orderModel = new Order();
+        $userModel = new User();
 // Load the order from the database
         $order = $orderModel->get($orderId);
         $user = $userModel->getFirstBy(['id' => $order['user_id']]);
@@ -517,10 +522,10 @@ class OrderController extends Controller {
             // This is an external webhook, not a form submission
 
 // PayPal verifies the IPN message
-        $orderModel = new \App\Models\Order();
-        $notificationModel = new \App\Models\Notification();
-        $userModel = new \App\Models\User();
-        $orderId = \Core\Security::int($_POST['custom']); // Get the order ID from PayPal's "custom" field
+        $orderModel = new Order();
+        $notificationModel = new Notification();
+        $userModel = new User();
+        $orderId = Security::int($this->post('custom')); // Get the order ID from PayPal's "custom" field
         $order = $orderModel->get($orderId);
         $user = $userModel->getFirstBy(['id' => $order['user_id']]);
 
@@ -592,9 +597,9 @@ class OrderController extends Controller {
             exit;
         }
 
-        $orderModel = new \App\Models\Order();
-        $orderProductsModel = new \App\Models\OrderProducts();
-        $userModel = new \App\Models\User();
+        $orderModel = new Order();
+        $orderProductsModel = new OrderProducts();
+        $userModel = new User();
 
         if (!empty($this->post('ids')) && is_array($this->post('ids'))) {
             $orderIds = $this->post('ids');
@@ -609,7 +614,8 @@ class OrderController extends Controller {
 // Format orders for display
         foreach ($orders as &$order) {
             $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
-            $order['name'] = $userModel->get($order['courier_id'])['name'] ?? 'Unknown';
+            $courier = $userModel->get($order['courier_id']);
+            $order['name'] = ($courier && $courier['role'] === 'courier') ? $courier['name'] : 'Unknown';
             $order['delivery_date'] = date($this->settings['date_format'], $order['delivery_date']);
         }
 
@@ -621,7 +627,7 @@ class OrderController extends Controller {
     }
 
     function print(): void {
-        if (isset($this->post('orderData'))) {
+        if ($this->post('orderData') !== null) {
 // Decode the JSON data
             $orders = json_decode($this->post('orderData'), true);
 
@@ -645,16 +651,16 @@ class OrderController extends Controller {
             exit;
         }
 
-        $orderModel = new \App\Models\Order();
-        $orderProductsModel = new \App\Models\OrderProducts();
-        $productModel = new \App\Models\Product();
-        $userModel = new \App\Models\User();
-        $notificationModel = new \App\Models\Notification();
-        $mailer = new \App\Helpers\mailer\Mailer();
+        $orderModel = new Order();
+        $orderProductsModel = new OrderProducts();
+        $productModel = new Product();
+        $userModel = new User();
+        $notificationModel = new Notification();
+        $mailer = new MailService();
         $currency = $this->settings['currency_code'];
 
         if (!empty($this->post('id'))) {
-            $orderId = \Core\Security::int($this->post('id'));
+            $orderId = Security::int($this->post('id'));
             $order = $orderModel->get($orderId);
             $originalCourierId = $order['courier_id'];
             $currentOrderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
@@ -738,15 +744,15 @@ class OrderController extends Controller {
 
             if (!isset($error_message)) {
                 $notificationModel->save([
-                    'user_id' => \Core\Security::int($this->post('user_id')),
+                    'user_id' => Security::int($this->post('user_id')),
                     'message' => "Your order #$orderId has been edited successfully!",
                     'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
                     'created_at' => time()
                 ]);
 
-                if ($originalCourierId != \Core\Security::int($this->post('courier_id'))) {
+                if ($originalCourierId != Security::int($this->post('courier_id'))) {
                     $notificationModel->save([
-                        'user_id' => \Core\Security::int($this->post('courier_id')),
+                        'user_id' => Security::int($this->post('courier_id')),
                         'message' => "New delivery assigned to you. Order #{$orderId}",
                         'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
                         'created_at' => time()
@@ -773,7 +779,7 @@ class OrderController extends Controller {
             }
         }
 
-        $orderId = \Core\Security::int($this->get('order_id'));
+        $orderId = Security::int($this->get('order_id'));
         $orderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
 
         $productQuantities = [];
@@ -828,7 +834,7 @@ class OrderController extends Controller {
 
     private function calculateOrderTotal(array $productIds, array $quantities): array {
         try {
-            $productModel = new \App\Models\Product();
+            $productModel = new Product();
         $productPrice = 0;
 
         foreach ($productIds as $key => $productId) {
@@ -861,7 +867,7 @@ class OrderController extends Controller {
     function export(): void {
         try {
 // Check if orderData is provided
-            if (isset($this->post('orderData'))) {
+            if ($this->post('orderData') !== null) {
 // Decode the JSON data
             $orders = json_decode($this->post('orderData'), true);
 
@@ -871,19 +877,16 @@ class OrderController extends Controller {
             }
         }
 
-        $format = isset($this->post('format')) ? $this->post('format') : 'pdf';
+        $format = $this->post('format') !== null ? $this->post('format') : 'pdf';
 
 // Export based on format
         switch ($format) {
             case 'pdf':
-                $this->exportAsPDF($orders);
-                break;
+                ExportService::exportToPDF($orders, 'Orders Export', 'orders_export.pdf');
             case 'excel':
-                $this->exportAsExcel($orders);
-                break;
+                ExportService::exportToExcel($orders, 'orders_export.xlsx');
             case 'csv':
-                $this->exportAsCSV($orders);
-                break;
+                ExportService::exportToCSV($orders, 'orders_export.csv');
             default:
                 echo "Invalid export format";
                 exit;
@@ -895,157 +898,11 @@ class OrderController extends Controller {
         }
     }
 
-    private function exportAsPDF(array $orders): void {
-        try {
-            if (ob_get_level()) {
-            ob_end_clean();
-        }
-        require_once(__DIR__ . '/../Helpers/export/tcpdf/tcpdf.php');
-
-        $pdf = new \TCPDF('L', 'mm', 'A4', true, 'UTF-8');
-        $pdf->SetCreator('Your App');
-        $pdf->SetTitle('Orders Export');
-        $pdf->SetHeaderData('', 0, 'Orders List', '');
-        $pdf->setHeaderFont(array('helvetica', '', 12));
-        $pdf->setFooterFont(array('helvetica', '', 10));
-        $pdf->SetDefaultMonospacedFont('courier');
-        $pdf->SetMargins(15, 15, 15);
-        $pdf->SetAutoPageBreak(TRUE, 15);
-
-        $pdf->AddPage();
-
-// Generate HTML table with dynamic headers
-        $html = $this->generateDynamicOrderTable($orders);
-        $pdf->writeHTML($html, true, false, true, false, '');
-
-// Output PDF
-        $pdf->Output('orders_export.pdf', 'D');
-        exit;
-        } catch (\Exception $e) {
-            error_log("Error in OrderController::exportAsPDF: " . $e->getMessage());
-            echo "An error occurred while generating PDF export.";
-            exit;
-        }
-    }
-
-    private function generateDynamicOrderTable($orders) {
-// Start HTML table
-        $html = '<table border="1" cellpadding="5">
-<thead>
-    <tr>';
-
-// Define preferred header names
-        $preferredHeaders = [
-            'id' => 'Order ID',
-            'tracking_number' => 'Tracking Number',
-            'customer_name' => 'Customer',
-            'courier_name' => 'Courier',
-            'delivery_date' => 'Delivery Date',
-            'formatted_total' => 'Total Price',
-            'address' => 'Address',
-            'country' => 'Country',
-            'region' => 'Region',
-            'status_text' => 'Status'
-        ];
-
-        if (!empty($orders) && is_array($orders[0])) {
-            $orderedKeys = array_keys($orders[0]); // Get the exact order from first item
-// Generate headers in the exact same order as the first item in $orders
-            foreach ($orderedKeys as $key) {
-                if (!in_array($key, ['user_id', 'courier_id', 'status', 'total_amount'])) {
-                    $displayName = $preferredHeaders[$key] ?? ucwords(str_replace('_', ' ', $key));
-                    $html .= '<th>' . htmlspecialchars($displayName) . '</th>';
-                }
-            }
-
-            $html .= '</tr>
-    </thead>
-    <tbody>';
-
-// Add order data
-            foreach ($orders as $order) {
-                $html .= '<tr>';
-
-                foreach ($orderedKeys as $key) {
-                    if (!in_array($key, ['user_id', 'courier_id', 'status', 'total_amount'])) {
-                        $value = $order[$key] ?? 'N/A';
-                        $html .= '<td>' . htmlspecialchars($value) . '</td>';
-                    }
-                }
-
-                $html .= '</tr>';
-            }
-        } else {
-// Fallback for no data
-            $html .= '<th>No Data Available</th></tr></thead><tbody><tr><td>No orders found</td></tr>';
-        }
-
-        $html .= '</tbody></table>';
-
-        return $html;
-    }
-
-    private function exportAsExcel(array $orders): void {
-        try {
-            require(__DIR__ . '/../Helpers/export/simplexlsxgen/src/SimpleXLSXGen.php');
-
-        $data = [];
-
-        if (!empty($orders) && is_array($orders[0])) {
-// Get the original column order from the first element
-            $headerRow = array_keys($orders[0]);
-            $data[] = array_map(fn($h) => ucwords(str_replace('_', ' ', $h)), $headerRow);
-
-// Add data in the same order
-            foreach ($orders as $order) {
-                $data[] = array_map(fn($key) => $order[$key] ?? 'N/A', $headerRow);
-            }
-        } else {
-            $data[] = ['No Data Available'];
-        }
-
-        \Shuchkin\SimpleXLSXGen::fromArray($data)->downloadAs('orders_export.xlsx');
-        exit;
-        } catch (\Exception $e) {
-            error_log("Error in OrderController::exportAsExcel: " . $e->getMessage());
-            echo "An error occurred while generating Excel export.";
-            exit;
-        }
-    }
-
-    private function exportAsCSV(array $orders): void {
-        try {
-            header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="orders_export.csv"');
-
-        $output = fopen('php://output', 'w');
-
-        if (!empty($orders) && is_array($orders[0])) {
-// Get the original column order
-            $headerRow = array_keys($orders[0]);
-            fputcsv($output, array_map(fn($h) => ucwords(str_replace('_', ' ', $h)), $headerRow));
-
-            foreach ($orders as $order) {
-                fputcsv($output, array_map(fn($key) => $order[$key] ?? 'N/A', $headerRow));
-            }
-        } else {
-            fputcsv($output, ['No data available']);
-        }
-
-        fclose($output);
-        exit;
-        } catch (\Exception $e) {
-            error_log("Error in OrderController::exportAsCSV: " . $e->getMessage());
-            echo "An error occurred while generating CSV export.";
-            exit;
-        }
-    }
-
     private function generateOrderEmail($order, $customer, $courier, $products, $title) {
         ob_start();
         ?>
         <!DOCTYPE html>
-        <html>
+        <html lang="en">
 
             <head>
                 <meta charset="utf-8">

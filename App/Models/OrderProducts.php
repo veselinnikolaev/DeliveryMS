@@ -1,15 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Core\Model;
 
 class OrderProducts extends Model {
 
-    var $primaryKey = 'id';
-    var $table = 'order_products';
-    
-    var $schema = array(
+    public ?string $primaryKey = 'id';
+    public ?string $table = 'order_products';
+
+    public array $schema = array(
         array('name' => 'id', 'type' => 'int', 'default' => ':NULL'),
         array('name' => 'order_id', 'type' => 'int', 'default' => ':NULL'),
         array('name' => 'product_id', 'type' => 'int', 'default' => ':NULL'),
@@ -19,4 +21,3 @@ class OrderProducts extends Model {
     );
 
 }
-?>
