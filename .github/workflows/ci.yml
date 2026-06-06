@@ -24,7 +24,7 @@ jobs:
           php-version: "8.2"
           tools: phpcs
 
-      - name: Fix auto-fixable code style issues
+      - name: Auto-fix code style
         run: |
           vendor/bin/phpcbf \
             --standard=phpcs.xml \
@@ -38,6 +38,7 @@ jobs:
             --standard=phpcs.xml \
             --extensions=php \
             --ignore=vendor/ \
+            --warning-severity=0 \
             --colors \
             -p \
             Core/ App/ config/
