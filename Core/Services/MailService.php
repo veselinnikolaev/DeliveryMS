@@ -12,14 +12,14 @@ class MailService
 {
     private PHPMailer $phpmailer;
     private string $host;
-    private string $port;
+    private int $port;
     private string $username;
     private string $password;
 
     public function __construct()
     {
         $this->host = MAIL_HOST;
-        $this->port = MAIL_PORT;
+        $this->port = (int) MAIL_PORT;
         $this->username = MAIL_USERNAME;
         $this->password = MAIL_PASSWORD;
     }
@@ -76,8 +76,12 @@ class MailService
      * @param string $from Sender email address
      * @return bool|string True on success, error message on failure
      */
-    public function sendMail(string $to, string $subject, string $body, string $from = 'delivery@system.com'): bool|string
-    {
+    public function sendMail(
+        string $to,
+        string $subject,
+        string $body,
+        string $from = 'delivery@system.com'
+    ): bool|string {
         $this->connect();
 
         try {

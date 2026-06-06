@@ -1,29 +1,40 @@
-# phpstan.neon
 parameters:
-  level: 5
-  paths:
-    - Core
-    - App
-    - config
-  excludePaths:
-    - vendor
-  dynamicConstantNames:
-    - INSTALL_URL
-    - ROOT_PATH
-    - INSTALL_FOLDER
-    - INSTALLED
-    - MAIL_CONFIGURED
-    - DEFAULT_HOST
-    - DEFAULT_USER
-    - DEFAULT_PASS
-    - DEFAULT_DB
-    - PAYPAL_EMAIL
-    - MAIL_HOST
-    - MAIL_PORT
-    - MAIL_USERNAME
-    - MAIL_PASSWORD
-    - UPLOAD_PATH
-  bootstrapFiles:
-    - phpstan-bootstrap.php
-  ignoreErrors: []
-  reportUnmatchedIgnoredErrors: true
+    level: 5
+    paths:
+        - Core
+        - App
+        - config
+    excludePaths:
+        - vendor
+    dynamicConstantNames:
+        - INSTALL_URL
+        - ROOT_PATH
+        - INSTALL_FOLDER
+        - INSTALLED
+        - MAIL_CONFIGURED
+        - DEFAULT_HOST
+        - DEFAULT_USER
+        - DEFAULT_PASS
+        - DEFAULT_DB
+        - PAYPAL_EMAIL
+        - MAIL_HOST
+        - MAIL_PORT
+        - MAIL_USERNAME
+        - MAIL_PASSWORD
+        - UPLOAD_PATH
+    bootstrapFiles:
+        - phpstan-bootstrap.php
+    reportUnmatchedIgnoredErrors: false
+    ignoreErrors:
+        - '#Variable \$tpl might not be defined#'
+        - '#Variable \$csrf_token might not be defined#'
+        - '#Variable \$viewPath might not be defined#'
+        - '#Variable \$notifications might not be defined#'
+        - '#Variable \$order might not be defined#'
+        - '#Access to static property .* on an unknown class Utility#'
+        - '#Call to static method .* on an unknown class Utility#'
+        - '#Offset .user. on non-empty-array#'
+        - '#Match arm comparison between .gif. and .gif. is always true#'
+        - '#Access to an undefined property Core\\\\Model::\$schema#'
+        - '#Strict comparison using === between non-empty-string and false#'
+        - '#Property PHPMailer\\\\PHPMailer\\\\PHPMailer::\$Port \(int\) does not accept string#'

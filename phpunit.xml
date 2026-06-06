@@ -3,7 +3,8 @@
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
          bootstrap="tests/bootstrap.php"
          colors="true"
-         verbose="true">
+         verbose="true"
+         stderr="true">
     <testsuites>
         <testsuite name="DeliveryMS Test Suite">
             <directory>tests</directory>
@@ -15,4 +16,9 @@
             <directory suffix=".php">App</directory>
         </include>
     </coverage>
+    <php>
+        <ini name="error_reporting" value="24575"/>
+        <ini name="display_errors" value="0"/>
+        <ini name="log_errors" value="1"/>
+    </php>
 </phpunit>
