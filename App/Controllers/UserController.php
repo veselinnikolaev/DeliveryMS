@@ -79,12 +79,14 @@ class UserController extends Controller
             $this->redirect(INSTALL_URL);
         }
 
+        $users = [];
+
         $userData = $this->post('userData');
         if (isset($userData)) {
             // Decode the JSON data
             $users = json_decode($userData, true);
 
-            if (!$users || empty($users)) {
+            if (empty($users)) {
                 echo "No users to print";
                 $this->terminate();
             }
@@ -278,6 +280,7 @@ class UserController extends Controller
             'jpg', 'jpeg' => imagecreatefromjpeg($file['tmp_name']),
             'png'         => imagecreatefrompng($file['tmp_name']),
             'gif'         => imagecreatefromgif($file['tmp_name']),
+            default       => throw new \RuntimeException("Unsupported image type"),
         };
 
         [$origW, $origH] = getimagesize($file['tmp_name']);
@@ -290,6 +293,7 @@ class UserController extends Controller
             'jpg', 'jpeg' => imagejpeg($dst, $destination, 90),
             'png'         => imagepng($dst, $destination),
             'gif'         => imagegif($dst, $destination),
+            default       => throw new \RuntimeException("Unsupported image type"),
         };
 
         imagedestroy($src);
@@ -349,13 +353,14 @@ class UserController extends Controller
 
     public function export(): void
     {
+        $users = [];
         // Check if userData is provided
         $userData = $this->post('userData');
         if (isset($userData)) {
             // Decode the JSON data
             $users = json_decode($userData, true);
 
-            if (!$users || empty($users)) {
+            if (empty($users)) {
                 echo "No users to export";
                 $this->terminate();
             }
