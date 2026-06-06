@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v4.2.2
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@2.31.1
         with:
           php-version: "8.2"
           tools: phpcs
@@ -46,14 +46,13 @@ jobs:
         uses: actions/checkout@v4.2.2
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@2.31.1
         with:
-          php-version: "8.1"
-          extensions: pdo, pdo_mysql, mbstring, json, xml, mysqli
-          coverage: xdebug
+          php-version: "8.2"
+          tools: phpstan
 
       - name: Install Composer dependencies
-        run: composer install --no-progress --prefer-dist --optimize-autoloader
+        run: composer install --no-progress --prefer-dist --optimize-autoloader --ignore-platform-reqs
 
       - name: Run PHPStan
         run: phpstan analyse --configuration=phpstan.neon --memory-limit=256M
@@ -86,7 +85,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.1"
+          php-version: "8.2"
           extensions: pdo, pdo_mysql, mbstring, json, xml, mysqli
           coverage: xdebug
 
@@ -98,7 +97,7 @@ jobs:
           restore-keys: composer-
 
       - name: Install Composer dependencies
-        run: composer install --no-progress --prefer-dist --optimize-autoloader
+        run: composer install --no-progress --prefer-dist --optimize-autoloader --ignore-platform-reqs
 
       - name: Wait for MySQL
         run: |
