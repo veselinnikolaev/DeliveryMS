@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+<?xml version="1.0"?>
 <ruleset name="DeliveryMS">
     <description>PSR-12 for DeliveryMS with project-specific tweaks.</description>
 
@@ -12,12 +13,9 @@
     <rule ref="PSR12">
         <severity>5</severity>
     </rule>
+
     <rule ref="PSR12.Files.FileHeader">
         <severity>0</severity>
-    </rule>
-
-    <!-- Views are HTML templates, not PHP class files -->
-    <rule ref="PSR12.Files.FileHeader">
         <exclude-pattern>*/Views/*</exclude-pattern>
     </rule>
 
@@ -28,5 +26,10 @@
             <property name="absoluteLineLimit" value="0"/>
         </properties>
         <exclude-pattern>*/Views/*</exclude-pattern>
+    </rule>
+
+    <!-- Exclude conflicting multi-line condition sniff -->
+    <rule ref="PSR12.ControlStructures.ControlStructureSpacing">
+        <exclude name="PSR12.ControlStructures.ControlStructureSpacing.FirstExpressionLine"/>
     </rule>
 </ruleset>
