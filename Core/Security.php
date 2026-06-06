@@ -164,7 +164,8 @@ class Security
         }
 
         // Generate token if it doesn't exist or is expired (1 hour)
-        if (!isset($_SESSION['csrf_token']) ||
+        if (
+            !isset($_SESSION['csrf_token']) ||
             !isset($_SESSION['csrf_token_time']) ||
             (time() - $_SESSION['csrf_token_time']) > 3600
         ) {
@@ -192,7 +193,8 @@ class Security
         }
 
         // Check if token is expired (1 hour)
-        if (isset($_SESSION['csrf_token_time']) &&
+        if (
+            isset($_SESSION['csrf_token_time']) &&
             (time() - $_SESSION['csrf_token_time']) > 3600
         ) {
             return false;
