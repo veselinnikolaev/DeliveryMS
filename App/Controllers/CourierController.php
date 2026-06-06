@@ -9,6 +9,7 @@ use App\Models\Notification;
 use App\Models\CourierLocation;
 use App\Models\Order;
 use Core;
+use Core\Security;
 use Core\Services\ExportService;
 use Core\View;
 use Core\Controller;
@@ -20,12 +21,10 @@ class CourierController extends Controller {
     public function __construct() {
         parent::__construct();
         if (empty($_SESSION['user'])) {
-            header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
-            exit;
+            $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
         }
         if ($_SESSION['user']['role'] == 'user') {
-            header("Location: " . INSTALL_URL, true, 301);
-            exit;
+            $this->redirect(INSTALL_URL);
         }
     }
 
@@ -73,7 +72,7 @@ class CourierController extends Controller {
 
             if (!$couriers || empty($couriers)) {
                 echo "No couriers to print";
-                exit;
+                $this->terminate();
             }
         }
 
@@ -96,8 +95,7 @@ class CourierController extends Controller {
                 $postData['role'] = 'courier';
 
                 if ($userModel->save($postData)) {
-                    header("Location: " . $_SESSION['previous_url'], true, 301);
-                    exit;
+                    $this->redirect($_SESSION['previous_url']);
                 } else {
                     $error_message = "Failed to save courier. Please try again.";
                 }
@@ -141,13 +139,15 @@ class CourierController extends Controller {
 
     public function edit(): void {
         $userModel = new User();
+        $arr = $userModel->get(Security::int($this->get('id')));
 
-        $arr = $userModel->get(\Core\Security::int($this->get('id')));
-        
-        // Ensure the user is a courier
-        if ($arr && $arr['role'] !== 'courier') {
-            header("Location: " . INSTALL_URL . "?controller=Courier&action=list", true, 301);
-            exit;
+        // handle missing courier
+        if (empty($arr)) {
+            $this->redirect(INSTALL_URL . "?controller=Courier&action=list");
+        }
+
+        if ($arr['role'] !== 'courier') {
+            $this->redirect(INSTALL_URL . "?controller=Courier&action=list");
         }
 
 // Check if the form has been submitted
@@ -164,8 +164,7 @@ class CourierController extends Controller {
                     'created_at' => time()
                 ]);
 
-                header("Location: " . $_SESSION['previous_url'], true, 301);
-                exit;
+                $this->redirect($_SESSION['previous_url']);
             } else {
 // If saving fails, set an error message
                 $arr['error_message'] = "Failed to create the courier. Please try again.";
@@ -176,40 +175,46 @@ class CourierController extends Controller {
         $this->view($this->layout, $arr);
     }
 
-    public function export(): void {
-// Check if courierData is provided
-        if ($this->post('courierData') !== null) {
-// Decode the JSON data
-            $couriers = json_decode($this->post('courierData'), true);
+    public function export(): void
+    {
+        $couriers = [];
+
+        // Use $_POST directly for JSON data — Security::post() HTML-encodes quotes
+        $rawData = $_POST['courierData'] ?? null;
+
+        if ($rawData !== null) {
+            $couriers = json_decode($rawData, true);
 
             if (!$couriers || empty($couriers)) {
                 echo "No couriers to export";
-                exit;
+                $this->terminate();
             }
         }
 
-        $format = $this->post('format') !== null ? $this->post('format') : 'pdf';
+        $format = $_POST['format'] ?? 'pdf';
 
-// Export based on format
         switch ($format) {
             case 'pdf':
                 ExportService::exportToPDF($couriers, 'Couriers Export', 'couriers_export.pdf');
+                break;  // also add missing break statements
             case 'excel':
                 ExportService::exportToExcel($couriers, 'couriers_export.xlsx');
+                break;
             case 'csv':
                 ExportService::exportToCSV($couriers, 'couriers_export.csv');
+                break;
             default:
                 echo "Invalid export format";
-                exit;
+                $this->terminate();
         }
     }
 
     public function updateLocation(): void {
-        header('Content-Type: application/json');
+        $this->setHeader('Content-Type: application/json');
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_SESSION['user']) || $_SESSION['user']['role'] !== 'courier') {
             echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
-            exit;
+            $this->terminate();
         }
 
         $courierLocationModel = new CourierLocation();
@@ -234,11 +239,11 @@ class CourierController extends Controller {
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Failed to update location']);
         }
-        exit;
+        $this->terminate();
     }
 
     public function getLocation(): void {
-        header('Content-Type: application/json');
+        $this->setHeader('Content-Type: application/json');
 
         if (!empty($this->get('courier_id'))) {
             $courierLocationModel = new CourierLocation();
@@ -265,13 +270,12 @@ class CourierController extends Controller {
                 'message' => 'Courier ID not provided'
             ]);
         }
-        exit;
+        $this->terminate();
     }
 
     public function startTracking(): void {
         if ($_SESSION['user']['role'] !== 'courier') {
-            header("Location: " . INSTALL_URL, true, 301);
-            exit;
+            $this->redirect(INSTALL_URL);
         }
 
         $this->view($this->layout, [

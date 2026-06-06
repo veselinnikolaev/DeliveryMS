@@ -1,0 +1,152 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # ─────────────────────────────────────────────
+  # 1. PHP Code Style  (PHP_CodeSniffer / PSR-12)
+  # ─────────────────────────────────────────────
+  lint:
+    name: PHP Code Style (PSR-12)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          tools: phpcs
+
+      - name: Run PHP_CodeSniffer
+        run: |
+          phpcs \
+            --standard=phpcs.xml \
+            --extensions=php \
+            --ignore=vendor/ \
+            --colors \
+            -p \
+            Core/ App/ config/
+
+  # ─────────────────────────────────────────────
+  # 2. Static Analysis  (PHPStan level 5)
+  # ─────────────────────────────────────────────
+  analyse:
+    name: Static Analysis (PHPStan)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          extensions: pdo, pdo_mysql, mbstring, json, xml, mysqli
+          coverage: xdebug
+
+      - name: Install Composer dependencies
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Run PHPStan
+        run: phpstan analyse --configuration=phpstan.neon --memory-limit=256M
+
+  # ─────────────────────────────────────────────
+  # 3. Tests  (PHPUnit + MySQL service)
+  # ─────────────────────────────────────────────
+  test:
+    name: PHPUnit Tests
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: deliveryms_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          extensions: pdo, pdo_mysql, mbstring, json, xml, mysqli
+          coverage: xdebug
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor/
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Wait for MySQL
+        run: |
+          until mysqladmin ping -h 127.0.0.1 -u root -proot --silent; do
+            echo "Waiting for MySQL…"
+            sleep 2
+          done
+
+      - name: Create .env.testing for CI
+        run: |
+          cat > .env.testing << EOF
+          DB_HOST=127.0.0.1
+          DB_USER=root
+          DB_PASS=root
+          DB_NAME=deliveryms_test
+          PAYPAL_EMAIL=test@test.com
+          MAIL_HOST=localhost
+          MAIL_PORT=1025
+          MAIL_USERNAME=test
+          MAIL_PASSWORD=test
+          INSTALLED=false
+          MAIL_CONFIGURED=false
+          EOF
+
+      - name: Run migrations / seed schema
+        run: |
+          mysql -h 127.0.0.1 -u root -proot deliveryms_test < config/database.sql
+
+      - name: Run PHPUnit
+        run: |
+          vendor/bin/phpunit \
+            --configuration=phpunit.xml \
+            --coverage-clover=coverage/clover.xml \
+            --log-junit=coverage/junit.xml \
+            --colors=always
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 14
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: coverage/junit.xml
+          retention-days: 14

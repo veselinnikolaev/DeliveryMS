@@ -17,7 +17,25 @@ class SettingsControllerTest extends TestCase {
         $_GET = [];
         $_POST = [];
         $_SERVER['REQUEST_METHOD'] = 'GET';
-        $this->controller = new SettingsController();
+
+        $db = new \mysqli($_ENV['DB_HOST'], $_ENV['DB_USER'], $_ENV['DB_PASS'], $_ENV['DB_NAME']);
+        $db->query("INSERT IGNORE INTO users (id, name, email, password_hash, role, created_at)
+            VALUES (1, 'Admin User', 'admin@example.com', 'hash', 'admin', 0)");
+        $db->close();
+
+        $this->controller = new class extends SettingsController {
+            protected function redirect(string $url): void
+            {
+                throw new \RuntimeException('redirect:' . $url);
+            }
+            protected function terminate(string $message = ''): void {}
+            protected function setHeader(string $header): void {}
+            public function view($layout, array $data = []): void
+            {
+                $this->lastViewData = $data;
+            }
+            public array $lastViewData = [];
+        };
     }
 
     protected function tearDown(): void {
@@ -26,24 +44,37 @@ class SettingsControllerTest extends TestCase {
         $_GET = [];
         $_POST = [];
         unset($this->controller);
+
+        $db = new \mysqli($_ENV['DB_HOST'], $_ENV['DB_USER'], $_ENV['DB_PASS'], $_ENV['DB_NAME']);
+        $db->query("DELETE FROM notifications WHERE user_id = 1");
+        $db->query("DELETE FROM users WHERE id = 1");
+        $db->close();
     }
 
     public function testIndexRequiresAuthentication(): void {
         $_SESSION = [];
-        
-        $this->expectOutputString('');
-        try {
-            $controller = new SettingsController();
-        } catch (\Throwable $e) {
-            $this->assertTrue(true);
-        }
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('redirect:' . INSTALL_URL . '?controller=Auth&action=login');
+        new class extends SettingsController {
+            protected function redirect(string $url): void { throw new \RuntimeException('redirect:' . $url); }
+            protected function terminate(string $message = ''): void {}
+            protected function setHeader(string $header): void {}
+            public function view($layout, array $data = []): void {}
+            public array $lastViewData = [];
+        };
     }
 
-    public function testIndexRejectsUserRole(): void {
-        $_SESSION['user']['role'] = 'user';
-        
-        $this->expectOutputString('');
-        $controller = new SettingsController();
+    public function testListRejectsUserRole(): void {
+        $_SESSION = ['user' => ['id' => 2, 'role' => 'user', 'email' => 'user@example.com']];
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('redirect:' . INSTALL_URL);
+        new class extends SettingsController {
+            protected function redirect(string $url): void { throw new \RuntimeException('redirect:' . $url); }
+            protected function terminate(string $message = ''): void {}
+            protected function setHeader(string $header): void {}
+            public function view($layout, array $data = []): void {}
+            public array $lastViewData = [];
+        };
     }
 
     public function testIndexDisplaysSettingsForm(): void {

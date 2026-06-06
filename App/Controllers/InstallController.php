@@ -17,8 +17,7 @@ class InstallController extends Controller {
     public function __construct() {
         parent::__construct();
         if (INSTALLED && MAIL_CONFIGURED && !str_contains($_SESSION['previous_url'], '?controller=Settings&action=index')) {
-            header("Location: " . $_SESSION['previous_url'], true, 301);
-            exit;
+            $this->redirect($_SESSION['previous_url']);
         }
     }
 
@@ -28,8 +27,7 @@ class InstallController extends Controller {
 
     function step0() {
         if (INSTALLED && !MAIL_CONFIGURED) {
-            header("Location: " . INSTALL_URL . '?controller=Install&action=step4', true, 301);
-            exit;
+            $this->redirect(INSTALL_URL . '?controller=Install&action=step4');
         }
 
         $this->view($this->layout);
@@ -37,8 +35,7 @@ class InstallController extends Controller {
 
     public function step1(): void {
         if (INSTALLED && !MAIL_CONFIGURED) {
-            header("Location: " . INSTALL_URL . '?controller=Install&action=step4', true, 301);
-            exit;
+            $this->redirect(INSTALL_URL . '?controller=Install&action=step4');
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -87,8 +84,7 @@ class InstallController extends Controller {
             }
 
             if (!isset($errorMessage)) {
-                header("Location: " . INSTALL_URL . "?controller=Install&action=step2", true, 301);
-                exit;
+                $this->redirect(INSTALL_URL . "?controller=Install&action=step2");
             }
         }
         $this->view($this->layout, ['error_message' => $errorMessage ?? null]);
@@ -96,19 +92,16 @@ class InstallController extends Controller {
 
     public function step2(): void {
         if (INSTALLED && !MAIL_CONFIGURED) {
-            header("Location: " . INSTALL_URL . '?controller=Install&action=step4', true, 301);
-            exit;
+            $this->redirect(INSTALL_URL . '?controller=Install&action=step4');
         }
 
         $model = new Model();
         try {
             if (!$model->isDbMigrated(DEFAULT_DB)) {
-                header("Location: " . INSTALL_URL . "?controller=Install&action=step1", true, 301);
-                exit;
+                $this->redirect(INSTALL_URL . "?controller=Install&action=step1");
             }
         } catch (\Throwable $e) {
-            header("Location: " . INSTALL_URL . "?controller=Install&action=step1", true, 301);
-            exit;
+            $this->redirect(INSTALL_URL . "?controller=Install&action=step1");
         }
 
         $userModel = new User();
@@ -143,8 +136,7 @@ class InstallController extends Controller {
                     $userModel->update($userData);
                 }
 
-                header("Location: " . INSTALL_URL . "?controller=Install&action=step3", true, 301);
-                exit;
+                $this->redirect(INSTALL_URL . "?controller=Install&action=step3");
             }
         }
 
@@ -169,12 +161,10 @@ class InstallController extends Controller {
             
             file_put_contents($envPath, $envContent);
 
-            if (strpos($_SESSION['previous_url'], '?controller=Settings&action=index') !== false) {
-                header("Location: " . INSTALL_URL . "?controller=Settings&action=index", true, 301);
-                exit;
+            if (str_contains($_SESSION['previous_url'], '?controller=Settings&action=index')) {
+                $this->redirect(INSTALL_URL . "?controller=Settings&action=index");
             }
-            header("Location: " . INSTALL_URL . "?controller=Install&action=step4", true, 301);
-            exit;
+            $this->redirect(INSTALL_URL . "?controller=Install&action=step4");
         }
 
         $this->view($this->layout);
@@ -188,11 +178,11 @@ class InstallController extends Controller {
                     $settingModel->updateBy(['value' => 'disabled'], ['key' => 'email_sending']);
                 } catch (\Throwable $e) {
                     echo json_encode(["error" => $e->getMessage()]);
-                    exit();
+                    $this->terminate();
                 }
 
                 echo json_encode(["success" => true]);
-                exit;
+                $this->terminate();
             }
 
             $mailHost = $this->post('mail_host');
@@ -220,8 +210,7 @@ class InstallController extends Controller {
                 
                 file_put_contents($envPath, $envContent);
 
-                header("Location: " . INSTALL_URL . "?controller=Install&action=step5", true, 301);
-                exit;
+                $this->redirect(INSTALL_URL . "?controller=Install&action=step5");
             }
         }
         $this->view($this->layout, ['error_message' => $errorMessage ?? null]);
@@ -229,35 +218,29 @@ class InstallController extends Controller {
 
     public function step5(): void {
         if (INSTALLED && !MAIL_CONFIGURED) {
-            header("Location: " . INSTALL_URL . '?controller=Install&action=step4', true, 301);
-            exit;
+            $this->redirect(INSTALL_URL . '?controller=Install&action=step4');
         }
 
         $model = new Model();
         try {
             if (!$model->isDbMigrated(DEFAULT_DB)) {
-                header("Location: " . INSTALL_URL . "?controller=Install&action=step1", true, 301);
-                exit;
+                $this->redirect(INSTALL_URL . "?controller=Install&action=step1");
             }
         } catch (\Throwable) {
-            header("Location: " . INSTALL_URL . "?controller=Install&action=step1", true, 301);
-            exit;
+            $this->redirect(INSTALL_URL . "?controller=Install&action=step1");
         }
 
         $userModel = new User();
         try {
             if (empty($userModel->getFirstBy(['role' => 'root']))) {
-                header("Location: " . INSTALL_URL . "?controller=Install&action=step2", true, 301);
-                exit;
+                $this->redirect(INSTALL_URL . "?controller=Install&action=step2");
             }
         } catch (\Throwable $e) {
-            header("Location: " . INSTALL_URL . "?controller=Install&action=step1", true, 301);
-            exit;
+            $this->redirect(INSTALL_URL . "?controller=Install&action=step1");
         }
 
         if (PAYPAL_EMAIL == '{paypal_email}') {
-            header("Location: " . INSTALL_URL . "?controller=Install&action=step3", true, 301);
-            exit;
+            $this->redirect(INSTALL_URL . "?controller=Install&action=step3");
         }
 
         // Write to .env file instead of config/constant.php

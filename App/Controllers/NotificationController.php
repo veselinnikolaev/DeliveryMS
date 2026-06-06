@@ -17,8 +17,7 @@ class NotificationController extends Controller {
     public function __construct() {
         parent::__construct();
         if (empty($_SESSION['user'])) {
-            header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
-            exit;
+            $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
         }
     }
 

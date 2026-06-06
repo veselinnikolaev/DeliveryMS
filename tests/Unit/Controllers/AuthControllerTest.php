@@ -11,32 +11,62 @@ use PHPUnit\Framework\MockObject\MockObject;
 
 class AuthControllerTest extends TestCase {
 
-    private AuthController $controller;
+    private $controller;
     private MockObject $userModelMock;
 
-    protected function setUp(): void {
+    protected function setUp(): void
+    {
         parent::setUp();
         $_SESSION = [];
         $_GET = [];
         $_POST = [];
         $_SERVER['REQUEST_METHOD'] = 'GET';
-        $this->controller = new AuthController();
+
+        $this->controller = new class extends AuthController {
+            public array $lastViewData = [];
+
+            protected function redirect(string $url): void
+            {
+                throw new \RuntimeException('redirect:' . $url);
+            }
+            protected function terminate(string $message = ''): void
+            {
+                // do nothing
+            }
+            public function view($layout, array $data = []): void
+            {
+                $this->lastViewData = $data;
+            }
+        };
     }
 
-    protected function tearDown(): void {
+    protected function tearDown(): void
+    {
         parent::tearDown();
         $_SESSION = [];
         $_GET = [];
         $_POST = [];
         unset($this->controller);
+
+        // clean up seeded test data
+        $db = new \mysqli(
+            $_ENV['DB_HOST'],
+            $_ENV['DB_USER'],
+            $_ENV['DB_PASS'],
+            $_ENV['DB_NAME']
+        );
+        $db->query("DELETE FROM users WHERE email = 'existing@example.com'");
+        $db->close();
     }
 
-    public function testRegisterRedirectsIfAlreadyLoggedIn(): void {
+    public function testRegisterRedirectsIfAlreadyLoggedIn(): void
+    {
         $_SESSION['user'] = ['id' => 1, 'email' => 'test@example.com'];
-        
-        $this->expectOutputString('');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('redirect:' . INSTALL_URL);
+
         $this->controller->register();
-        $this->assertTrue(isset($_SESSION['user']));
     }
 
     public function testRegisterDisplaysFormOnGet(): void {
@@ -49,18 +79,29 @@ class AuthControllerTest extends TestCase {
         $this->assertIsString($output);
     }
 
-    public function testRegisterFailsIfEmailExists(): void {
+    public function testRegisterFailsIfEmailExists(): void
+    {
+        // seed the email so existsBy() returns true and save() is never reached
+        $pdo = new \mysqli(
+            $_ENV['DB_HOST'],
+            $_ENV['DB_USER'],
+            $_ENV['DB_PASS'],
+            $_ENV['DB_NAME']
+        );
+        $pdo->query("INSERT IGNORE INTO users (name, email, password_hash, role, created_at) 
+                 VALUES ('Test User', 'existing@example.com', 'hash', 'user', 0)");
+        $pdo->close();
+
         $_POST['send'] = true;
         $_POST['email'] = 'existing@example.com';
         $_POST['password'] = 'password123';
         $_POST['repeat_password'] = 'password123';
         $_SERVER['REQUEST_METHOD'] = 'POST';
-        
-        ob_start();
+
         $this->controller->register();
-        $output = ob_get_clean();
-        
-        $this->assertIsString($output);
+
+        $this->assertArrayHasKey('error_message', $this->controller->lastViewData);
+        $this->assertStringContainsString('already exists', $this->controller->lastViewData['error_message']);
     }
 
     public function testRegisterFailsIfPasswordsDoNotMatch(): void {
@@ -87,13 +128,15 @@ class AuthControllerTest extends TestCase {
         $this->assertIsString($output);
     }
 
-    public function testLoginRedirectsIfAlreadyLoggedIn(): void {
+    public function testLoginRedirectsIfAlreadyLoggedIn(): void
+    {
         $_SESSION['user'] = ['id' => 1, 'email' => 'test@example.com'];
-        $_SESSION['previous_url'] = '/';
-        
-        $this->expectOutputString('');
+        $_SESSION['previous_url'] = 'http://localhost/index.php';
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('redirect:http://localhost/index.php');
+
         $this->controller->login();
-        $this->assertTrue(isset($_SESSION['user']));
     }
 
     public function testLoginFailsWithInvalidCredentials(): void {
@@ -109,17 +152,26 @@ class AuthControllerTest extends TestCase {
         $this->assertIsString($output);
     }
 
-    public function testLogoutDestroysSession(): void {
+    public function testLogoutDestroysSession(): void
+    {
         $_SESSION['user'] = ['id' => 1, 'email' => 'test@example.com'];
-        
-        $this->expectOutputString('');
-        $this->controller->logout();
+
+        try {
+            $this->controller->logout();
+        } catch (\RuntimeException $e) {
+            $this->assertStringContainsString('controller=Auth&action=login', $e->getMessage());
+        }
+
+        $this->assertTrue(true);
     }
 
-    public function testLogoutRequiresActiveSession(): void {
+    public function testLogoutRequiresActiveSession(): void
+    {
         $_SESSION = [];
-        
-        $this->expectOutputString('');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('redirect:' . INSTALL_URL);
+
         $this->controller->logout();
     }
 }

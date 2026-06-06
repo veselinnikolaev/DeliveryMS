@@ -99,12 +99,13 @@ class OrderController extends Controller {
         $orders = $orderModel->getAll($opts);
 
 // Format orders for display
-        foreach ($orders as &$order) {
-            $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
-            $courier = $userModel->get($order['courier_id']);
-            $order['courier_name'] = ($courier && $courier['role'] === 'courier') ? $courier['name'] : 'Unknown';
-            $order['delivery_date'] = date($this->settings['date_format'], $order['delivery_date']);
-        }
+            foreach ($orders as &$order) {
+                $customer = $order['user_id'] ? $userModel->get($order['user_id']) : null;
+                $order['customer_name'] = $customer['name'] ?? 'Unknown';
+                $courier = $order['courier_id'] ? $userModel->get($order['courier_id']) : null;
+                $order['courier_name'] = ($courier && $courier['role'] === 'courier') ? $courier['name'] : 'Unknown';
+                $order['delivery_date'] = $order['delivery_date'] ? date($this->settings['date_format'], $order['delivery_date']) : '';
+            }
 
 // Pass the data to the view
         $arr = [
@@ -126,12 +127,10 @@ class OrderController extends Controller {
     function create() {
         try {
             if (empty($_SESSION['user'])) {
-            header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
-            exit;
+            $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
         }
         if ($_SESSION['user']['role'] == 'user') {
-            header("Location: " . $_SESSION['previous_url'], true, 301);
-            exit;
+            $this->redirect($_SESSION['previous_url']);
         }
 
         $orderModel = new Order();
@@ -252,8 +251,7 @@ class OrderController extends Controller {
 
                             $mailer->sendMail($customer['email'], "Order Confirmation #{$orderId}", $emailContent);
                         }
-                        header("Location: " . $_SESSION['previous_url'], true, 301);
-                        exit;
+                        $this->redirect($_SESSION['previous_url']);
                     }
                 } else {
                     $error_message = "Failed to create the order. Please try again.";
@@ -285,8 +283,7 @@ class OrderController extends Controller {
     public function changeStatus() {
         try {
             if ($_SESSION['user']['role'] != 'courier') {
-            header("Location: " . INSTALL_URL, true, 301);
-            exit;
+            $this->redirect(INSTALL_URL);
         }
 
         $orderModel = new Order();
@@ -301,14 +298,13 @@ class OrderController extends Controller {
 
                 foreach ($ids as $orderId) {
                     $order = $orderModel->get($orderId);
-
-// Notify customer about delivery/return
+                    if (empty($order)) continue;
                     $notificationModel = new Notification();
                     $notificationModel->save([
-                        'user_id' => $order['user_id'],
-                        'message' => "Your order #{$orderId} has been " . $status,
-                        'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
-                        'created_at' => time()
+                            'user_id' => $order['user_id'],
+                            'message' => "Your order #{$orderId} has been " . $status,
+                            'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
+                            'created_at' => time()
                     ]);
                 }
             }
@@ -339,21 +335,18 @@ class OrderController extends Controller {
         $userModel = new User();
 
         if (empty($_SESSION['user'])) {
-            header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
-            exit;
+            $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
         }
 
         if (empty($this->get('id'))) {
-            header("Location: " . $_SESSION['previous_url'], true, 301);
-            exit;
+            $this->redirect($_SESSION['previous_url']);
         }
 
         if ($_SESSION['user']['role'] == 'user') {
             $userOrders = $orderModel->getAll(['user_id' => Security::int($_SESSION['user']['id'])]);
             $userOrderIds = array_column($userOrders, 'id');
             if (!in_array($this->get('id'), $userOrderIds)) {
-                header("Location: " . INSTALL_URL, true, 301);
-                exit;
+                $this->redirect(INSTALL_URL);
             }
         }
 
@@ -361,12 +354,11 @@ class OrderController extends Controller {
         $orderData = $orderModel->get($orderId);
 
         if (!$orderData) {
-            header("Location: " . $_SESSION['previous_url'], true, 301);
-            exit;
+            $this->redirect($_SESSION['previous_url']);
         }
 
         $customerData = $userModel->get($orderData['user_id']);
-        $courierData = $userModel->get($orderData['courier_id']);
+        $courierData = $orderData['courier_id'] ? $userModel->get($orderData['courier_id']) : null;
         
         // Ensure courier has courier role
         if ($courierData && $courierData['role'] !== 'courier') {
@@ -401,12 +393,10 @@ class OrderController extends Controller {
     function delete(): void {
         try {
             if (empty($_SESSION['user'])) {
-            header("Location: " . INSTALL_URL . "?controller = Auth&action = login", true, 301);
-            exit;
+            $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
         }
         if ($_SESSION['user']['role'] == 'user') {
-            header("Location: " . INSTALL_URL, true, 301);
-            exit;
+            $this->redirect(INSTALL_URL);
         }
 
         $productModel = new Product();
@@ -432,12 +422,13 @@ class OrderController extends Controller {
         $orders = $orderModel->getAll();
 
 // Format orders for display
-        foreach ($orders as &$order) {
-            $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
-            $courier = $userModel->get($order['courier_id']);
-            $order['name'] = ($courier && $courier['role'] === 'courier') ? $courier['name'] : 'Unknown';
-            $order['delivery_date'] = date($this->settings['date_format'], $order['delivery_date']);
-        }
+            foreach ($orders as &$order) {
+                $customer = $order['user_id'] ? $userModel->get($order['user_id']) : null;
+                $order['customer_name'] = $customer['name'] ?? 'Unknown';
+                $courier = $order['courier_id'] ? $userModel->get($order['courier_id']) : null;
+                $order['name'] = ($courier && $courier['role'] === 'courier') ? $courier['name'] : 'Unknown';
+                $order['delivery_date'] = $order['delivery_date'] ? date($this->settings['date_format'], $order['delivery_date']) : '';
+            }
 
         $this->view('ajax', ['orders' => $orders, 'currency' => $this->settings['currency_code']]);
         } catch (DatabaseException $e) {
@@ -455,6 +446,9 @@ class OrderController extends Controller {
             $orderProductsModel = new OrderProducts();
 
             $order = $orderModel->get($orderId);
+            if (empty($order)) {
+                $this->redirect($_SESSION['previous_url']);
+            }
             $user = $userModel->get($order['user_id']);
             $orderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
 
@@ -589,12 +583,10 @@ class OrderController extends Controller {
     function bulkDelete(): void {
         try {
             if (empty($_SESSION['user'])) {
-            header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
-            exit;
+            $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
         }
         if ($_SESSION['user']['role'] == 'user') {
-            header("Location: " . INSTALL_URL, true, 301);
-            exit;
+            $this->redirect(INSTALL_URL);
         }
 
         $orderModel = new Order();
@@ -612,12 +604,12 @@ class OrderController extends Controller {
         $orders = $orderModel->getAll();
 
 // Format orders for display
-        foreach ($orders as &$order) {
-            $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
-            $courier = $userModel->get($order['courier_id']);
-            $order['name'] = ($courier && $courier['role'] === 'courier') ? $courier['name'] : 'Unknown';
-            $order['delivery_date'] = date($this->settings['date_format'], $order['delivery_date']);
-        }
+            foreach ($orders as &$order) {
+                $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
+                $courier = $order['courier_id'] ? $userModel->get($order['courier_id']) : null;
+                $order['courier_name'] = ($courier && $courier['role'] === 'courier') ? $courier['name'] : 'Unknown';
+                $order['delivery_date'] = $order['delivery_date'] ? date($this->settings['date_format'], $order['delivery_date']) : '';
+            }
 
         $this->view('ajax', ['orders' => $orders, 'currency' => $this->settings['currency_code']]);
         } catch (DatabaseException $e) {
@@ -629,11 +621,11 @@ class OrderController extends Controller {
     function print(): void {
         if ($this->post('orderData') !== null) {
 // Decode the JSON data
-            $orders = json_decode($this->post('orderData'), true);
+            $orders = json_decode($_POST['orderData'] ?? 'null', true);
 
             if (!$orders || empty($orders)) {
                 echo "No orders to print";
-                exit;
+                $this->terminate();
             }
         }
 
@@ -643,12 +635,10 @@ class OrderController extends Controller {
     function edit(): void {
         try {
             if (empty($_SESSION['user'])) {
-            header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
-            exit;
+            $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
         }
         if ($_SESSION['user']['role'] == 'user') {
-            header("Location: " . INSTALL_URL, true, 301);
-            exit;
+            $this->redirect(INSTALL_URL);
         }
 
         $orderModel = new Order();
@@ -728,6 +718,7 @@ class OrderController extends Controller {
                         'subtotal' => $subtotal
                     ]);
                 }
+                unset($orderProduct);
 
                 foreach ($newQuantities as $productId => $newTotalQuantity) {
                     $productDetails = $productData[$productId] ?? $productModel->get($productId);
@@ -774,8 +765,7 @@ class OrderController extends Controller {
 
                     $mailer->sendMail($customer['email'], "Order Update #{$orderId}", $emailContent);
                 }
-                header("Location: " . $_SESSION['previous_url'], true, 301);
-                exit;
+                $this->redirect($_SESSION['previous_url']);
             }
         }
 
@@ -822,12 +812,12 @@ class OrderController extends Controller {
     function calculatePrice(): void {
         try {
             $price_arr = $this->calculateOrderTotal($this->post('product_id'), $this->post('quantity'));
-            header('Content-Type: application/json');
+            $this->setHeader('Content-Type: application/json');
 
             echo json_encode($price_arr);
         } catch (DatabaseException $e) {
             error_log("Database error in OrderController::calculatePrice: " . $e->getMessage());
-            header('Content-Type: application/json');
+            $this->setHeader('Content-Type: application/json');
             echo json_encode(['error' => 'An error occurred while calculating price.']);
         }
     }
@@ -837,10 +827,11 @@ class OrderController extends Controller {
             $productModel = new Product();
         $productPrice = 0;
 
-        foreach ($productIds as $key => $productId) {
-            $product = $productModel->get($productId);
-            $productPrice += $product['price'] * $quantities[$key];
-        }
+            foreach ($productIds as $key => $productId) {
+                $product = $productModel->get($productId);
+                if (empty($product)) continue;
+                $productPrice += $product['price'] * $quantities[$key];
+            }
 
         $shippingPrice = ($productPrice * $this->settings['shipping_rate']) / 100;
         $tax = ($productPrice * $this->settings['tax_rate']) / 100;
@@ -869,11 +860,11 @@ class OrderController extends Controller {
 // Check if orderData is provided
             if ($this->post('orderData') !== null) {
 // Decode the JSON data
-            $orders = json_decode($this->post('orderData'), true);
+                $orders = json_decode($_POST['orderData'] ?? 'null', true);
 
             if (!$orders || empty($orders)) {
                 echo "No orders to export";
-                exit;
+                $this->terminate();
             }
         }
 
@@ -883,18 +874,21 @@ class OrderController extends Controller {
         switch ($format) {
             case 'pdf':
                 ExportService::exportToPDF($orders, 'Orders Export', 'orders_export.pdf');
+                break;
             case 'excel':
                 ExportService::exportToExcel($orders, 'orders_export.xlsx');
+                break;
             case 'csv':
                 ExportService::exportToCSV($orders, 'orders_export.csv');
+                break;
             default:
                 echo "Invalid export format";
-                exit;
+                $this->terminate();
             }
         } catch (DatabaseException $e) {
             error_log("Database error in OrderController::export: " . $e->getMessage());
             echo "An error occurred while exporting orders.";
-            exit;
+            $this->terminate();
         }
     }
 

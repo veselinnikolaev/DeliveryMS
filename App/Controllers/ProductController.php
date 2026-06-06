@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Models\Setting;
 use App\Models\Product;
 use Core;
+use Core\Security;
 use Core\Services\ExportService;
 use Core\View;
 use Core\Controller;
@@ -18,12 +19,10 @@ class ProductController extends Controller {
     public function __construct() {
         parent::__construct();
         if (empty($_SESSION['user'])) {
-            header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
-            exit;
+            $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
         }
         if ($_SESSION['user']['role'] == 'user') {
-            header("Location: " . INSTALL_URL, true, 301);
-            exit;
+            $this->redirect(INSTALL_URL);
         }
     }
 
@@ -71,8 +70,7 @@ class ProductController extends Controller {
             $postData = $this->post();
             if ($productModel->save($postData)) {
                 // Redirect to the list of couriers on successful creation
-                header("Location: " . $_SESSION['previous_url'], true, 301);
-                exit;
+                $this->redirect($_SESSION['previous_url']);
             } else {
                 // If saving fails, set an error message
                 $error_message = "Failed to create the product. Please try again.";
@@ -114,8 +112,10 @@ class ProductController extends Controller {
 
     public function edit(): void {
         $productModel = new Product();
-
-        $arr = $productModel->get(\Core\Security::int($this->get('id')));
+        $arr = $productModel->get(Security::int($this->get('id')));
+        if (empty($arr)) {
+            $this->redirect($_SESSION['previous_url']);
+        }
 
         // Check if the form has been submitted
         if (!empty($this->post('id'))) {
@@ -124,8 +124,7 @@ class ProductController extends Controller {
             $postData = $this->post();
             if ($productModel->update($postData)) {
                 // Redirect to the list of couriers on successful creation
-                header("Location: " . $_SESSION['previous_url'], true, 301);
-                exit;
+                $this->redirect($_SESSION['previous_url']);
             } else {
                 // If saving fails, set an error message
                 $arr['error_message'] = "Failed to create the product. Please try again.";
@@ -146,7 +145,7 @@ class ProductController extends Controller {
 
             if (!$products || empty($products)) {
                 echo "No products to export";
-                exit;
+                $this->terminate();
             }
         }
 
@@ -161,7 +160,7 @@ class ProductController extends Controller {
 
             if (!$products || empty($products)) {
                 echo "No products to export";
-                exit;
+                $this->terminate();
             }
         }
 
@@ -171,13 +170,16 @@ class ProductController extends Controller {
         switch ($format) {
             case 'pdf':
                 ExportService::exportToPDF($products, 'Products Export', 'products_export.pdf');
+                break;
             case 'excel':
                 ExportService::exportToExcel($products, 'products_export.xlsx');
+                break;
             case 'csv':
                 ExportService::exportToCSV($products, 'products_export.csv');
+                break;
             default:
                 echo "Invalid export format";
-                exit;
+                $this->terminate();
         }
     }
 }

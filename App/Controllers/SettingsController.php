@@ -18,12 +18,10 @@ class SettingsController extends Controller {
     public function __construct() {
         parent::__construct();
         if (empty($_SESSION['user'])) {
-            header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
-            exit;
+            $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
         }
         if ($_SESSION['user']['role'] == 'user') {
-            header("Location: " . INSTALL_URL, true, 301);
-            exit;
+            $this->redirect(INSTALL_URL);
         }
     }
     
@@ -112,7 +110,7 @@ class SettingsController extends Controller {
                     'message' => 'Failed to update settings.'
                 ]);
             }
-            exit;
+            $this->terminate();
         }
     
         $settings = $settingModel->getAll();

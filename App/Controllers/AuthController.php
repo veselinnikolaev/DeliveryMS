@@ -16,8 +16,7 @@ class AuthController extends Controller {
 
     public function register(): void {
         if (!empty($_SESSION['user'])) {
-            header("Location: " . INSTALL_URL, true, 301);
-            exit;
+            $this->redirect(INSTALL_URL);
         }
 
         $userModel = new User();
@@ -33,8 +32,7 @@ class AuthController extends Controller {
                 $postData['role'] = 'user';
 
                 if ($userModel->save($postData)) {
-                    header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
-                    exit;
+                    $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
                 } else {
                     $error_message = "Failed to register. Please try again.";
                 }
@@ -51,8 +49,7 @@ class AuthController extends Controller {
 
     public function login(): void {
         if (!empty($_SESSION['user'])) {
-            header("Location: " . $_SESSION['previous_url'], true, 301);
-            exit;
+            $this->redirect($_SESSION['previous_url'] ?? INSTALL_URL);
         }
 
         $userModel = new User();
@@ -62,7 +59,7 @@ class AuthController extends Controller {
 
             if ($user && password_verify($this->post('password'), $user['password_hash'])) {
                 $_SESSION['user'] = $user;
-                
+
                 $notificationModel = new Notification();
                 $notificationModel->save([
                     'user_id' => $user['id'],
@@ -70,9 +67,8 @@ class AuthController extends Controller {
                     'link' => INSTALL_URL . '?controller=Home&action=index',
                     'created_at' => time()
                 ]);
-                
-                header("Location: " . $_SESSION['previous_url'], true, 301);
-                exit;
+
+                $this->redirect($_SESSION['previous_url'] ?? INSTALL_URL);
             } else {
                 $error_message = "Invalid email or password.";
             }
@@ -86,15 +82,15 @@ class AuthController extends Controller {
         $this->view($this->layout, $arr);
     }
 
-    public function logout(): void {
+    public function logout(): void
+    {
         if (empty($_SESSION['user'])) {
-            header("Location: " . INSTALL_URL, true, 301);
-            exit;
+            $this->redirect(INSTALL_URL);
         }
 
+        $_SESSION = [];
         session_destroy();
 
-        header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
-        exit;
+        $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
     }
 }

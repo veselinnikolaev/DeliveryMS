@@ -36,6 +36,25 @@ class Controller {
         }
     }
 
+    protected function terminate(string $message = ''): void
+    {
+        if ($message !== '') {
+            echo $message;
+        }
+        exit;
+    }
+
+    protected function setHeader(string $header): void
+    {
+        header($header);
+    }
+
+    protected function redirect(string $url): void
+    {
+        header("Location: " . $url, true, 301);
+        $this->terminate();
+    }
+
     /**
      * Automatically validate CSRF token on POST requests
      * Can be overridden in child controllers if needed
@@ -44,22 +63,19 @@ class Controller {
      */
     protected function validateCsrfOnPost(): void {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Check for AJAX requests with X-CSRF-Token header
             $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
-                    strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
-            
+                strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+
             if ($isAjax) {
-                // For AJAX, validate CSRF token from X-CSRF-Token header
                 $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
                 if (!Security::validateCsrfToken($csrfToken)) {
-                    http_response_code(403);
-                    die('CSRF token validation failed. Please refresh the page and try again.');
+                    $this->setHeader('HTTP/1.1 403 Forbidden');
+                    $this->terminate('CSRF token validation failed. Please refresh the page and try again.');
                 }
             } else {
-                // For regular POST requests, validate from POST data
                 if (!Security::validateCsrfFromPost()) {
-                    http_response_code(403);
-                    die('CSRF token validation failed. Please refresh the page and try again.');
+                    $this->setHeader('HTTP/1.1 403 Forbidden');
+                    $this->terminate('CSRF token validation failed. Please refresh the page and try again.');
                 }
             }
         }

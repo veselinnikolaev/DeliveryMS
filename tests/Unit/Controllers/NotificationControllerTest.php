@@ -9,7 +9,7 @@ use App\Controllers\NotificationController;
 
 class NotificationControllerTest extends TestCase {
 
-    private NotificationController $controller;
+    private $controller;
 
     protected function setUp(): void {
         parent::setUp();
@@ -17,7 +17,19 @@ class NotificationControllerTest extends TestCase {
         $_GET = [];
         $_POST = [];
         $_SERVER['REQUEST_METHOD'] = 'GET';
-        $this->controller = new NotificationController();
+        $this->controller = new class extends NotificationController {
+            protected function redirect(string $url): void
+            {
+                throw new \RuntimeException('redirect:' . $url);
+            }
+            protected function terminate(string $message = ''): void {}
+            protected function setHeader(string $header): void {}
+            public function view($layout, array $data = []): void
+            {
+                $this->lastViewData = $data;
+            }
+            public array $lastViewData = [];
+        };
     }
 
     protected function tearDown(): void {
@@ -40,13 +52,15 @@ class NotificationControllerTest extends TestCase {
 
     public function testIndexRequiresAuthentication(): void {
         $_SESSION = [];
-        
-        $this->expectOutputString('');
-        try {
-            $controller = new NotificationController();
-        } catch (\Throwable $e) {
-            $this->assertTrue(true);
-        }
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('redirect:' . INSTALL_URL . '?controller=Auth&action=login');
+        new class extends NotificationController {
+            protected function redirect(string $url): void { throw new \RuntimeException('redirect:' . $url); }
+            protected function terminate(string $message = ''): void {}
+            protected function setHeader(string $header): void {}
+            public function view($layout, array $data = []): void {}
+            public array $lastViewData = [];
+        };
     }
 
     public function testMarkAsSeenUpdatesNotification(): void {

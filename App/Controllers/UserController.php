@@ -18,15 +18,13 @@ class UserController extends Controller {
     public function __construct() {
         parent::__construct();
         if (empty($_SESSION['user'])) {
-            header("Location: " . INSTALL_URL . "?controller=Auth&action=login", true, 301);
-            exit;
+            $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
         }
     }
 
     public function list($layout = 'admin'): void {
         if ($_SESSION['user']['role'] == 'user') {
-            header("Location: " . INSTALL_URL, true, 301);
-            exit;
+            $this->redirect(INSTALL_URL);
         }
 
         $userModel = new User();
@@ -66,8 +64,7 @@ class UserController extends Controller {
 
     public function filter(): void {
         if ($_SESSION['user']['role'] == 'user') {
-            header("Location: " . INSTALL_URL, true, 301);
-            exit;
+            $this->redirect(INSTALL_URL);
         }
 
         $this->list('ajax');
@@ -75,8 +72,7 @@ class UserController extends Controller {
 
     public function print(): void {
         if ($_SESSION['user']['role'] == 'user') {
-            header("Location: " . INSTALL_URL, true, 301);
-            exit;
+            $this->redirect(INSTALL_URL);
         }
 
         $userData = $this->post('userData');
@@ -86,7 +82,7 @@ class UserController extends Controller {
 
             if (!$users || empty($users)) {
                 echo "No users to print";
-                exit;
+                $this->terminate();
             }
         }
 
@@ -95,8 +91,7 @@ class UserController extends Controller {
 
     public function changeRole(): void {
         if ($_SESSION['user']['role'] == 'user') {
-            header("Location: " . INSTALL_URL, true, 301);
-            exit;
+            $this->redirect(INSTALL_URL);
         }
 
         $userModel = new User();
@@ -137,8 +132,7 @@ class UserController extends Controller {
 
     public function create(): void {
         if ($_SESSION['user']['role'] == 'user') {
-            header("Location: " . INSTALL_URL, true, 301);
-            exit;
+            $this->redirect(INSTALL_URL);
         }
 
         // Create an instance of the User model
@@ -156,8 +150,7 @@ class UserController extends Controller {
                 $postData['role'] = 'user';
 
                 if ($userModel->save($postData)) {
-                    header("Location: " . $_SESSION['previous_url'], true, 301);
-                    exit;
+                    $this->redirect($_SESSION['previous_url']);
                 } else {
                     $error_message = "Failed to register. Please try again.";
                 }
@@ -191,8 +184,7 @@ class UserController extends Controller {
 
     public function bulkDelete(): void {
         if ($_SESSION['user']['role'] == 'user') {
-            header("Location: " . INSTALL_URL, true, 301);
-            exit;
+            $this->redirect(INSTALL_URL);
         }
 
         $userModel = new User();
@@ -221,8 +213,7 @@ class UserController extends Controller {
             $postData = $this->post();
             if ($userModel->update($postData)) {
                 // Redirect to the list of users on successful creation
-                header("Location: " . $_SESSION['previous_url'], true, 301);
-                exit;
+                $this->redirect($_SESSION['previous_url']);
             }
 
             // If saving fails, set an error message
@@ -235,8 +226,7 @@ class UserController extends Controller {
 
     public function profile(): void {
         if ($_SESSION['user']['role'] == 'user' && $_SESSION['user']['id'] != $this->get('id')) {
-            header("Location: " . INSTALL_URL, true, 301);
-            exit;
+            $this->redirect(INSTALL_URL);
         }
 
         $userModel = new User();
@@ -247,11 +237,11 @@ class UserController extends Controller {
     }
 
     public function uploadProfilePicture(): void {
-        header('Content-Type: application/json');
+        $this->setHeader('Content-Type: application/json');
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_FILES['profile_picture'])) {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request.']);
-            exit;
+            $this->terminate();
         }
 
         $user_id = \Core\Security::int($this->post('user_id'));
@@ -261,12 +251,12 @@ class UserController extends Controller {
 
         if (!in_array($fileExt, $allowedTypes)) {
             echo json_encode(['status' => 'error', 'message' => 'Invalid file format!']);
-            exit;
+            $this->terminate();
         }
 
         if ($file['error'] !== UPLOAD_ERR_OK) {
             echo json_encode(['status' => 'error', 'message' => 'File upload failed.']);
-            exit;
+            $this->terminate();
         }
 
         $newFileName = 'profile_' . $user_id . '_' . uniqid() . '.' . $fileExt;
@@ -304,8 +294,7 @@ class UserController extends Controller {
         $id = $this->post('id') ?? $this->get('id') ?? null;
 
         if ($_SESSION['user']['role'] == 'user' && $_SESSION['user']['id'] != $id) {
-            header("Location: " . INSTALL_URL, true, 301);
-            exit;
+            $this->redirect(INSTALL_URL);
         }
 
         $userModel = new User();
@@ -337,8 +326,7 @@ class UserController extends Controller {
                         );
                     }
 
-                    header("Location: " . INSTALL_URL . "?controller=User&action=profile&id=$id", true, 301);
-                    exit;
+                    $this->redirect(INSTALL_URL . "?controller=User&action=profile&id=$id");
                 }
                 $errorMessage = 'Error updating password';
             }
@@ -356,7 +344,7 @@ class UserController extends Controller {
 
             if (!$users || empty($users)) {
                 echo "No users to export";
-                exit;
+                $this->terminate();
             }
         }
 
@@ -366,13 +354,16 @@ class UserController extends Controller {
         switch ($format) {
             case 'pdf':
                 ExportService::exportToPDF($users, 'Users Export', 'users_export.pdf');
+                break;
             case 'excel':
                 ExportService::exportToExcel($users, 'users_export.xlsx');
+                break;
             case 'csv':
                 ExportService::exportToCSV($users, 'users_export.csv');
+                break;
             default:
                 echo "Invalid export format";
-                exit;
+                $this->terminate();
         }
     }
 

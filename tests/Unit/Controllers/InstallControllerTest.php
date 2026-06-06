@@ -9,7 +9,7 @@ use App\Controllers\InstallController;
 
 class InstallControllerTest extends TestCase {
 
-    private InstallController $controller;
+    private $controller;
 
     protected function setUp(): void {
         parent::setUp();
@@ -17,7 +17,19 @@ class InstallControllerTest extends TestCase {
         $_GET = [];
         $_POST = [];
         $_SERVER['REQUEST_METHOD'] = 'GET';
-        $this->controller = new InstallController();
+        $this->controller = new class extends InstallController {
+            protected function redirect(string $url): void
+            {
+                throw new \RuntimeException('redirect:' . $url);
+            }
+            protected function terminate(string $message = ''): void {}
+            protected function setHeader(string $header): void {}
+            public function view($layout, array $data = []): void
+            {
+                $this->lastViewData = $data;
+            }
+            public array $lastViewData = [];
+        };
     }
 
     protected function tearDown(): void {

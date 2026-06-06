@@ -1,0 +1,20 @@
+parameters:
+  # Analysis level: 0 (loosest) → 9 (strictest).
+  # Level 5 is a good starting point for a legacy PHP project.
+  # Raise it incrementally once the baseline is clean.
+  level: 5
+
+  paths:
+    - Core
+    - App
+    - config
+
+  excludePaths:
+    - vendor
+
+  # Ignore errors you can't fix yet (legacy code, third-party quirks).
+  # Remove entries here as you clean up the codebase.
+  ignoreErrors: []
+
+  # Treat PHP notices as errors so nothing slips through silently.
+  reportUnmatchedIgnoredErrors: true

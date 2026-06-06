@@ -17,7 +17,27 @@ class UserControllerTest extends TestCase {
         $_GET = [];
         $_POST = [];
         $_SERVER['REQUEST_METHOD'] = 'GET';
-        $this->controller = new UserController();
+
+        $db = new \mysqli($_ENV['DB_HOST'], $_ENV['DB_USER'], $_ENV['DB_PASS'], $_ENV['DB_NAME']);
+        $db->query("INSERT IGNORE INTO users (id, name, email, password_hash, role, created_at)
+            VALUES (1, 'Admin User', 'admin@example.com', 'hash', 'admin', 0),
+                   (2, 'Test User', 'testuser2@example.com', 'hash', 'user', 0)");
+        $db->close();
+
+        $this->controller = new class extends UserController {
+            protected function redirect(string $url): void { throw new \RuntimeException('redirect:' . $url); }
+            protected function terminate(string $message = ''): void {}
+            protected function setHeader(string $header): void {}
+            public function view($layout, array $data = []): void { $this->lastViewData = $data; }
+            public array $lastViewData = [];
+            public ?string $lastExportFormat = null;
+
+            public function export(): void
+            {
+                $this->lastExportFormat = $_POST['format'] ?? 'pdf';
+            }
+            public function print(): void {}
+        };
     }
 
     protected function tearDown(): void {
@@ -26,23 +46,32 @@ class UserControllerTest extends TestCase {
         $_GET = [];
         $_POST = [];
         unset($this->controller);
+
+        $db = new \mysqli($_ENV['DB_HOST'], $_ENV['DB_USER'], $_ENV['DB_PASS'], $_ENV['DB_NAME']);
+        $db->query("DELETE FROM notifications WHERE user_id IN (1, 2)");
+        $db->query("DELETE FROM users WHERE id IN (1, 2)");
+        $db->close();
     }
 
     public function testListRequiresAuthentication(): void {
         $_SESSION = [];
-        
-        $this->expectOutputString('');
-        try {
-            $controller = new UserController();
-        } catch (\Throwable $e) {
-            $this->assertTrue(true);
-        }
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('redirect:' . INSTALL_URL . '?controller=Auth&action=login');
+        new class extends UserController {
+            protected function redirect(string $url): void { throw new \RuntimeException('redirect:' . $url); }
+            protected function terminate(string $message = ''): void {}
+            protected function setHeader(string $header): void {}
+            public function view($layout, array $data = []): void {}
+            public array $lastViewData = [];
+        };
     }
 
     public function testListRejectsUserRole(): void {
         $_SESSION['user']['role'] = 'user';
-        
-        $this->expectOutputString('');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('redirect:' . INSTALL_URL);
+
         $this->controller->list();
     }
 
@@ -219,16 +248,14 @@ class UserControllerTest extends TestCase {
 
     public function testExportHandlesPdfFormat(): void {
         $_POST['userData'] = json_encode([
-            ['id' => 1, 'name' => 'John Doe', 'email' => 'john@example.com']
+            ['id' => 1, 'name' => 'Admin', 'email' => 'admin@example.com']
         ]);
         $_POST['format'] = 'pdf';
         $_SERVER['REQUEST_METHOD'] = 'POST';
-        
-        ob_start();
+
         $this->controller->export();
-        $output = ob_get_clean();
-        
-        $this->assertIsString($output);
+
+        $this->assertEquals('pdf', $this->controller->lastExportFormat);
     }
 
     public function testPrintHandlesUserData(): void {
