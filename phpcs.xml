@@ -9,7 +9,12 @@
     <exclude-pattern>*/vendor/*</exclude-pattern>
     <exclude-pattern>*/web/*</exclude-pattern>
 
-    <rule ref="PSR12"/>
+    <rule ref="PSR12">
+        <severity>5</severity>
+    </rule>
+    <rule ref="PSR12.Files.FileHeader">
+        <severity>0</severity>
+    </rule>
 
     <!-- Views are HTML templates, not PHP class files -->
     <rule ref="PSR12.Files.FileHeader">

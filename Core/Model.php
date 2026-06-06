@@ -15,6 +15,7 @@ class Model
     public string $user = '';
     public string $pass = '';
     public ?string $table = null;
+    public array $schema = [];
     public ?string $primaryKey = null;
 
     /**
@@ -381,6 +382,9 @@ class Model
         return isset($result[0]['count']) && $result[0]['count'] > 0;
     }
 
+    /**
+     * @throws DatabaseException
+     */
     public function save($data): int|false
     {
         $this->connect();

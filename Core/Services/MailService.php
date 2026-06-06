@@ -41,7 +41,7 @@ class MailService
             $this->phpmailer->isSMTP();
             $this->phpmailer->Host = $host;
             $this->phpmailer->SMTPAuth = true;
-            $this->phpmailer->Port = $port;
+            $this->phpmailer->Port = (int) $port;
             $this->phpmailer->Username = $username;
             $this->phpmailer->Password = $password;
             $this->phpmailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;

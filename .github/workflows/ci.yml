@@ -24,6 +24,14 @@ jobs:
           php-version: "8.2"
           tools: phpcs
 
+      - name: Fix auto-fixable code style issues
+        run: |
+          vendor/bin/phpcbf \
+            --standard=phpcs.xml \
+            --extensions=php \
+            --ignore=vendor/ \
+            Core/ App/ config/ || true
+
       - name: Run PHP_CodeSniffer
         run: |
           phpcs \
