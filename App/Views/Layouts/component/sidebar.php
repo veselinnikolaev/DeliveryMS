@@ -53,7 +53,19 @@
                         <ul class="nav flex-column sub-menu">
                             <li class="nav-item"> <a class="nav-link" href="<?= INSTALL_URL; ?>?controller=User&action=list">List Users</a></li>
                             <li class="nav-item"> <a class="nav-link" href="<?= INSTALL_URL; ?>?controller=User&action=create">Create User</a></li>
-                            <li class="nav-item"> <a class="nav-link" href="<?= INSTALL_URL; ?>?controller=Courier&action=create">Create Courier</a></li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="collapse" href="#couriers" aria-expanded="false" aria-controls="couriers">
+                        <i class="menu-icon mdi mdi-truck"></i>
+                        <span class="menu-title">Couriers</span>
+                        <i class="menu-arrow"></i>
+                    </a>
+                    <div class="collapse" id="couriers">
+                        <ul class="nav flex-column sub-menu">
+                            <li class="nav-item"> <a class="nav-link" href="<?php INSTALL_URL; ?>?controller=Courier&action=list">List Couriers</a></li>
+                            <li class="nav-item"> <a class="nav-link" href="<?php INSTALL_URL; ?>?controller=Courier&action=create">Create Courier</a></li>
                         </ul>
                     </div>
                 </li>
