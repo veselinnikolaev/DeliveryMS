@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\OrderProducts;
 use App\Models\Product;
 use App\Models\Notification;
+use Config\Utility;
 use Core\Services\ExportService;
 use Core\Services\MailService;
 use Core\Security;
@@ -24,7 +25,7 @@ class OrderController extends Controller
         parent::__construct();
     }
 
-    function list($layout = 'admin'): void
+    public function list($layout = 'admin'): void
     {
         try {
             $orderModel = new Order();
@@ -122,12 +123,12 @@ class OrderController extends Controller
         }
     }
 
-    function filter()
+    public function filter()
     {
         $this->list('ajax');
     }
 
-    function create()
+    public function create()
     {
         try {
             if (empty($_SESSION['user'])) {
@@ -166,7 +167,7 @@ class OrderController extends Controller
                     $priceDetails = $this->calculateOrderTotal($productIds, $quantities);
                     $orderData = [
                     'last_processed' => time(),
-                    'tracking_number' => \Utility::generateRandomString(),
+                    'tracking_number' => Utility::generateRandomString(),
                     'delivery_date' => strtotime($this->post('delivery_date')),
                     'total_amount' => $priceDetails['total'],
                     'created_at' => time()
@@ -211,7 +212,7 @@ class OrderController extends Controller
 // Notify customer
                             $notificationModel->save([
                             'user_id' => Security::int($this->post('user_id')),
-                            'message' => "New order #{$orderId} has been created. Total: " . \Utility::getDisplayableAmount($priceDetails['total']),
+                            'message' => "New order #{$orderId} has been created. Total: " . Utility::getDisplayableAmount($priceDetails['total']),
                             'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
                             'created_at' => time()
                             ]);
@@ -334,7 +335,7 @@ class OrderController extends Controller
         }
     }
 
-    function details(): void
+    public function details(): void
     {
         try {
             $orderModel = new Order();
@@ -398,7 +399,7 @@ class OrderController extends Controller
         }
     }
 
-    function delete(): void
+    public function delete(): void
     {
         try {
             if (empty($_SESSION['user'])) {
@@ -446,7 +447,7 @@ class OrderController extends Controller
         }
     }
 
-    function pay(): void
+    public function pay(): void
     {
         try {
             if (!empty($this->get('order_id'))) {
@@ -522,7 +523,7 @@ class OrderController extends Controller
         }
     }
 
-    function paypalIpn(): void
+    public function paypalIpn(): void
     {
         try {
             // Override CSRF validation for PayPal webhook
@@ -593,7 +594,7 @@ class OrderController extends Controller
         }
     }
 
-    function bulkDelete(): void
+    public function bulkDelete(): void
     {
         try {
             if (empty($_SESSION['user'])) {
@@ -632,7 +633,7 @@ class OrderController extends Controller
         }
     }
 
-    function print(): void
+    public function print(): void
     {
         if ($this->post('orderData') !== null) {
 // Decode the JSON data
@@ -647,7 +648,7 @@ class OrderController extends Controller
         $this->view('ajax', ['orders' => $orders]);
     }
 
-    function edit(): void
+    public function edit(): void
     {
         try {
             if (empty($_SESSION['user'])) {
@@ -825,7 +826,7 @@ class OrderController extends Controller
         }
     }
 
-    function calculatePrice(): void
+    public function calculatePrice(): void
     {
         try {
             $price_arr = $this->calculateOrderTotal($this->post('product_id'), $this->post('quantity'));
@@ -875,7 +876,7 @@ class OrderController extends Controller
         }
     }
 
-    function export(): void
+    public function export(): void
     {
         try {
 // Check if orderData is provided
@@ -1044,10 +1045,10 @@ class OrderController extends Controller
                                     <?= date($this->settings['date_format'], $order['delivery_date']) ?>
                                 </p>
                                 <p><strong>Status:</strong>
-                                    <?= \Utility::$order_status[$order['status']] ?? 'Unknown' ?>
+                                    <?= Utility::$order_status[$order['status']] ?? 'Unknown' ?>
                                 </p>
                                 <p><strong>Total Price:</strong>
-                                    <?= \Utility::getDisplayableAmount(htmlspecialchars(number_format($order['total_amount'], 2))) ?>
+                                    <?= Utility::getDisplayableAmount(htmlspecialchars(number_format($order['total_amount'], 2))) ?>
                                 </p>
                             </div>
                         </div>
@@ -1071,10 +1072,10 @@ class OrderController extends Controller
                                             <?= htmlspecialchars($product['quantity']) ?>
                                         </td>
                                         <td>
-                                            <?= \Utility::getDisplayableAmount(htmlspecialchars(number_format($product['price'], 2))) ?>
+                                            <?= Utility::getDisplayableAmount(htmlspecialchars(number_format($product['price'], 2))) ?>
                                         </td>
                                         <td>
-                                            <?= \Utility::getDisplayableAmount(htmlspecialchars(number_format($product['subtotal'], 2))) ?>
+                                            <?= Utility::getDisplayableAmount(htmlspecialchars(number_format($product['subtotal'], 2))) ?>
                                         </td>
                                     </tr>
                                 <?php } ?>

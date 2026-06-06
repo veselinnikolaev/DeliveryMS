@@ -27,7 +27,7 @@ class InstallController extends Controller
         return [];
     }
 
-    function step0()
+    public function step0()
     {
         if (INSTALLED && !MAIL_CONFIGURED) {
             $this->redirect(INSTALL_URL . '?controller=Install&action=step4');

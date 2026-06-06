@@ -1,3 +1,4 @@
+# phpstan.neon
 parameters:
   level: 5
   paths:
@@ -22,10 +23,7 @@ parameters:
     - MAIL_USERNAME
     - MAIL_PASSWORD
     - UPLOAD_PATH
-
-  # Ignore errors you can't fix yet (legacy code, third-party quirks).
-  # Remove entries here as you clean up the codebase.
+  bootstrapFiles:
+    - phpstan-bootstrap.php
   ignoreErrors: []
-
-  # Treat PHP notices as errors so nothing slips through silently.
   reportUnmatchedIgnoredErrors: true

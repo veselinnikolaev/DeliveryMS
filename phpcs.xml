@@ -2,19 +2,21 @@
 <ruleset name="DeliveryMS">
     <description>PSR-12 for DeliveryMS with project-specific tweaks.</description>
 
-    <!-- Directories to scan -->
     <file>Core</file>
     <file>App</file>
     <file>config</file>
 
-    <!-- Exclude third-party/generated code -->
     <exclude-pattern>*/vendor/*</exclude-pattern>
     <exclude-pattern>*/web/*</exclude-pattern>
 
-    <!-- Base standard -->
     <rule ref="PSR12"/>
 
-    <!-- Allow longer lines in view/template files (HTML-heavy) -->
+    <!-- Views are HTML templates, not PHP class files -->
+    <rule ref="PSR12.Files.FileHeader">
+        <exclude-pattern>*/Views/*</exclude-pattern>
+    </rule>
+
+    <!-- Allow longer lines in view/template files -->
     <rule ref="Generic.Files.LineLength">
         <properties>
             <property name="lineLimit" value="120"/>
