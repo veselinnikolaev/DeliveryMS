@@ -10,11 +10,12 @@ use App\Models\User;
 use App\Models\Notification;
 use Core\Controller;
 
-class HomeController extends Controller {
-
+class HomeController extends Controller
+{
     public string $layout = 'admin';
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
     }
 
@@ -77,9 +78,9 @@ class HomeController extends Controller {
 
                 // Recent deliveries for courier
                 $data['recent_deliveries'] = $orderModel->getAll(
-                        ['courier_id' => $userId],
-                        'delivery_date DESC',
-                        5
+                    ['courier_id' => $userId],
+                    'delivery_date DESC',
+                    5
                 );
                 foreach ($data['recent_deliveries'] as &$order) {
                     $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
@@ -95,9 +96,9 @@ class HomeController extends Controller {
 
                 // Recent orders for user
                 $data['recent_orders'] = $orderModel->getAll(
-                        ['user_id' => $userId],
-                        'created_at DESC',
-                        5
+                    ['user_id' => $userId],
+                    'created_at DESC',
+                    5
                 );
                 foreach ($data['recent_orders'] as &$order) {
                     $order['formatted_total'] = \Utility::getDisplayableAmount($order['total_amount']);
@@ -108,15 +109,16 @@ class HomeController extends Controller {
 
         // Common data for all roles when logged in
         $data['notifications'] = $notificationModel->getAll(
-                ['user_id' => $userId, 'is_seen' => 0],
-                'created_at DESC',
-                5
+            ['user_id' => $userId, 'is_seen' => 0],
+            'created_at DESC',
+            5
         );
 
         $this->view($this->layout, $data);
     }
 
-    public function getSalesData(): array {
+    public function getSalesData(): array
+    {
         $orderModel = new Order();
 
         // Last 30 days sales data

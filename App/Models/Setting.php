@@ -6,8 +6,8 @@ namespace App\Models;
 
 use Core\Model;
 
-class Setting extends Model {
-
+class Setting extends Model
+{
     public ?string $primaryKey = 'id';
     public ?string $table = 'settings';
 
@@ -17,4 +17,3 @@ class Setting extends Model {
         array('name' => 'value', 'type' => 'varchar', 'default' => ':NULL'),
     );
 }
-

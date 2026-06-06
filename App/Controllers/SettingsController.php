@@ -11,11 +11,12 @@ use Core;
 use Core\View;
 use Core\Controller;
 
-class SettingsController extends Controller {
-
+class SettingsController extends Controller
+{
     public string $layout = 'admin';
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         if (empty($_SESSION['user'])) {
             $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
@@ -24,23 +25,24 @@ class SettingsController extends Controller {
             $this->redirect(INSTALL_URL);
         }
     }
-    
-    public function index(): void {
+
+    public function index(): void
+    {
         $settingModel = new Setting();
         $notificationModel = new Notification();
         $userModel = new User();
-    
+
         if (!empty($this->post('settings'))) {
             $updateData = [];
             $criticalChanges = [];
             $currentSettings = [];
-            
+
             // Get current settings for comparison
             $existingSettings = $settingModel->getAll();
             foreach ($existingSettings as $setting) {
                 $currentSettings[$setting['key']] = $setting['value'];
             }
-    
+
             foreach ($this->post('settings') as $key => $value) {
                 $updateData[] = [
                     'key' => $key,
@@ -65,17 +67,17 @@ class SettingsController extends Controller {
                     }
                 }
             }
-    
+
             if ($settingModel->updateBatch($updateData, 'key')) {
                 // Notify all administrators about the changes
                 if (!empty($criticalChanges)) {
                     $adminUsers = $userModel->getAll(['role' => 'admin']);
-                    
+
                     foreach ($adminUsers as $admin) {
                         // Create a detailed notification for critical changes
                         $notificationModel->save([
                             'user_id' => $admin['id'],
-                            'message' => "Important system settings changed:\n" . implode("\n", $criticalChanges) . 
+                            'message' => "Important system settings changed:\n" . implode("\n", $criticalChanges) .
                                        "\nChanged by: " . $_SESSION['user']['name'],
                             'link' => INSTALL_URL . "?controller=Settings&action=index",
                             'created_at' => time()
@@ -92,7 +94,7 @@ class SettingsController extends Controller {
                 ]);
 
                 echo json_encode([
-                    'success' => true, 
+                    'success' => true,
                     'message' => 'Settings updated successfully!',
                     'changes' => $criticalChanges
                 ]);
@@ -106,13 +108,13 @@ class SettingsController extends Controller {
                 ]);
 
                 echo json_encode([
-                    'success' => false, 
+                    'success' => false,
                     'message' => 'Failed to update settings.'
                 ]);
             }
             $this->terminate();
         }
-    
+
         $settings = $settingModel->getAll();
         $this->view($this->layout, ['settings' => $settings]);
     }

@@ -10,22 +10,25 @@ use Core\Security;
 use Core\View;
 use Core\Controller;
 
-class NotificationController extends Controller {
-
+class NotificationController extends Controller
+{
     public string $layout = 'admin';
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         if (empty($_SESSION['user'])) {
             $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
         }
     }
 
-    public function index(): void {
+    public function index(): void
+    {
         $this->view($this->layout);
     }
 
-    public function markAsSeen(): void {
+    public function markAsSeen(): void
+    {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $notificationModel = new Notification();
             $notificationModel->update(['id' => Security::int($this->post('id')), 'is_seen' => 1]);
@@ -36,7 +39,8 @@ class NotificationController extends Controller {
         }
     }
 
-    public function markAllSeen(): void {
+    public function markAllSeen(): void
+    {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $notificationModel = new Notification();
             $notificationModel->updateBy(['is_seen' => 1], ['user_id' => $_SESSION['user']['id']]);

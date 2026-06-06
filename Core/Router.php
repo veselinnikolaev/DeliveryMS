@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace Core;
 
-class Router {
-
-    public function resolve(): void {
+class Router
+{
+    public function resolve(): void
+    {
         $controllerName = $_REQUEST['controller'] ?? null;
         $actionName = $_REQUEST['action'] ?? null;
 

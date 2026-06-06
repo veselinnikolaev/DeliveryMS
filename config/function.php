@@ -2,8 +2,8 @@
 
 use App\Models\Setting;
 
-class Utility {
-
+class Utility
+{
     static array $order_status = [
         'pending' => 'Pending',
         'shipped' => 'Shipped',
@@ -31,7 +31,8 @@ class Utility {
         'l, F j, Y' => 'Monday, March 24, 2025', // Day, Month Date, Year
     ];
 
-    static function generateRandomString($length = 10) {
+    static function generateRandomString($length = 10)
+    {
         return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $length);
     }
 

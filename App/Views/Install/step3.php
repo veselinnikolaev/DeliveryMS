@@ -18,7 +18,9 @@
             <h2 class="card-title text-center mb-4">PayPal Account Settings</h2>
             <p class="card-text mb-4">Please enter your PayPal business account details:</p>
 
-            <form action="<?php use Core\Security;
+            <form action="<?php
+
+            use Core\Security;
 
             echo INSTALL_URL; ?>?controller=Install&action=step3" method="POST">
                 <?= Security::csrfField() ?>
@@ -26,12 +28,12 @@
                     <label for="paypalBusinessEmail" class="form-label">PayPal Business Email</label>
                     <input type="email" class="form-control" id="paypalBusinessEmail" name="paypal_email" 
                            value="<?php
-                           if (!empty($tpl['paypal_email'])) {
-                               echo $tpl['paypal_email'];
-                           } else if (PAYPAL_EMAIL != '{paypal_email}') {
-                               echo PAYPAL_EMAIL;
-                           }
-                           ?>" required>
+                            if (!empty($tpl['paypal_email'])) {
+                                echo $tpl['paypal_email'];
+                            } elseif (PAYPAL_EMAIL != '{paypal_email}') {
+                                echo PAYPAL_EMAIL;
+                            }
+                            ?>" required>
                     <div class="form-text">The email address associated with your PayPal business account</div>
                 </div>
                 <div class="mb-3">
@@ -46,9 +48,9 @@
 
                 <div class="d-flex justify-content-between mt-4">
                     <a href="<?php echo $_SESSION['previous_url']; ?>" class="btn btn-secondary">Back</a>
-                    <?php if (str_contains($_SESSION['previous_url'], '?controller=Settings&action=index')): ?>
+                    <?php if (str_contains($_SESSION['previous_url'], '?controller=Settings&action=index')) : ?>
                         <button type="submit" class="btn btn-primary">Done</button>
-                    <?php else: ?>
+                    <?php else : ?>
                         <button type="submit" class="btn btn-primary">Next Step</button>
                     <?php endif; ?>
                 </div>

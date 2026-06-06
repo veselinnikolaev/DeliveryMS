@@ -55,7 +55,7 @@
                             <a class="btn btn-warning btn-circle change-role" href="#" data-id="<?php echo $user['id']; ?>" data-role="<?php echo $user['role']; ?>">
                                 <i class="fa fa-arrow-down" aria-hidden="true"></i>
                             </a>
-                        <?php } else if ($user['role'] == 'user') { ?>
+                        <?php } elseif ($user['role'] == 'user') { ?>
                             <a class="btn btn-success btn-circle change-role" href="#" data-id="<?php echo $user['id']; ?>" data-role="<?php echo $user['role']; ?>">
                                 <i class="fa fa-arrow-up" aria-hidden="true"></i>
                             </a>

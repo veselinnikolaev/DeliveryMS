@@ -29,7 +29,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($tpl['active_orders'] as $order): ?>
+                                <?php foreach ($tpl['active_orders'] as $order) : ?>
                                 <tr>
                                     <td>#<?php echo $order['id']; ?></td>
                                     <td><?php echo htmlspecialchars($order['address'] . ', ' . $order['region'] . ', ' . $order['country']); ?></td>

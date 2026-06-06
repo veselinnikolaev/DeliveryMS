@@ -10,22 +10,25 @@ use App\Models\User;
 use App\Models\Setting;
 use Core\Controller;
 
-class InstallController extends Controller {
-
+class InstallController extends Controller
+{
     public string $layout = 'front';
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         if (INSTALLED && MAIL_CONFIGURED && !str_contains($_SESSION['previous_url'], '?controller=Settings&action=index')) {
             $this->redirect($_SESSION['previous_url']);
         }
     }
 
-    protected function loadSettings(): array {
+    protected function loadSettings(): array
+    {
         return [];
     }
 
-    function step0() {
+    function step0()
+    {
         if (INSTALLED && !MAIL_CONFIGURED) {
             $this->redirect(INSTALL_URL . '?controller=Install&action=step4');
         }
@@ -33,7 +36,8 @@ class InstallController extends Controller {
         $this->view($this->layout);
     }
 
-    public function step1(): void {
+    public function step1(): void
+    {
         if (INSTALLED && !MAIL_CONFIGURED) {
             $this->redirect(INSTALL_URL . '?controller=Install&action=step4');
         }
@@ -55,13 +59,13 @@ class InstallController extends Controller {
                 // Write to .env file instead of config/constant.php
                 $envPath = __DIR__ . '/../../.env';
                 $envContent = file_get_contents($envPath);
-                
+
                 // Update .env with database credentials
                 $envContent = preg_replace('/DB_HOST=.*/', 'DB_HOST=' . $hostname, $envContent);
                 $envContent = preg_replace('/DB_NAME=.*/', 'DB_NAME=' . $databaseName, $envContent);
                 $envContent = preg_replace('/DB_USER=.*/', 'DB_USER=' . $connectionUsername, $envContent);
                 $envContent = preg_replace('/DB_PASS=.*/', 'DB_PASS=' . $connectionPassword, $envContent);
-                
+
                 file_put_contents($envPath, $envContent);
 
                 $migrated = $model->migrate();
@@ -74,12 +78,12 @@ class InstallController extends Controller {
                 // Revert .env changes on error
                 $envPath = __DIR__ . '/../../.env';
                 $envContent = file_get_contents($envPath);
-                
+
                 $envContent = preg_replace('/DB_HOST=.*/', 'DB_HOST={hostname}', $envContent);
                 $envContent = preg_replace('/DB_NAME=.*/', 'DB_NAME={database_name}', $envContent);
                 $envContent = preg_replace('/DB_USER=.*/', 'DB_USER={host_username}', $envContent);
                 $envContent = preg_replace('/DB_PASS=.*/', 'DB_PASS={host_password}', $envContent);
-                
+
                 file_put_contents($envPath, $envContent);
             }
 
@@ -90,7 +94,8 @@ class InstallController extends Controller {
         $this->view($this->layout, ['error_message' => $errorMessage ?? null]);
     }
 
-    public function step2(): void {
+    public function step2(): void
+    {
         if (INSTALLED && !MAIL_CONFIGURED) {
             $this->redirect(INSTALL_URL . '?controller=Install&action=step4');
         }
@@ -148,17 +153,18 @@ class InstallController extends Controller {
         $this->view($this->layout, $arr);
     }
 
-    public function step3(): void {
+    public function step3(): void
+    {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $paypalEmail = $this->post('paypal_email');
 
             // Write to .env file instead of config/constant.php
             $envPath = __DIR__ . '/../../.env';
             $envContent = file_get_contents($envPath);
-            
+
             // Update PAYPAL_EMAIL in .env
             $envContent = preg_replace('/PAYPAL_EMAIL=.*/', 'PAYPAL_EMAIL=' . $paypalEmail, $envContent);
-            
+
             file_put_contents($envPath, $envContent);
 
             if (str_contains($_SESSION['previous_url'], '?controller=Settings&action=index')) {
@@ -170,7 +176,8 @@ class InstallController extends Controller {
         $this->view($this->layout);
     }
 
-    public function step4(): void {
+    public function step4(): void
+    {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!empty($this->post('skip_mail'))) {
                 try {
@@ -200,14 +207,14 @@ class InstallController extends Controller {
                 // Write to .env file instead of config/constant.php
                 $envPath = __DIR__ . '/../../.env';
                 $envContent = file_get_contents($envPath);
-                
+
                 // Update mail settings in .env
                 $envContent = preg_replace('/MAIL_HOST=.*/', 'MAIL_HOST=' . $mailHost, $envContent);
                 $envContent = preg_replace('/MAIL_PORT=.*/', 'MAIL_PORT=' . $mailPort, $envContent);
                 $envContent = preg_replace('/MAIL_USERNAME=.*/', 'MAIL_USERNAME=' . $mailUsername, $envContent);
                 $envContent = preg_replace('/MAIL_PASSWORD=.*/', 'MAIL_PASSWORD=' . $mailPassword, $envContent);
                 $envContent = preg_replace('/MAIL_CONFIGURED=.*/', 'MAIL_CONFIGURED=true', $envContent);
-                
+
                 file_put_contents($envPath, $envContent);
 
                 $this->redirect(INSTALL_URL . "?controller=Install&action=step5");
@@ -216,7 +223,8 @@ class InstallController extends Controller {
         $this->view($this->layout, ['error_message' => $errorMessage ?? null]);
     }
 
-    public function step5(): void {
+    public function step5(): void
+    {
         if (INSTALLED && !MAIL_CONFIGURED) {
             $this->redirect(INSTALL_URL . '?controller=Install&action=step4');
         }
@@ -246,10 +254,10 @@ class InstallController extends Controller {
         // Write to .env file instead of config/constant.php
         $envPath = __DIR__ . '/../../.env';
         $envContent = file_get_contents($envPath);
-        
+
         // Update INSTALLED in .env
         $envContent = preg_replace('/INSTALLED=.*/', 'INSTALLED=true', $envContent);
-        
+
         file_put_contents($envPath, $envContent);
 
         $this->view($this->layout);

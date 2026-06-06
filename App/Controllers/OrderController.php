@@ -15,15 +15,17 @@ use Core\Security;
 use Core\Controller;
 use Core\Exceptions\DatabaseException;
 
-class OrderController extends Controller {
-
+class OrderController extends Controller
+{
     protected string $layout = 'admin';
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
     }
 
-    function list($layout = 'admin'): void {
+    function list($layout = 'admin'): void
+    {
         try {
             $orderModel = new Order();
             $userModel = new User();
@@ -31,72 +33,72 @@ class OrderController extends Controller {
             $opts = array();
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Handle customer name filter - fetch matching user IDs first
-            if (!empty($this->post('customerName'))) {
-                $customerName = '%' . $this->post('customerName') . '%';
-                $matchingUsers = $userModel->getAll(['name' => $customerName]);
-                if (!empty($matchingUsers)) {
-                    $userIds = array_column($matchingUsers, 'id');
-                    $opts['user_id'] = $userIds;
-                } else {
-                    // No matching users, return empty result
-                    $opts['user_id'] = [0]; // Impossible ID to return no results
+                if (!empty($this->post('customerName'))) {
+                    $customerName = '%' . $this->post('customerName') . '%';
+                    $matchingUsers = $userModel->getAll(['name' => $customerName]);
+                    if (!empty($matchingUsers)) {
+                        $userIds = array_column($matchingUsers, 'id');
+                        $opts['user_id'] = $userIds;
+                    } else {
+                        // No matching users, return empty result
+                        $opts['user_id'] = [0]; // Impossible ID to return no results
+                    }
                 }
-            }
             // Handle courier name filter - fetch matching courier IDs first
-            if (!empty($this->post('courierName'))) {
-                $courierName = '%' . $this->post('courierName') . '%';
-                $matchingCouriers = $userModel->getAll(['name' => $courierName, 'role' => 'courier']);
-                if (!empty($matchingCouriers)) {
-                    $courierIds = array_column($matchingCouriers, 'id');
-                    $opts['courier_id'] = $courierIds;
-                } else {
-                    // No matching couriers, return empty result
-                    $opts['courier_id'] = [0]; // Impossible ID to return no results
+                if (!empty($this->post('courierName'))) {
+                    $courierName = '%' . $this->post('courierName') . '%';
+                    $matchingCouriers = $userModel->getAll(['name' => $courierName, 'role' => 'courier']);
+                    if (!empty($matchingCouriers)) {
+                        $courierIds = array_column($matchingCouriers, 'id');
+                        $opts['courier_id'] = $courierIds;
+                    } else {
+                        // No matching couriers, return empty result
+                        $opts['courier_id'] = [0]; // Impossible ID to return no results
+                    }
+                }
+            // Handle status filter - use LIKE for partial matching
+                if (!empty($this->post('status'))) {
+                    $opts['status LIKE'] = '%' . $this->post('status') . '%';
+                }
+            // Handle tracking number filter - use LIKE for partial matching
+                if (!empty($this->post('trackingNumber'))) {
+                    $opts['tracking_number LIKE'] = '%' . $this->post('trackingNumber') . '%';
+                }
+            // Handle country filter - use LIKE for partial matching
+                if (!empty($this->post('country'))) {
+                    $opts['country LIKE'] = '%' . $this->post('country') . '%';
+                }
+            // Handle region filter - use LIKE for partial matching
+                if (!empty($this->post('region'))) {
+                    $opts['region LIKE'] = '%' . $this->post('region') . '%';
+                }
+            // Handle date range filters
+                if (!empty($this->post('orderDateFrom'))) {
+                    $opts['delivery_date >='] = strtotime($this->post('orderDateFrom'));
+                }
+                if (!empty($this->post('orderDateTo'))) {
+                    $opts['delivery_date <='] = strtotime($this->post('orderDateTo'));
+                }
+            // Handle price range filters
+                if (!empty($this->post('minTotalPrice'))) {
+                    $opts['total_amount >='] = Security::float($this->post('minTotalPrice'));
+                }
+                if (!empty($this->post('maxTotalPrice'))) {
+                    $opts['total_amount <='] = Security::float($this->post('maxTotalPrice'));
                 }
             }
-            // Handle status filter - use LIKE for partial matching
-            if (!empty($this->post('status'))) {
-                $opts['status LIKE'] = '%' . $this->post('status') . '%';
-            }
-            // Handle tracking number filter - use LIKE for partial matching
-            if (!empty($this->post('trackingNumber'))) {
-                $opts['tracking_number LIKE'] = '%' . $this->post('trackingNumber') . '%';
-            }
-            // Handle country filter - use LIKE for partial matching
-            if (!empty($this->post('country'))) {
-                $opts['country LIKE'] = '%' . $this->post('country') . '%';
-            }
-            // Handle region filter - use LIKE for partial matching
-            if (!empty($this->post('region'))) {
-                $opts['region LIKE'] = '%' . $this->post('region') . '%';
-            }
-            // Handle date range filters
-            if (!empty($this->post('orderDateFrom'))) {
-                $opts['delivery_date >='] = strtotime($this->post('orderDateFrom'));
-            }
-            if (!empty($this->post('orderDateTo'))) {
-                $opts['delivery_date <='] = strtotime($this->post('orderDateTo'));
-            }
-            // Handle price range filters
-            if (!empty($this->post('minTotalPrice'))) {
-                $opts['total_amount >='] = Security::float($this->post('minTotalPrice'));
-            }
-            if (!empty($this->post('maxTotalPrice'))) {
-                $opts['total_amount <='] = Security::float($this->post('maxTotalPrice'));
-            }
-        }
 
 // Retrieve all orders from the database
-        if (!empty($this->get('user_id')) && $this->get('user_id') == $_SESSION['user']['id']) { //User role checking orders
-            $opts['user_id'] = Security::int($this->get('user_id'));
-        }
+            if (!empty($this->get('user_id')) && $this->get('user_id') == $_SESSION['user']['id']) { //User role checking orders
+                $opts['user_id'] = Security::int($this->get('user_id'));
+            }
 
 // Retrieve all orders from the database
-        if (!empty($this->get('courier_id')) && $this->get('courier_id') == $_SESSION['user']['id']) { //User role checking orders
-            $opts['courier_id'] = Security::int($this->get('courier_id'));
-        }
+            if (!empty($this->get('courier_id')) && $this->get('courier_id') == $_SESSION['user']['id']) { //User role checking orders
+                $opts['courier_id'] = Security::int($this->get('courier_id'));
+            }
 
-        $orders = $orderModel->getAll($opts);
+            $orders = $orderModel->getAll($opts);
 
 // Format orders for display
             foreach ($orders as &$order) {
@@ -108,165 +110,167 @@ class OrderController extends Controller {
             }
 
 // Pass the data to the view
-        $arr = [
+            $arr = [
             'orders' => $orders,
             'currency' => $this->settings['currency_code']
-        ];
+            ];
 
-        $this->view($layout, $arr);
+            $this->view($layout, $arr);
         } catch (DatabaseException $e) {
             error_log("Database error in OrderController::list: " . $e->getMessage());
             $this->view($layout, ['orders' => [], 'currency' => $this->settings['currency_code'], 'error_message' => 'An error occurred while loading orders. Please try again.']);
         }
     }
 
-    function filter() {
+    function filter()
+    {
         $this->list('ajax');
     }
 
-    function create() {
+    function create()
+    {
         try {
             if (empty($_SESSION['user'])) {
-            $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
-        }
-        if ($_SESSION['user']['role'] == 'user') {
-            $this->redirect($_SESSION['previous_url']);
-        }
-
-        $orderModel = new Order();
-        $orderProductsModel = new OrderProducts();
-        $productModel = new Product();
-        $userModel = new User();
-        $notificationModel = new Notification();
-        $mailer = new MailService();
-        $currency = $this->settings['currency_code'];
-
-        if (!empty($this->post('send'))) {
-            $productIds = $this->post('product_id');
-            $quantities = $this->post('quantity');
-
-// Validate quantities against available product quantities
-            $quantityError = false;
-            $error_message = null;
-
-            foreach ($productIds as $key => $productId) {
-                $product = $productModel->get($productId);
-                if ($quantities[$key] > $product['stock']) {
-                    $error_message = "Quantity for {$product['name']} exceeds available stock.";
-                    $quantityError = true;
-                    break;
-                }
+                $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
+            }
+            if ($_SESSION['user']['role'] == 'user') {
+                $this->redirect($_SESSION['previous_url']);
             }
 
-            if (!$quantityError) {
-                $priceDetails = $this->calculateOrderTotal($productIds, $quantities);
-                $orderData = [
+            $orderModel = new Order();
+            $orderProductsModel = new OrderProducts();
+            $productModel = new Product();
+            $userModel = new User();
+            $notificationModel = new Notification();
+            $mailer = new MailService();
+            $currency = $this->settings['currency_code'];
+
+            if (!empty($this->post('send'))) {
+                $productIds = $this->post('product_id');
+                $quantities = $this->post('quantity');
+
+// Validate quantities against available product quantities
+                $quantityError = false;
+                $error_message = null;
+
+                foreach ($productIds as $key => $productId) {
+                    $product = $productModel->get($productId);
+                    if ($quantities[$key] > $product['stock']) {
+                        $error_message = "Quantity for {$product['name']} exceeds available stock.";
+                        $quantityError = true;
+                        break;
+                    }
+                }
+
+                if (!$quantityError) {
+                    $priceDetails = $this->calculateOrderTotal($productIds, $quantities);
+                    $orderData = [
                     'last_processed' => time(),
                     'tracking_number' => \Utility::generateRandomString(),
                     'delivery_date' => strtotime($this->post('delivery_date')),
                     'total_amount' => $priceDetails['total'],
                     'created_at' => time()
-                ];
+                    ];
 
-                $postData = $this->post();
-                $orderId = $orderModel->save($orderData + $postData);
+                    $postData = $this->post();
+                    $orderId = $orderModel->save($orderData + $postData);
 
-                if ($orderId) {
+                    if ($orderId) {
 // Save order products and update product quantities
-                    foreach ($productIds as $key => $productId) {
-                        $productDetails = $productModel->get($productId);
-                        $subtotal = $productDetails['price'] * $quantities[$key];
+                        foreach ($productIds as $key => $productId) {
+                            $productDetails = $productModel->get($productId);
+                            $subtotal = $productDetails['price'] * $quantities[$key];
 
-                        $orderProductData = [
+                            $orderProductData = [
                             'order_id' => $orderId,
                             'product_id' => $productId,
                             'quantity' => $quantities[$key],
                             'price' => $productDetails['price'],
                             'subtotal' => $subtotal,
-                        ];
+                            ];
 
-                        if (!$orderProductsModel->save($orderProductData)) {
-                            $error_message = "Failed to save order products. Please try again.";
-                            break;
-                        }
+                            if (!$orderProductsModel->save($orderProductData)) {
+                                $error_message = "Failed to save order products. Please try again.";
+                                break;
+                            }
 
 // Update product quantity after order product is saved
-                        $updatedQuantity = $productDetails['stock'] - $quantities[$key];
-                        $updateSuccess = $productModel->update([
+                            $updatedQuantity = $productDetails['stock'] - $quantities[$key];
+                            $updateSuccess = $productModel->update([
                             'id' => $productId,
                             'stock' => $updatedQuantity
-                        ]);
+                            ]);
 
-                        if (!$updateSuccess) {
-                            $error_message = "Failed to update product stock for {$productDetails['name']}. Please try again.";
-                            break;
+                            if (!$updateSuccess) {
+                                $error_message = "Failed to update product stock for {$productDetails['name']}. Please try again.";
+                                break;
+                            }
                         }
-                    }
 
-                    if (!isset($error_message)) {
+                        if (!isset($error_message)) {
 // Notify customer
-                        $notificationModel->save([
+                            $notificationModel->save([
                             'user_id' => Security::int($this->post('user_id')),
                             'message' => "New order #{$orderId} has been created. Total: " . \Utility::getDisplayableAmount($priceDetails['total']),
                             'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
                             'created_at' => time()
-                        ]);
+                            ]);
 
 // Notify courier
-                        $notificationModel->save([
-                            'user_id' => Security::int($this->post('courier_id')),
-                            'message' => "New delivery assigned to you. Order #{$orderId}",
-                            'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
-                            'created_at' => time()
-                        ]);
+                            $notificationModel->save([
+                                'user_id' => Security::int($this->post('courier_id')),
+                                'message' => "New delivery assigned to you. Order #{$orderId}",
+                                'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
+                                'created_at' => time()
+                            ]);
 
 // Check for low stock and notify admins
-                        foreach ($productIds as $key => $productId) {
-                            $product = $productModel->get($productId);
-                            if ($product['stock'] < 10) { // Threshold for low stock
-                                $adminUsers = $userModel->getAll(['role' => 'admin']);
-                                foreach ($adminUsers as $admin) {
-                                    $notificationModel->save([
-                                        'user_id' => $admin['id'],
-                                        'message' => "Low stock alert: {$product['name']} (Only {$product['stock']} left)",
-                                        'link' => INSTALL_URL . "?controller=Product&action=edit&id=$productId",
-                                        'created_at' => time()
-                                    ]);
+                            foreach ($productIds as $key => $productId) {
+                                $product = $productModel->get($productId);
+                                if ($product['stock'] < 10) { // Threshold for low stock
+                                    $adminUsers = $userModel->getAll(['role' => 'admin']);
+                                    foreach ($adminUsers as $admin) {
+                                        $notificationModel->save([
+                                            'user_id' => $admin['id'],
+                                            'message' => "Low stock alert: {$product['name']} (Only {$product['stock']} left)",
+                                            'link' => INSTALL_URL . "?controller=Product&action=edit&id=$productId",
+                                            'created_at' => time()
+                                        ]);
+                                    }
                                 }
                             }
-                        }
 
-                        if ($this->settings['email_sending'] == 'enabled') {
-                            $order = $orderModel->get($orderId);
-                            $customer = $userModel->get($order['user_id']);
-                            $courier = $userModel->get($order['courier_id']);
-                            $orderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
+                            if ($this->settings['email_sending'] == 'enabled') {
+                                $order = $orderModel->get($orderId);
+                                $customer = $userModel->get($order['user_id']);
+                                $courier = $userModel->get($order['courier_id']);
+                                $orderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
 
-                            foreach ($orderProducts as &$product) {
-                                $productDetails = $productModel->get($product['product_id']);
-                                $product['name'] = $productDetails['name'] ?? 'Unknown';
+                                foreach ($orderProducts as &$product) {
+                                    $productDetails = $productModel->get($product['product_id']);
+                                    $product['name'] = $productDetails['name'] ?? 'Unknown';
+                                }
+
+                                $emailContent = $this->generateOrderEmail($order, $customer, $courier, $orderProducts, "Order Confirmation");
+
+                                $mailer->sendMail($customer['email'], "Order Confirmation #{$orderId}", $emailContent);
                             }
-
-                            $emailContent = $this->generateOrderEmail($order, $customer, $courier, $orderProducts, "Order Confirmation");
-
-                            $mailer->sendMail($customer['email'], "Order Confirmation #{$orderId}", $emailContent);
+                            $this->redirect($_SESSION['previous_url']);
                         }
-                        $this->redirect($_SESSION['previous_url']);
+                    } else {
+                        $error_message = "Failed to create the order. Please try again.";
                     }
-                } else {
-                    $error_message = "Failed to create the order. Please try again.";
                 }
             }
-        }
 
-        $arr = [
+            $arr = [
             'users' => $userModel->getAll(),
             'products' => $productModel->getAll(),
             'couriers' => $userModel->getAll(['role' => 'courier']),
             'currency' => $currency,
             'error_message' => $error_message ?? null
-        ];
-        $this->view($this->layout, $arr);
+            ];
+            $this->view($this->layout, $arr);
         } catch (DatabaseException $e) {
             error_log("Database error in OrderController::create: " . $e->getMessage());
             $arr = [
@@ -280,146 +284,151 @@ class OrderController extends Controller {
         }
     }
 
-    public function changeStatus() {
+    public function changeStatus()
+    {
         try {
             if ($_SESSION['user']['role'] != 'courier') {
-            $this->redirect(INSTALL_URL);
-        }
+                $this->redirect(INSTALL_URL);
+            }
 
-        $orderModel = new Order();
-        $userModel = new User();
+            $orderModel = new Order();
+            $userModel = new User();
 
-        if (!empty($this->post('ids')) && !empty($this->post('status'))) {
-            $status = $this->post('status');
-            $ids = $this->post('ids');
+            if (!empty($this->post('ids')) && !empty($this->post('status'))) {
+                $status = $this->post('status');
+                $ids = $this->post('ids');
 
-            if (in_array($status, ['delivered', 'returned'])) {
-                $orderModel->updateBy(['status' => $status], ['id' => $ids]);
+                if (in_array($status, ['delivered', 'returned'])) {
+                    $orderModel->updateBy(['status' => $status], ['id' => $ids]);
 
-                foreach ($ids as $orderId) {
-                    $order = $orderModel->get($orderId);
-                    if (empty($order)) continue;
-                    $notificationModel = new Notification();
-                    $notificationModel->save([
+                    foreach ($ids as $orderId) {
+                        $order = $orderModel->get($orderId);
+                        if (empty($order)) {
+                            continue;
+                        }
+                        $notificationModel = new Notification();
+                        $notificationModel->save([
                             'user_id' => $order['user_id'],
                             'message' => "Your order #{$orderId} has been " . $status,
                             'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
                             'created_at' => time()
-                    ]);
+                        ]);
+                    }
                 }
             }
-        }
 
 // Return refreshed user list
-        $orders = $orderModel->getAll(['courier_id' => Security::int($_SESSION['user']['id'])]);
+            $orders = $orderModel->getAll(['courier_id' => Security::int($_SESSION['user']['id'])]);
 
-        foreach ($orders as &$order) {
-            $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
-            $courier = $userModel->get($order['courier_id']);
-            $order['courier_name'] = ($courier && $courier['role'] === 'courier') ? $courier['name'] : 'Unknown';
-            $order['delivery_date'] = date($this->settings['date_format'], $order['delivery_date']);
-        }
+            foreach ($orders as &$order) {
+                $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
+                $courier = $userModel->get($order['courier_id']);
+                $order['courier_name'] = ($courier && $courier['role'] === 'courier') ? $courier['name'] : 'Unknown';
+                $order['delivery_date'] = date($this->settings['date_format'], $order['delivery_date']);
+            }
 
-        $this->view('ajax', ['orders' => $orders]);
+            $this->view('ajax', ['orders' => $orders]);
         } catch (DatabaseException $e) {
             error_log("Database error in OrderController::changeStatus: " . $e->getMessage());
             $this->view('ajax', ['orders' => [], 'error_message' => 'An error occurred while updating order status.']);
         }
     }
 
-    function details(): void {
+    function details(): void
+    {
         try {
             $orderModel = new Order();
-        $orderProductsModel = new OrderProducts();
-        $productModel = new Product();
-        $userModel = new User();
+            $orderProductsModel = new OrderProducts();
+            $productModel = new Product();
+            $userModel = new User();
 
-        if (empty($_SESSION['user'])) {
-            $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
-        }
-
-        if (empty($this->get('id'))) {
-            $this->redirect($_SESSION['previous_url']);
-        }
-
-        if ($_SESSION['user']['role'] == 'user') {
-            $userOrders = $orderModel->getAll(['user_id' => Security::int($_SESSION['user']['id'])]);
-            $userOrderIds = array_column($userOrders, 'id');
-            if (!in_array($this->get('id'), $userOrderIds)) {
-                $this->redirect(INSTALL_URL);
+            if (empty($_SESSION['user'])) {
+                $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
             }
-        }
 
-        $orderId = Security::int($this->get('id'));
-        $orderData = $orderModel->get($orderId);
+            if (empty($this->get('id'))) {
+                $this->redirect($_SESSION['previous_url']);
+            }
 
-        if (!$orderData) {
-            $this->redirect($_SESSION['previous_url']);
-        }
+            if ($_SESSION['user']['role'] == 'user') {
+                $userOrders = $orderModel->getAll(['user_id' => Security::int($_SESSION['user']['id'])]);
+                $userOrderIds = array_column($userOrders, 'id');
+                if (!in_array($this->get('id'), $userOrderIds)) {
+                    $this->redirect(INSTALL_URL);
+                }
+            }
 
-        $customerData = $userModel->get($orderData['user_id']);
-        $courierData = $orderData['courier_id'] ? $userModel->get($orderData['courier_id']) : null;
-        
+            $orderId = Security::int($this->get('id'));
+            $orderData = $orderModel->get($orderId);
+
+            if (!$orderData) {
+                $this->redirect($_SESSION['previous_url']);
+            }
+
+            $customerData = $userModel->get($orderData['user_id']);
+            $courierData = $orderData['courier_id'] ? $userModel->get($orderData['courier_id']) : null;
+
         // Ensure courier has courier role
-        if ($courierData && $courierData['role'] !== 'courier') {
-            $courierData = null;
-        }
+            if ($courierData && $courierData['role'] !== 'courier') {
+                $courierData = null;
+            }
 
-        $opts = array();
-        $opts['order_id'] = $orderId;
-        $orderProducts = $orderProductsModel->getAll($opts);
+            $opts = array();
+            $opts['order_id'] = $orderId;
+            $orderProducts = $orderProductsModel->getAll($opts);
 
-        foreach ($orderProducts as &$product) {
-            $productDetails = $productModel->get($product['product_id']);
-            $product['name'] = $productDetails['name'] ?? 'Unknown';
-        }
+            foreach ($orderProducts as &$product) {
+                $productDetails = $productModel->get($product['product_id']);
+                $product['name'] = $productDetails['name'] ?? 'Unknown';
+            }
 
-        $data = [
+            $data = [
             'order' => $orderData,
             'customer' => $customerData,
             'courier' => $courierData,
             'products' => $orderProducts,
             'date_format' => 'Y-m-d H:i',
             'currency' => $this->settings['currency_code'],
-        ];
+            ];
 
-        $this->view($this->layout, $data);
+            $this->view($this->layout, $data);
         } catch (DatabaseException $e) {
             error_log("Database error in OrderController::details: " . $e->getMessage());
             $this->view($this->layout, ['order' => null, 'customer' => null, 'courier' => null, 'products' => [], 'error_message' => 'An error occurred while loading order details.']);
         }
     }
 
-    function delete(): void {
+    function delete(): void
+    {
         try {
             if (empty($_SESSION['user'])) {
-            $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
-        }
-        if ($_SESSION['user']['role'] == 'user') {
-            $this->redirect(INSTALL_URL);
-        }
-
-        $productModel = new Product();
-        $orderModel = new Order();
-        $orderProductsModel = new OrderProducts();
-        $userModel = new User();
-
-        if (!empty($this->post('id'))) {
-            $orderId = Security::int($this->post('id'));
-
-            $orderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
-            foreach ($orderProducts as $orderProduct) {
-                $product = $productModel->getFirstBy(['id' => $orderProduct['product_id']]);
-                $product['stock'] += $orderProduct['quantity'];
-                $productModel->update($product);
+                $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
             }
-            $orderProductsModel->deleteBy(['order_id' => $orderId]);
+            if ($_SESSION['user']['role'] == 'user') {
+                $this->redirect(INSTALL_URL);
+            }
 
-            $orderModel->delete($orderId);
-        }
+            $productModel = new Product();
+            $orderModel = new Order();
+            $orderProductsModel = new OrderProducts();
+            $userModel = new User();
+
+            if (!empty($this->post('id'))) {
+                $orderId = Security::int($this->post('id'));
+
+                $orderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
+                foreach ($orderProducts as $orderProduct) {
+                    $product = $productModel->getFirstBy(['id' => $orderProduct['product_id']]);
+                    $product['stock'] += $orderProduct['quantity'];
+                    $productModel->update($product);
+                }
+                $orderProductsModel->deleteBy(['order_id' => $orderId]);
+
+                $orderModel->delete($orderId);
+            }
 
 // Retrieve all orders from the database
-        $orders = $orderModel->getAll();
+            $orders = $orderModel->getAll();
 
 // Format orders for display
             foreach ($orders as &$order) {
@@ -430,35 +439,36 @@ class OrderController extends Controller {
                 $order['delivery_date'] = $order['delivery_date'] ? date($this->settings['date_format'], $order['delivery_date']) : '';
             }
 
-        $this->view('ajax', ['orders' => $orders, 'currency' => $this->settings['currency_code']]);
+            $this->view('ajax', ['orders' => $orders, 'currency' => $this->settings['currency_code']]);
         } catch (DatabaseException $e) {
             error_log("Database error in OrderController::delete: " . $e->getMessage());
             $this->view('ajax', ['orders' => [], 'currency' => $this->settings['currency_code'], 'error_message' => 'An error occurred while deleting the order.']);
         }
     }
 
-    function pay(): void {
+    function pay(): void
+    {
         try {
             if (!empty($this->get('order_id'))) {
-            $orderId = Security::int($this->get('order_id'));
-            $orderModel = new Order();
-            $userModel = new User();
-            $orderProductsModel = new OrderProducts();
+                $orderId = Security::int($this->get('order_id'));
+                $orderModel = new Order();
+                $userModel = new User();
+                $orderProductsModel = new OrderProducts();
 
-            $order = $orderModel->get($orderId);
-            if (empty($order)) {
-                $this->redirect($_SESSION['previous_url']);
-            }
-            $user = $userModel->get($order['user_id']);
-            $orderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
+                $order = $orderModel->get($orderId);
+                if (empty($order)) {
+                    $this->redirect($_SESSION['previous_url']);
+                }
+                $user = $userModel->get($order['user_id']);
+                $orderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
 
-            $this->view($this->layout, [
+                $this->view($this->layout, [
                 'currency_code' => $this->settings['currency_code'],
                 'order' => $order,
                 'user' => $user,
                 'order_products' => $orderProducts
-            ]);
-        }
+                ]);
+            }
         } catch (DatabaseException $e) {
             error_log("Database error in OrderController::pay: " . $e->getMessage());
             $this->view($this->layout, ['currency_code' => $this->settings['currency_code'], 'order' => null, 'user' => null, 'order_products' => [], 'error_message' => 'An error occurred while loading payment information.']);
@@ -466,142 +476,146 @@ class OrderController extends Controller {
     }
 
 // Controller method to handle the return from PayPal
-    public function pay_success(): void {
+    public function paySuccess(): void
+    {
         try {
 // Get the order ID from the URL parameter
             $orderId = Security::int($this->get('order_id'));
 
-        $orderModel = new Order();
-        $userModel = new User();
+            $orderModel = new Order();
+            $userModel = new User();
 // Load the order from the database
-        $order = $orderModel->get($orderId);
-        $user = $userModel->getFirstBy(['id' => $order['user_id']]);
+            $order = $orderModel->get($orderId);
+            $user = $userModel->getFirstBy(['id' => $order['user_id']]);
 
 // If the order exists and the payment was successful, mark it as paid
-        if ($order) {
+            if ($order) {
 // Show a success message or redirect to a success page
-            $this->view($this->layout, ['order' => $order, 'user' => $user]);
-        }
+                $this->view($this->layout, ['order' => $order, 'user' => $user]);
+            }
         } catch (DatabaseException $e) {
-            error_log("Database error in OrderController::pay_success: " . $e->getMessage());
+            error_log("Database error in OrderController::paySuccess: " . $e->getMessage());
             $this->view($this->layout, ['order' => null, 'user' => null, 'error_message' => 'An error occurred while processing payment success.']);
         }
     }
 
 // Controller method to handle the cancellation from PayPal
-    public function pay_cancel(): void {
+    public function payCancel(): void
+    {
         try {
 // Get the order ID from the URL parameter
             $orderId = Security::int($this->get('order_id'));
 
-        $orderModel = new Order();
-        $userModel = new User();
+            $orderModel = new Order();
+            $userModel = new User();
 // Load the order from the database
-        $order = $orderModel->get($orderId);
-        $user = $userModel->getFirstBy(['id' => $order['user_id']]);
+            $order = $orderModel->get($orderId);
+            $user = $userModel->getFirstBy(['id' => $order['user_id']]);
 
-        if ($order) {
+            if ($order) {
 // Show a cancellation message or redirect to a cancellation page
-            $this->view($this->layout, ['order' => $order, 'user' => $user]);
-        }
+                $this->view($this->layout, ['order' => $order, 'user' => $user]);
+            }
         } catch (DatabaseException $e) {
-            error_log("Database error in OrderController::pay_cancel: " . $e->getMessage());
+            error_log("Database error in OrderController::payCancel: " . $e->getMessage());
             $this->view($this->layout, ['order' => null, 'user' => null, 'error_message' => 'An error occurred while processing payment cancellation.']);
         }
     }
 
-    function paypal_ipn(): void {
+    function paypalIpn(): void
+    {
         try {
             // Override CSRF validation for PayPal webhook
             // This is an external webhook, not a form submission
 
 // PayPal verifies the IPN message
-        $orderModel = new Order();
-        $notificationModel = new Notification();
-        $userModel = new User();
-        $orderId = Security::int($this->post('custom')); // Get the order ID from PayPal's "custom" field
-        $order = $orderModel->get($orderId);
-        $user = $userModel->getFirstBy(['id' => $order['user_id']]);
+            $orderModel = new Order();
+            $notificationModel = new Notification();
+            $userModel = new User();
+            $orderId = Security::int($this->post('custom')); // Get the order ID from PayPal's "custom" field
+            $order = $orderModel->get($orderId);
+            $user = $userModel->getFirstBy(['id' => $order['user_id']]);
 
 // Step 1: Verify IPN message with PayPal (to avoid fraud)
-        $url = 'https://www.paypal.com/cgi-bin/webscr';
-        $data = array(
+            $url = 'https://www.paypal.com/cgi-bin/webscr';
+            $data = array(
             'cmd' => '_notify-validate',
             'tx' => $this->post('txn_id'), // PayPal transaction ID
             'amt' => $this->post('mc_gross'), // Total amount paid
             'currency_code' => $this->post('mc_currency'), // Currency code
-        );
+            );
 
 // Send the IPN data back to PayPal for validation
-        $response = file_get_contents($url . '?' . http_build_query($data));
+            $response = file_get_contents($url . '?' . http_build_query($data));
 
 // Step 2: If PayPal confirms the payment is valid
-        if ($response == "VERIFIED") {
+            if ($response == "VERIFIED") {
 // Update the order status based on payment confirmation
-            if ($this->post('payment_status') == 'Completed') {
+                if ($this->post('payment_status') == 'Completed') {
 // Payment is successful, update order status
-                $order['status'] = 'shipped';
-                $orderModel->update($order);
-                $notificationModel->save([
+                    $order['status'] = 'shipped';
+                    $orderModel->update($order);
+                    $notificationModel->save([
                     'user_id' => $user['id'],
                     'message' => "Your order #$orderId has been paid successfully!",
-                    'link' => INSTALL_URL . "?controller=Order&action=pay_success&order_id=$orderId",
+                    'link' => INSTALL_URL . "?controller=Order&action=paySuccess&order_id=$orderId",
                     'created_at' => time()
-                ]);
-            } else if ($this->post('payment_status') == 'Failed') {
-                $notificationModel->save([
+                    ]);
+                } elseif ($this->post('payment_status') == 'Failed') {
+                    $notificationModel->save([
                     'user_id' => $user['id'],
                     'message' => "Payment failed for order #{$orderId}. Please try again.",
                     'link' => INSTALL_URL . "?controller=Order&action=pay&order_id=$orderId",
                     'created_at' => time()
-                ]);
-            }
-        } else {
+                    ]);
+                }
+            } else {
 // Payment not verified, handle the error (perhaps log it)
-            error_log("Invalid IPN message: " . json_encode($this->post()));
-        }
+                error_log("Invalid IPN message: " . json_encode($this->post()));
+            }
 
 // Step 3: Handle canceled or failed payment (if needed)
-        if ($this->post('payment_status') == 'Failed' || $this->post('payment_status') == 'Canceled') {
+            if ($this->post('payment_status') == 'Failed' || $this->post('payment_status') == 'Canceled') {
 // Update the order status as canceled
-            $order['status'] = 'cancelled';
-            $orderModel->update($order);
-            $notificationModel->save([
+                $order['status'] = 'cancelled';
+                $orderModel->update($order);
+                $notificationModel->save([
                 'user_id' => $user['id'],
                 'message' => "Your order #$orderId has been cancelled!",
-                'link' => INSTALL_URL . "?controller=Order&action=pay_cancel&order_id=$orderId",
+                'link' => INSTALL_URL . "?controller=Order&action=payCancel&order_id=$orderId",
                 'created_at' => time()
-            ]);
-        }
+                ]);
+            }
         } catch (DatabaseException $e) {
-            error_log("Database error in OrderController::paypal_ipn: " . $e->getMessage());
+            error_log("Database error in OrderController::paypalIpn: " . $e->getMessage());
             http_response_code(500);
             echo "Error processing IPN notification";
         }
     }
 
-    function bulkDelete(): void {
+    function bulkDelete(): void
+    {
         try {
             if (empty($_SESSION['user'])) {
-            $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
-        }
-        if ($_SESSION['user']['role'] == 'user') {
-            $this->redirect(INSTALL_URL);
-        }
+                $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
+            }
+            if ($_SESSION['user']['role'] == 'user') {
+                $this->redirect(INSTALL_URL);
+            }
 
-        $orderModel = new Order();
-        $orderProductsModel = new OrderProducts();
-        $userModel = new User();
+            $orderModel = new Order();
+            $orderProductsModel = new OrderProducts();
+            $userModel = new User();
 
-        if (!empty($this->post('ids')) && is_array($this->post('ids'))) {
-            $orderIds = $this->post('ids');
+            if (!empty($this->post('ids')) && is_array($this->post('ids'))) {
+                $orderIds = $this->post('ids');
 
-            $orderProductsModel->deleteBy(['order_id' => $orderIds]);
-            $orderModel->deleteBy(['id' => $orderIds]);
-        }
+                $orderProductsModel->deleteBy(['order_id' => $orderIds]);
+                $orderModel->deleteBy(['id' => $orderIds]);
+            }
 
 // Retrieve all orders from the database
-        $orders = $orderModel->getAll();
+            $orders = $orderModel->getAll();
 
 // Format orders for display
             foreach ($orders as &$order) {
@@ -611,14 +625,15 @@ class OrderController extends Controller {
                 $order['delivery_date'] = $order['delivery_date'] ? date($this->settings['date_format'], $order['delivery_date']) : '';
             }
 
-        $this->view('ajax', ['orders' => $orders, 'currency' => $this->settings['currency_code']]);
+            $this->view('ajax', ['orders' => $orders, 'currency' => $this->settings['currency_code']]);
         } catch (DatabaseException $e) {
             error_log("Database error in OrderController::bulkDelete: " . $e->getMessage());
             $this->view('ajax', ['orders' => [], 'currency' => $this->settings['currency_code'], 'error_message' => 'An error occurred while deleting orders.']);
         }
     }
 
-    function print(): void {
+    function print(): void
+    {
         if ($this->post('orderData') !== null) {
 // Decode the JSON data
             $orders = json_decode($_POST['orderData'] ?? 'null', true);
@@ -632,156 +647,157 @@ class OrderController extends Controller {
         $this->view('ajax', ['orders' => $orders]);
     }
 
-    function edit(): void {
+    function edit(): void
+    {
         try {
             if (empty($_SESSION['user'])) {
-            $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
-        }
-        if ($_SESSION['user']['role'] == 'user') {
-            $this->redirect(INSTALL_URL);
-        }
-
-        $orderModel = new Order();
-        $orderProductsModel = new OrderProducts();
-        $productModel = new Product();
-        $userModel = new User();
-        $notificationModel = new Notification();
-        $mailer = new MailService();
-        $currency = $this->settings['currency_code'];
-
-        if (!empty($this->post('id'))) {
-            $orderId = Security::int($this->post('id'));
-            $order = $orderModel->get($orderId);
-            $originalCourierId = $order['courier_id'];
-            $currentOrderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
-
-            $currentQuantities = [];
-            $productIds = array_column($currentOrderProducts, 'product_id');
-            $productData = $productModel->getMultiple($productIds);
-
-            foreach ($currentOrderProducts as $product) {
-                $currentQuantities[$product['product_id']] = ($currentQuantities[$product['product_id']] ?? 0) + $product['quantity'];
+                $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
+            }
+            if ($_SESSION['user']['role'] == 'user') {
+                $this->redirect(INSTALL_URL);
             }
 
-            $quantityError = false;
-            $newQuantities = [];
-            $newOrderProducts = [];
+            $orderModel = new Order();
+            $orderProductsModel = new OrderProducts();
+            $productModel = new Product();
+            $userModel = new User();
+            $notificationModel = new Notification();
+            $mailer = new MailService();
+            $currency = $this->settings['currency_code'];
 
-            foreach ($this->post('product_id') as $key => $productId) {
-                $quantity = $this->post('quantity')[$key];
-                $newQuantities[$productId] = ($newQuantities[$productId] ?? 0) + $quantity;
-                $newOrderProducts[] = ['product_id' => $productId, 'quantity' => $quantity];
-            }
+            if (!empty($this->post('id'))) {
+                $orderId = Security::int($this->post('id'));
+                $order = $orderModel->get($orderId);
+                $originalCourierId = $order['courier_id'];
+                $currentOrderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
 
-            foreach ($newQuantities as $productId => $newTotalQuantity) {
-                $product = $productData[$productId] ?? $productModel->get($productId);
-                $currentTotalQuantity = $currentQuantities[$productId] ?? 0;
-                $stockChange = $newTotalQuantity - $currentTotalQuantity;
-                $updatedStock = $product['stock'] - $stockChange;
+                $currentQuantities = [];
+                $productIds = array_column($currentOrderProducts, 'product_id');
+                $productData = $productModel->getMultiple($productIds);
 
-                if ($updatedStock < 0) {
-                    $error_message = "Quantity for {$product['name']} exceeds available stock.";
-                    $quantityError = true;
-                    break;
+                foreach ($currentOrderProducts as $product) {
+                    $currentQuantities[$product['product_id']] = ($currentQuantities[$product['product_id']] ?? 0) + $product['quantity'];
                 }
-            }
 
-            if (!$quantityError) {
-                $priceDetails = $this->calculateOrderTotal(array_keys($newQuantities), array_values($newQuantities));
+                $quantityError = false;
+                $newQuantities = [];
+                $newOrderProducts = [];
 
-                $orderData = [
+                foreach ($this->post('product_id') as $key => $productId) {
+                    $quantity = $this->post('quantity')[$key];
+                    $newQuantities[$productId] = ($newQuantities[$productId] ?? 0) + $quantity;
+                    $newOrderProducts[] = ['product_id' => $productId, 'quantity' => $quantity];
+                }
+
+                foreach ($newQuantities as $productId => $newTotalQuantity) {
+                    $product = $productData[$productId] ?? $productModel->get($productId);
+                    $currentTotalQuantity = $currentQuantities[$productId] ?? 0;
+                    $stockChange = $newTotalQuantity - $currentTotalQuantity;
+                    $updatedStock = $product['stock'] - $stockChange;
+
+                    if ($updatedStock < 0) {
+                        $error_message = "Quantity for {$product['name']} exceeds available stock.";
+                        $quantityError = true;
+                        break;
+                    }
+                }
+
+                if (!$quantityError) {
+                    $priceDetails = $this->calculateOrderTotal(array_keys($newQuantities), array_values($newQuantities));
+
+                    $orderData = [
                     'last_processed' => time(),
                     'tracking_number' => $order['tracking_number'],
                     'delivery_date' => strtotime($this->post('delivery_date')),
                     'total_amount' => $priceDetails['total']
-                ];
+                    ];
 
-                $postData = $this->post();
-                if (!$orderModel->update(['id' => $orderId] + $orderData + $postData)) {
-                    $error_message = "Failed to update order with id " . $orderId;
-                }
+                    $postData = $this->post();
+                    if (!$orderModel->update(['id' => $orderId] + $orderData + $postData)) {
+                        $error_message = "Failed to update order with id " . $orderId;
+                    }
 
-                $orderProductsModel->deleteBy(['order_id' => $orderId]);
+                    $orderProductsModel->deleteBy(['order_id' => $orderId]);
 
 // Update stock for products based on total difference
-                foreach ($newOrderProducts as $orderProduct) {
-                    $productId = $orderProduct['product_id'];
-                    $quantity = $orderProduct['quantity'];
-                    $productDetails = $productData[$productId] ?? $productModel->get($productId);
-                    $subtotal = $productDetails['price'] * $quantity;
+                    foreach ($newOrderProducts as $orderProduct) {
+                        $productId = $orderProduct['product_id'];
+                        $quantity = $orderProduct['quantity'];
+                        $productDetails = $productData[$productId] ?? $productModel->get($productId);
+                        $subtotal = $productDetails['price'] * $quantity;
 
-                    $orderProductsModel->save([
+                        $orderProductsModel->save([
                         'order_id' => $orderId,
                         'product_id' => $productId,
                         'quantity' => $quantity,
                         'price' => $productDetails['price'],
                         'subtotal' => $subtotal
-                    ]);
-                }
-                unset($orderProduct);
+                        ]);
+                    }
+                    unset($orderProduct);
 
-                foreach ($newQuantities as $productId => $newTotalQuantity) {
-                    $productDetails = $productData[$productId] ?? $productModel->get($productId);
-                    $currentTotalQuantity = $currentQuantities[$productId] ?? 0;
-                    $stockChange = $newTotalQuantity - $currentTotalQuantity;
-                    $updatedStock = $productDetails['stock'] - $stockChange;
+                    foreach ($newQuantities as $productId => $newTotalQuantity) {
+                        $productDetails = $productData[$productId] ?? $productModel->get($productId);
+                        $currentTotalQuantity = $currentQuantities[$productId] ?? 0;
+                        $stockChange = $newTotalQuantity - $currentTotalQuantity;
+                        $updatedStock = $productDetails['stock'] - $stockChange;
 
-                    if (!$productModel->update(['id' => $productId, 'stock' => $updatedStock])) {
-                        $error_message = "Failed to update product stock for {$productDetails['name']}. Please try again.";
-                        break;
+                        if (!$productModel->update(['id' => $productId, 'stock' => $updatedStock])) {
+                            $error_message = "Failed to update product stock for {$productDetails['name']}. Please try again.";
+                            break;
+                        }
                     }
                 }
-            }
 
-            if (!isset($error_message)) {
-                $notificationModel->save([
+                if (!isset($error_message)) {
+                    $notificationModel->save([
                     'user_id' => Security::int($this->post('user_id')),
                     'message' => "Your order #$orderId has been edited successfully!",
                     'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
                     'created_at' => time()
-                ]);
-
-                if ($originalCourierId != Security::int($this->post('courier_id'))) {
-                    $notificationModel->save([
-                        'user_id' => Security::int($this->post('courier_id')),
-                        'message' => "New delivery assigned to you. Order #{$orderId}",
-                        'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
-                        'created_at' => time()
                     ]);
-                }
 
-                if ($this->settings['email_sending'] == 'enabled') {
-                    $order = $orderModel->get($orderId);
-                    $customer = $userModel->get($order['user_id']);
-                    $courier = $userModel->get($order['courier_id']);
-
-                    $orderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
-                    foreach ($orderProducts as &$orderProduct) {
-                        $orderProductDetails = $productModel->get($orderProduct['product_id']);
-                        $orderProduct['name'] = $orderProductDetails['name'] ?? 'Unknown';
+                    if ($originalCourierId != Security::int($this->post('courier_id'))) {
+                        $notificationModel->save([
+                            'user_id' => Security::int($this->post('courier_id')),
+                            'message' => "New delivery assigned to you. Order #{$orderId}",
+                            'link' => INSTALL_URL . "?controller=Order&action=details&id=$orderId",
+                            'created_at' => time()
+                        ]);
                     }
 
-                    $emailContent = $this->generateOrderEmail($order, $customer, $courier, $orderProducts, "Order Update");
+                    if ($this->settings['email_sending'] == 'enabled') {
+                        $order = $orderModel->get($orderId);
+                        $customer = $userModel->get($order['user_id']);
+                        $courier = $userModel->get($order['courier_id']);
 
-                    $mailer->sendMail($customer['email'], "Order Update #{$orderId}", $emailContent);
+                        $orderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
+                        foreach ($orderProducts as &$orderProduct) {
+                            $orderProductDetails = $productModel->get($orderProduct['product_id']);
+                            $orderProduct['name'] = $orderProductDetails['name'] ?? 'Unknown';
+                        }
+
+                        $emailContent = $this->generateOrderEmail($order, $customer, $courier, $orderProducts, "Order Update");
+
+                        $mailer->sendMail($customer['email'], "Order Update #{$orderId}", $emailContent);
+                    }
+                    $this->redirect($_SESSION['previous_url']);
                 }
-                $this->redirect($_SESSION['previous_url']);
             }
-        }
 
-        $orderId = Security::int($this->get('order_id'));
-        $orderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
+            $orderId = Security::int($this->get('order_id'));
+            $orderProducts = $orderProductsModel->getAll(['order_id' => $orderId]);
 
-        $productQuantities = [];
-        foreach ($orderProducts as $orderProduct) {
-            $productId = $orderProduct['product_id'];
-            if (!isset($productQuantities[$productId])) {
-                $productQuantities[$productId] = 0;
+            $productQuantities = [];
+            foreach ($orderProducts as $orderProduct) {
+                $productId = $orderProduct['product_id'];
+                if (!isset($productQuantities[$productId])) {
+                    $productQuantities[$productId] = 0;
+                }
+                $productQuantities[$productId] += $orderProduct['quantity'];
             }
-            $productQuantities[$productId] += $orderProduct['quantity'];
-        }
 
-        $arr = [
+            $arr = [
             'order' => $orderModel->get($orderId),
             'orderProducts' => $orderProducts,
             'users' => $userModel->getAll(),
@@ -790,9 +806,9 @@ class OrderController extends Controller {
             'productQuantities' => $productQuantities,
             'currency' => $currency,
             'error_message' => $error_message ?? null
-        ];
+            ];
 
-        $this->view($this->layout, $arr);
+            $this->view($this->layout, $arr);
         } catch (DatabaseException $e) {
             error_log("Database error in OrderController::edit: " . $e->getMessage());
             $arr = [
@@ -809,7 +825,8 @@ class OrderController extends Controller {
         }
     }
 
-    function calculatePrice(): void {
+    function calculatePrice(): void
+    {
         try {
             $price_arr = $this->calculateOrderTotal($this->post('product_id'), $this->post('quantity'));
             $this->setHeader('Content-Type: application/json');
@@ -822,27 +839,30 @@ class OrderController extends Controller {
         }
     }
 
-    private function calculateOrderTotal(array $productIds, array $quantities): array {
+    private function calculateOrderTotal(array $productIds, array $quantities): array
+    {
         try {
             $productModel = new Product();
-        $productPrice = 0;
+            $productPrice = 0;
 
             foreach ($productIds as $key => $productId) {
                 $product = $productModel->get($productId);
-                if (empty($product)) continue;
+                if (empty($product)) {
+                    continue;
+                }
                 $productPrice += $product['price'] * $quantities[$key];
             }
 
-        $shippingPrice = ($productPrice * $this->settings['shipping_rate']) / 100;
-        $tax = ($productPrice * $this->settings['tax_rate']) / 100;
-        $total = $productPrice + $tax + $shippingPrice;
+            $shippingPrice = ($productPrice * $this->settings['shipping_rate']) / 100;
+            $tax = ($productPrice * $this->settings['tax_rate']) / 100;
+            $total = $productPrice + $tax + $shippingPrice;
 
-        return [
+            return [
             'product_price' => number_format($productPrice, 2),
             'shipping_price' => number_format($shippingPrice, 2),
             'tax' => number_format($tax, 2),
             'total' => number_format($total, 2),
-        ];
+            ];
         } catch (DatabaseException $e) {
             error_log("Database error in OrderController::calculateOrderTotal: " . $e->getMessage());
             return [
@@ -855,35 +875,36 @@ class OrderController extends Controller {
         }
     }
 
-    function export(): void {
+    function export(): void
+    {
         try {
 // Check if orderData is provided
             if ($this->post('orderData') !== null) {
 // Decode the JSON data
                 $orders = json_decode($_POST['orderData'] ?? 'null', true);
 
-            if (!$orders || empty($orders)) {
-                echo "No orders to export";
-                $this->terminate();
+                if (!$orders || empty($orders)) {
+                    echo "No orders to export";
+                    $this->terminate();
+                }
             }
-        }
 
-        $format = $this->post('format') !== null ? $this->post('format') : 'pdf';
+            $format = $this->post('format') !== null ? $this->post('format') : 'pdf';
 
 // Export based on format
-        switch ($format) {
-            case 'pdf':
-                ExportService::exportToPDF($orders, 'Orders Export', 'orders_export.pdf');
-                break;
-            case 'excel':
-                ExportService::exportToExcel($orders, 'orders_export.xlsx');
-                break;
-            case 'csv':
-                ExportService::exportToCSV($orders, 'orders_export.csv');
-                break;
-            default:
-                echo "Invalid export format";
-                $this->terminate();
+            switch ($format) {
+                case 'pdf':
+                    ExportService::exportToPDF($orders, 'Orders Export', 'orders_export.pdf');
+                    break;
+                case 'excel':
+                    ExportService::exportToExcel($orders, 'orders_export.xlsx');
+                    break;
+                case 'csv':
+                    ExportService::exportToCSV($orders, 'orders_export.csv');
+                    break;
+                default:
+                    echo "Invalid export format";
+                    $this->terminate();
             }
         } catch (DatabaseException $e) {
             error_log("Database error in OrderController::export: " . $e->getMessage());
@@ -892,7 +913,8 @@ class OrderController extends Controller {
         }
     }
 
-    private function generateOrderEmail($order, $customer, $courier, $products, $title) {
+    private function generateOrderEmail($order, $customer, $courier, $products, $title)
+    {
         ob_start();
         ?>
         <!DOCTYPE html>

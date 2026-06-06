@@ -8,7 +8,7 @@ $notifications = $isLoggedIn ? $tpl['notifications'] : [];
 <div class="container-scroller">
     <div class="main-panel">
         <div class="content-wrapper">
-            <?php if (!$isLoggedIn): ?>
+            <?php if (!$isLoggedIn) : ?>
                 <!-- Non-logged in welcome page - full width with max-width constraint -->
                 <div class="container py-3 py-md-5 my-3 my-md-5">
                     <div class="row justify-content-center">
@@ -84,13 +84,13 @@ $notifications = $isLoggedIn ? $tpl['notifications'] : [];
                         </div>
                     </div>
                 </div>
-            <?php else: ?>
+            <?php else : ?>
                 <!-- Logged-in user dashboard -->
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 pt-md-3 pb-2 mb-3 border-bottom">
                     <h1 class="h3 h2-md">Dashboard</h1>
                 </div>
 
-                <?php if ($user_role == 'admin' || $user_role == 'root'): ?>
+                <?php if ($user_role == 'admin' || $user_role == 'root') : ?>
                     <!-- Admin Dashboard -->
                     <div class="row mb-3 mb-md-4 g-3">
                         <div class="col-6 col-md-6 col-xl-3">
@@ -191,7 +191,7 @@ $notifications = $isLoggedIn ? $tpl['notifications'] : [];
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <?php foreach ($tpl['recent_orders'] as $order): ?>
+                                                <?php foreach ($tpl['recent_orders'] as $order) : ?>
                                                     <tr>
                                                         <td>#<?= $order['id'] ?></td>
                                                         <td><?= htmlspecialchars($order['customer_name']) ?></td>
@@ -235,7 +235,7 @@ $notifications = $isLoggedIn ? $tpl['notifications'] : [];
                         </div>
                     </div>
 
-                <?php elseif ($user_role == 'courier'): ?>
+                <?php elseif ($user_role == 'courier') : ?>
                     <!-- Courier Dashboard -->
                     <div class="row mb-3 mb-md-4 g-3">
                         <div class="col-4 col-md-4">
@@ -310,7 +310,7 @@ $notifications = $isLoggedIn ? $tpl['notifications'] : [];
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <?php foreach ($tpl['recent_deliveries'] as $delivery): ?>
+                                                <?php foreach ($tpl['recent_deliveries'] as $delivery) : ?>
                                                     <tr>
                                                         <td>#<?= $delivery['id'] ?></td>
                                                         <td><?= htmlspecialchars($delivery['customer_name']) ?></td>
@@ -334,7 +334,7 @@ $notifications = $isLoggedIn ? $tpl['notifications'] : [];
                             </div>
                         </div>
                     </div>
-                <?php elseif ($user_role == 'user'): ?>
+                <?php elseif ($user_role == 'user') : ?>
                     <!-- User Dashboard -->
                     <div class="row mb-3 mb-md-4 g-3">
                         <div class="col-4 col-md-4">
@@ -409,7 +409,7 @@ $notifications = $isLoggedIn ? $tpl['notifications'] : [];
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <?php foreach ($tpl['recent_orders'] as $order): ?>
+                                                <?php foreach ($tpl['recent_orders'] as $order) : ?>
                                                     <tr>
                                                         <td>#<?= $order['id'] ?></td>
                                                         <td class="d-none d-md-table-cell"><?= date($tpl['date_format'], $order['created_at']) ?></td>
@@ -461,6 +461,6 @@ $notifications = $isLoggedIn ? $tpl['notifications'] : [];
                     </div>
                 <?php endif; ?>
             </div>
-        <?php endif; ?>
+            <?php endif; ?>
     </div>
 </div>

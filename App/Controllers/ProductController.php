@@ -12,11 +12,12 @@ use Core\Services\ExportService;
 use Core\View;
 use Core\Controller;
 
-class ProductController extends Controller {
-
+class ProductController extends Controller
+{
     public string $layout = 'admin';
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         if (empty($_SESSION['user'])) {
             $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
@@ -26,7 +27,8 @@ class ProductController extends Controller {
         }
     }
 
-    public function list($layout = 'admin'): void {
+    public function list($layout = 'admin'): void
+    {
         $productModel = new Product();
 
         $opts = array();
@@ -56,11 +58,13 @@ class ProductController extends Controller {
         $this->view($layout, ['products' => $products, 'currency' => $this->settings['currency_code']]);
     }
 
-    public function filter(): void {
+    public function filter(): void
+    {
         $this->list('ajax');
     }
 
-    public function create(): void {
+    public function create(): void
+    {
         // Create an instance of the Product model
         $productModel = new Product();
 
@@ -88,7 +92,8 @@ class ProductController extends Controller {
         $this->view($this->layout, $arr);
     }
 
-    public function delete(): void {
+    public function delete(): void
+    {
         $productModel = new Product();
 
         if (!empty($this->post('id'))) {
@@ -99,7 +104,8 @@ class ProductController extends Controller {
         $this->view('ajax', ['products' => $products]);
     }
 
-    public function bulkDelete(): void {
+    public function bulkDelete(): void
+    {
         $productModel = new Product();
 
         if (!empty($this->post('ids')) && is_array($this->post('ids'))) {
@@ -110,7 +116,8 @@ class ProductController extends Controller {
         $this->view('ajax', ['products' => $products]);
     }
 
-    public function edit(): void {
+    public function edit(): void
+    {
         $productModel = new Product();
         $arr = $productModel->get(Security::int($this->get('id')));
         if (empty($arr)) {
@@ -119,7 +126,6 @@ class ProductController extends Controller {
 
         // Check if the form has been submitted
         if (!empty($this->post('id'))) {
-
             // Save the data using the Product model
             $postData = $this->post();
             if ($productModel->update($postData)) {
@@ -138,7 +144,8 @@ class ProductController extends Controller {
 
     // In your Product.php controller
 
-    public function print(): void {
+    public function print(): void
+    {
         if ($this->post('productData') !== null) {
             // Decode the JSON data
             $products = json_decode($this->post('productData'), true);
@@ -152,7 +159,8 @@ class ProductController extends Controller {
         $this->view('ajax', ['products' => $products]);
     }
 
-    public function export(): void {
+    public function export(): void
+    {
         // Check if productData is provided
         if ($this->post('productData') !== null) {
             // Decode the JSON data

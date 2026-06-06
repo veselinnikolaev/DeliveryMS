@@ -15,7 +15,7 @@
                 <div class="card-body">
                     <h4 class="card-title">Change Password</h4>
 
-                    <?php if (isset($tpl['error_message'])): ?>
+                    <?php if (isset($tpl['error_message'])) : ?>
                         <div class="alert alert-danger"><?php echo $tpl['error_message']; ?></div>
                     <?php endif; ?>
 

@@ -1,6 +1,6 @@
 <nav class="sidebar sidebar-offcanvas" id="sidebar">
     <ul class="nav">
-        <?php if (isset($_SESSION['user'])): ?>
+        <?php if (isset($_SESSION['user'])) : ?>
             <li class="nav-item active">
                 <a class="nav-link" href="<?php echo INSTALL_URL; ?>">
                     <i class="mdi mdi-chart-line menu-icon"></i>
@@ -15,7 +15,7 @@
                     <span class="menu-title">My Orders</span>
                 </a>
             </li>
-            <?php if (in_array($_SESSION['user']['role'], ['admin', 'root'])): ?>
+            <?php if (in_array($_SESSION['user']['role'], ['admin', 'root'])) : ?>
                 <li class="nav-item nav-category">Forms and Data</li>
                 <li class="nav-item">
                     <a class="nav-link" data-bs-toggle="collapse" href="#orders" aria-expanded="false" aria-controls="orders">
@@ -76,7 +76,7 @@
                         <span class="menu-title">Settings</span>
                     </a>
                 </li>
-            <?php elseif ($_SESSION['user']['role'] === 'courier'): ?>
+            <?php elseif ($_SESSION['user']['role'] === 'courier') : ?>
                 <li class="nav-item nav-category">Deliveries</li>
                 <li class="nav-item">
                     <a class="nav-link" href="<?php INSTALL_URL; ?>?controller=Order&action=list&courier_id=<?php echo $_SESSION['user']['id']; ?>">

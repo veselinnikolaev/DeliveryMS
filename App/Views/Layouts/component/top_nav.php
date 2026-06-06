@@ -23,7 +23,7 @@ if (!empty($tpl['notifications'])) {
 
     <div class="navbar-menu-wrapper d-flex align-items-top"> 
         <ul class="navbar-nav ms-auto">
-            <?php if (!isset($_SESSION['user'])): ?>
+            <?php if (!isset($_SESSION['user'])) : ?>
                 <li class="nav-item d-flex align-items-center me-2">
                     <a href="<?php echo INSTALL_URL; ?>?controller=Auth&action=login" class="btn btn-primary d-flex align-items-center">
                         <i class="mdi mdi-login me-2"></i>
@@ -36,8 +36,8 @@ if (!empty($tpl['notifications'])) {
                         Register
                     </a>
                 </li>
-            <?php else: ?>
-                <?php if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'courier'): ?>
+            <?php else : ?>
+                <?php if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'courier') : ?>
                     <li class="nav-item d-flex align-items-center">
                         <div id="global-tracking-indicator" style="display: none;" 
                              class="d-flex align-items-center me-3 px-3 py-2 rounded">
@@ -51,7 +51,7 @@ if (!empty($tpl['notifications'])) {
                 <li class="nav-item dropdown">       
                     <a class="nav-link count-indicator" id="countDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="icon-bell"></i>
-                        <?php if ($unread_count > 0): ?>
+                        <?php if ($unread_count > 0) : ?>
                             <span class="count"></span> <!-- Show count of unread -->
                         <?php endif; ?>
                     </a>
@@ -69,8 +69,8 @@ if (!empty($tpl['notifications'])) {
                         $notificationsToDisplay = array_slice($tpl['notifications'], 0, 5);
                         ?>
 
-                        <?php if (count($notificationsToDisplay) > 0): ?>
-                            <?php foreach ($notificationsToDisplay as $notif): ?>
+                        <?php if (count($notificationsToDisplay) > 0) : ?>
+                            <?php foreach ($notificationsToDisplay as $notif) : ?>
                                 <a class="dropdown-item preview-item notification-item <?php echo $notif['is_seen'] == 0 ? 'unseen' : ''; ?>" 
                                    data-id="<?= $notif['id'] ?>" 
                                    href="<?= $notif['link'] ?? '#' ?>">
@@ -89,17 +89,17 @@ if (!empty($tpl['notifications'])) {
                                     </div>
                                 </a>
                             <?php endforeach; ?>
-                        <?php else: ?>
+                        <?php else : ?>
                             <p class="dropdown-item text-center text-muted">No new notifications</p>
                         <?php endif; ?>
                     </div>
                 </li>   
                 <li class="nav-item dropdown d-none d-lg-block user-dropdown">
                     <a class="nav-link" id="UserDropdown" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-                        <?php if (!empty($_SESSION['user']['photo_path'])): ?>
+                        <?php if (!empty($_SESSION['user']['photo_path'])) : ?>
                             <img id="profileImage" src="<?php echo htmlspecialchars($_SESSION['user']['photo_path']); ?>" 
                                  alt="Profile Photo" class="img-xs rounded-circle">
-                             <?php else: ?>
+                        <?php else : ?>
                             <div class="img-xs rounded-circle d-flex align-items-center justify-content-center bg-light" 
                                  style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
                                 <i class="mdi mdi-account" style="font-size: 16px; color: #6c757d;"></i>
@@ -109,10 +109,10 @@ if (!empty($tpl['notifications'])) {
                     </a>
                     <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="UserDropdown">
                         <div class="dropdown-header text-center d-flex flex-column align-items-center">
-                            <?php if (!empty($_SESSION['user']['photo_path'])): ?>
+                            <?php if (!empty($_SESSION['user']['photo_path'])) : ?>
                                 <img id="profileImage" src="<?php echo htmlspecialchars($_SESSION['user']['photo_path']); ?>" 
                                      alt="Profile Photo" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
-                                 <?php else: ?>
+                            <?php else : ?>
                                 <div class="d-flex align-items-center justify-content-center bg-light rounded-circle" 
                                      style="width: 64px; height: 64px;">
                                     <i class="mdi mdi-account" style="font-size: 32px; color: #6c757d;"></i>
@@ -131,6 +131,6 @@ if (!empty($tpl['notifications'])) {
             <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" data-bs-toggle="offcanvas">
                 <span class="mdi mdi-menu"></span>
             </button>
-        <?php endif; ?>
+            <?php endif; ?>
     </div>
 </nav>

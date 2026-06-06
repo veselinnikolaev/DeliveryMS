@@ -3,10 +3,11 @@
 declare(strict_types=1);
 
 namespace App\Models;
+
 use Core\Model;
 
-class Order extends Model {
-
+class Order extends Model
+{
     public ?string $primaryKey = 'id';
     public ?string $table = 'orders';
 
@@ -28,5 +29,3 @@ class Order extends Model {
         array('name' => 'delivery_date', 'type' => 'varchar', 'default' => ':NULL')
     );
 }
-?>
-

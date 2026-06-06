@@ -59,7 +59,7 @@
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($tpl['orders'] as $order): ?>
+                <?php foreach ($tpl['orders'] as $order) : ?>
                     <tr>
                         <td><?php echo htmlspecialchars($order['order_id']); ?></td>
                         <td><?php echo htmlspecialchars($order['tracking_number']); ?></td>

@@ -10,7 +10,7 @@ class DatabaseException extends Exception
 {
     /**
      * DatabaseException constructor
-     * 
+     *
      * @param string $message The exception message
      * @param int $code The exception code
      * @param Exception|null $previous The previous exception for chaining

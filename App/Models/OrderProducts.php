@@ -6,8 +6,8 @@ namespace App\Models;
 
 use Core\Model;
 
-class OrderProducts extends Model {
-
+class OrderProducts extends Model
+{
     public ?string $primaryKey = 'id';
     public ?string $table = 'order_products';
 
@@ -19,5 +19,4 @@ class OrderProducts extends Model {
         array('name' => 'price', 'type' => 'decimal', 'default' => ':NULL'),
         array('name' => 'subtotal', 'type' => 'decimal', 'default' => ':NULL')
     );
-
 }

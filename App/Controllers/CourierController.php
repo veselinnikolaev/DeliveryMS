@@ -14,11 +14,12 @@ use Core\Services\ExportService;
 use Core\View;
 use Core\Controller;
 
-class CourierController extends Controller {
-
+class CourierController extends Controller
+{
     public string $layout = 'admin';
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         if (empty($_SESSION['user'])) {
             $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
@@ -28,7 +29,8 @@ class CourierController extends Controller {
         }
     }
 
-    public function list($layout = 'admin') {
+    public function list($layout = 'admin')
+    {
         $userModel = new User();
 
         $opts = array();
@@ -60,11 +62,14 @@ class CourierController extends Controller {
         $this->view($layout, ['couriers' => $couriers]);
     }
 
-    public function filter(): void {
+    public function filter(): void
+    {
         $this->list('ajax');
     }
 
-    public function print(): void {
+    public function print(): void
+    {
+        $couriers = [];
 // Check if courierData is provided
         if ($this->post('courierData') !== null) {
 // Decode the JSON data
@@ -79,7 +84,8 @@ class CourierController extends Controller {
         $this->view('ajax', ['couriers' => $couriers]);
     }
 
-    public function create(): void {
+    public function create(): void
+    {
 // Create an instance of the User model
         $userModel = new User();
 
@@ -87,7 +93,7 @@ class CourierController extends Controller {
         if (!empty($this->post('send'))) {
             if ($userModel->existsBy(['email' => $this->post('email')])) {
                 $error_message = "Courier with this email already exists.";
-            } else if ($this->post('password') !== $this->post('repeat_password')) {
+            } elseif ($this->post('password') !== $this->post('repeat_password')) {
                 $error_message = "Passwords do not match.";
             } else {
                 $postData = $this->post();
@@ -112,7 +118,8 @@ class CourierController extends Controller {
         $this->view($this->layout, $arr);
     }
 
-    public function delete(): void {
+    public function delete(): void
+    {
         $userModel = new User();
 
         if (!empty($this->post('id'))) {
@@ -126,7 +133,8 @@ class CourierController extends Controller {
         $this->view('ajax', ['couriers' => $couriers]);
     }
 
-    public function bulkDelete(): void {
+    public function bulkDelete(): void
+    {
         $userModel = new User();
 
         if (!empty($this->post('ids')) && is_array($this->post('ids'))) {
@@ -137,7 +145,8 @@ class CourierController extends Controller {
         $this->view('ajax', ['couriers' => $couriers]);
     }
 
-    public function edit(): void {
+    public function edit(): void
+    {
         $userModel = new User();
         $arr = $userModel->get(Security::int($this->get('id')));
 
@@ -209,7 +218,8 @@ class CourierController extends Controller {
         }
     }
 
-    public function updateLocation(): void {
+    public function updateLocation(): void
+    {
         $this->setHeader('Content-Type: application/json');
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_SESSION['user']) || $_SESSION['user']['role'] !== 'courier') {
@@ -242,7 +252,8 @@ class CourierController extends Controller {
         $this->terminate();
     }
 
-    public function getLocation(): void {
+    public function getLocation(): void
+    {
         $this->setHeader('Content-Type: application/json');
 
         if (!empty($this->get('courier_id'))) {
@@ -273,7 +284,8 @@ class CourierController extends Controller {
         $this->terminate();
     }
 
-    public function startTracking(): void {
+    public function startTracking(): void
+    {
         if ($_SESSION['user']['role'] !== 'courier') {
             $this->redirect(INSTALL_URL);
         }
@@ -283,7 +295,8 @@ class CourierController extends Controller {
         ]);
     }
 
-    private function getActiveOrders($courierId): array {
+    private function getActiveOrders($courierId): array
+    {
         $orderModel = new Order();
         return $orderModel->getAll([
                     'courier_id' => $courierId,

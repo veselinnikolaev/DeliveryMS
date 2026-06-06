@@ -18,9 +18,11 @@
             <h2 class="card-title text-center mb-4">Database Configuration</h2>
             <p class="card-text mb-4">Please enter your database connection details below:</p>
 
-            <?php use Core\Security;
+            <?php
 
-            if (isset($tpl['error_message'])): ?>
+            use Core\Security;
+
+            if (isset($tpl['error_message'])) : ?>
                 <div class="alert alert-danger" role="alert">
                     <?php echo $tpl['error_message']; ?>
                 </div>
@@ -32,20 +34,20 @@
                     <label for="hostname" class="form-label">Database Hostname</label>
                     <input type="text" class="form-control" id="hostname" name="hostname" placeholder="localhost" 
                            value="<?php
-                           if (DEFAULT_HOST != '{hostname}') {
-                               echo DEFAULT_HOST;
-                           }
-                           ?>" required>
+                            if (DEFAULT_HOST != '{hostname}') {
+                                echo DEFAULT_HOST;
+                            }
+                            ?>" required>
                     <div class="form-text">Usually "localhost" or an IP address</div>
                 </div>
                 <div class="mb-3">
                     <label for="username" class="form-label">Connection Username</label>
                     <input type="text" class="form-control" id="username" name="username"
                            value="<?php
-                           if (DEFAULT_USER != '{host_username}') {
-                               echo DEFAULT_USER;
-                           }
-                           ?>" required>
+                            if (DEFAULT_USER != '{host_username}') {
+                                echo DEFAULT_USER;
+                            }
+                            ?>" required>
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Connection Password</label>
@@ -58,10 +60,10 @@
                     <label for="database" class="form-label">Database Name</label>
                     <input type="text" class="form-control" id="database" name="database" 
                            value="<?php
-                           if (DEFAULT_DB != '{database_name}') {
-                               echo DEFAULT_DB;
-                           }
-                           ?>" required>
+                            if (DEFAULT_DB != '{database_name}') {
+                                echo DEFAULT_DB;
+                            }
+                            ?>" required>
                 </div>
 
                 <div class="d-flex justify-content-between mt-4">

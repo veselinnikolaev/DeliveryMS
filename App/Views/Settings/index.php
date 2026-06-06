@@ -5,7 +5,7 @@
                 <div class="card-body">
                     <h4 class="card-title">Settings</h4>
 
-                    <?php if (isset($error_message)): ?>
+                    <?php if (isset($error_message)) : ?>
                         <div class="alert alert-danger"><?php echo $error_message; ?></div>
                     <?php endif; ?>
 
@@ -14,17 +14,17 @@
                         <div class="settings-section mb-4">
                             <h5 class="section-title border-bottom pb-2 mb-3">Financial Settings</h5>
                             <div class="row">
-                                <?php foreach ($tpl['settings'] as $setting): ?>
-                                    <?php if (in_array($setting['key'], ['tax_rate', 'shipping_rate', 'currency_code'])): ?>
+                                <?php foreach ($tpl['settings'] as $setting) : ?>
+                                    <?php if (in_array($setting['key'], ['tax_rate', 'shipping_rate', 'currency_code'])) : ?>
                                         <div class="col-md-4 mb-3">
                                             <div class="form-group">
                                                 <label for="<?php echo $setting['key']; ?>" class="form-label"><?php echo ucwords(str_replace('_', ' ', $setting['key'])); ?></label>
-                                                <?php if ($setting['key'] === 'tax_rate' || $setting['key'] === 'shipping_rate'): ?>
+                                                <?php if ($setting['key'] === 'tax_rate' || $setting['key'] === 'shipping_rate') : ?>
                                                     <div class="input-group">
                                                         <input type="number" step="0.01" min="0" class="form-control settings-input" id="<?php echo $setting['key']; ?>" name="settings[<?php echo $setting['key']; ?>]" value="<?php echo $setting['value']; ?>" required>
                                                         <span class="input-group-text">%</span>
                                                     </div>
-                                                <?php elseif ($setting['key'] === 'currency_code'): ?>
+                                                <?php elseif ($setting['key'] === 'currency_code') : ?>
                                                     <select class="form-control settings-input" id="<?php echo $setting['key']; ?>" name="settings[<?php echo $setting['key']; ?>]" required>
                                                         <?php
                                                         foreach (Utility::$currencies as $k => $v) {
@@ -44,12 +44,12 @@
                         <div class="settings-section mb-4">
                             <h5 class="section-title border-bottom pb-2 mb-3">Localization</h5>
                             <div class="row">
-                                <?php foreach ($tpl['settings'] as $setting): ?>
-                                    <?php if (in_array($setting['key'], ['timezone', 'date_format'])): ?>
+                                <?php foreach ($tpl['settings'] as $setting) : ?>
+                                    <?php if (in_array($setting['key'], ['timezone', 'date_format'])) : ?>
                                         <div class="col-md-6 mb-3">
                                             <div class="form-group">
                                                 <label for="<?php echo $setting['key']; ?>" class="form-label"><?php echo ucwords(str_replace('_', ' ', $setting['key'])); ?></label>
-                                                <?php if ($setting['key'] === 'timezone'): ?>
+                                                <?php if ($setting['key'] === 'timezone') : ?>
                                                     <select class="form-control settings-input" id="timezone" name="settings[timezone]" required>
                                                         <?php
                                                         $timezones = DateTimeZone::listIdentifiers();
@@ -59,7 +59,7 @@
                                                         }
                                                         ?>
                                                     </select>
-                                                <?php elseif ($setting['key'] === 'date_format'): ?>
+                                                <?php elseif ($setting['key'] === 'date_format') : ?>
                                                     <select class="form-control settings-input" id="date_format" name="settings[date_format]" required>
                                                         <?php
                                                         foreach (Utility::$dateFormats as $format => $label) {
@@ -79,8 +79,8 @@
                         <div class="settings-section mb-4">
                             <h5 class="section-title border-bottom pb-2 mb-3">Communication</h5>
                             <div class="row">
-                                <?php foreach ($tpl['settings'] as $setting): ?>
-                                    <?php if (in_array($setting['key'], ['email_sending'])): ?>
+                                <?php foreach ($tpl['settings'] as $setting) : ?>
+                                    <?php if (in_array($setting['key'], ['email_sending'])) : ?>
                                         <div class="col-md-6 mb-3">
                                             <div class="form-group">
                                                 <label for="<?php echo $setting['key']; ?>" class="form-label"><?php echo ucwords(str_replace('_', ' ', $setting['key'])); ?></label>
@@ -90,7 +90,7 @@
                                                     <option value="disabled" <?php echo ($setting['value'] == 'disabled') ? 'selected' : ''; ?>>Disabled</option>
                                                 </select>
 
-                                                <?php if (!MAIL_CONFIGURED): ?>
+                                                <?php if (!MAIL_CONFIGURED) : ?>
                                                     <div class="mt-2">
                                                         <a href="<?php echo INSTALL_URL; ?>?controller=Install&action=step4" class="btn btn-warning">Configure Email</a>
                                                     </div>
@@ -107,7 +107,7 @@
                                 <div class="col-md-6 mb-3">
                                     <div class="form-group">
                                         <div class="d-flex align-items-center">
-                                            <?php if (!PAYPAL_EMAIL): ?>
+                                            <?php if (!PAYPAL_EMAIL) : ?>
                                                 <div class="me-3">
                                                     <span class="text-danger">
                                                         <i class="ti-alert"></i>
@@ -118,14 +118,14 @@
                                                    class="btn btn-danger">
                                                     Configure PayPal Email
                                                 </a>
-                                            <?php else: ?>
+                                            <?php else : ?>
                                                 <a href="<?php echo INSTALL_URL; ?>?controller=Install&action=step3" 
                                                    class="btn btn-outline-primary">
                                                     Update PayPal Email
                                                 </a>
                                             <?php endif; ?>
                                         </div>
-                                        <?php if (PAYPAL_EMAIL): ?>
+                                        <?php if (PAYPAL_EMAIL) : ?>
                                             <div class="mt-2 text-muted small">
                                                 Current PayPal email: <?php echo PAYPAL_EMAIL; ?>
                                             </div>

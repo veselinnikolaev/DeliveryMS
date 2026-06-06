@@ -8,15 +8,16 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use RuntimeException;
 
-class MailService {
-
+class MailService
+{
     private PHPMailer $phpmailer;
     private string $host;
     private string $port;
     private string $username;
     private string $password;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->host = MAIL_HOST;
         $this->port = MAIL_PORT;
         $this->username = MAIL_USERNAME;
@@ -25,14 +26,15 @@ class MailService {
 
     /**
      * Check mail server connection
-     * 
+     *
      * @param string $host SMTP host
      * @param string $port SMTP port
      * @param string $username SMTP username
      * @param string $password SMTP password
      * @return array Connection status and message
      */
-    public function checkConnection(string $host, string $port, string $username, string $password): array {
+    public function checkConnection(string $host, string $port, string $username, string $password): array
+    {
         $this->phpmailer = new PHPMailer(true);
 
         try {
@@ -67,14 +69,15 @@ class MailService {
 
     /**
      * Send email
-     * 
+     *
      * @param string $to Recipient email address
      * @param string $subject Email subject
      * @param string $body Email body (HTML)
      * @param string $from Sender email address
      * @return bool|string True on success, error message on failure
      */
-    public function sendMail(string $to, string $subject, string $body, string $from = 'delivery@system.com'): bool|string {
+    public function sendMail(string $to, string $subject, string $body, string $from = 'delivery@system.com'): bool|string
+    {
         $this->connect();
 
         try {
@@ -92,11 +95,12 @@ class MailService {
 
     /**
      * Connect to SMTP server using configured credentials
-     * 
+     *
      * @return void
      * @throws RuntimeException If connection fails
      */
-    private function connect(): void {
+    private function connect(): void
+    {
         $this->phpmailer = new PHPMailer(true);
 
         try {

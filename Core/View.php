@@ -9,7 +9,6 @@ use App\Models\Setting;
 
 class View
 {
-
     public static function render($layout, array $tpl = []): void
     {
         $controller = $_REQUEST['controller'] ?? null;

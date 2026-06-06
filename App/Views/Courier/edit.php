@@ -5,7 +5,7 @@
                 <div class="card-body">
                     <h4 class="card-title">Edit Courier</h4>
 
-                    <?php if (isset($error_message)): ?>
+                    <?php if (isset($error_message)) : ?>
                         <div class="alert alert-danger"><?php echo $error_message; ?></div>
                     <?php endif; ?>
                     <form class="forms-sample" method="POST" action="<?php echo INSTALL_URL; ?>?controller=Courier&action=edit">

@@ -147,7 +147,7 @@
         <h1>Payment Cancelled</h1>
     </div>
 
-    <?php if (!empty($tpl['order'])): ?>
+    <?php if (!empty($tpl['order'])) : ?>
         <div class="order-details">
             <div class="order-details-row">
                 <span class="order-details-label">Order ID:</span>
@@ -180,7 +180,7 @@
                 ← Back to Order Details
             </a>
         </div>
-    <?php else: ?>
+    <?php else : ?>
         <div class="order-details">
             <p style="text-align: center; font-size: 18px; color: var(--error-color);">Order not found. Please contact support.</p>
         </div>

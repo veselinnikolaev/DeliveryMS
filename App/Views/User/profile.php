@@ -34,10 +34,10 @@
                                 <input type="file" id="profilePicInput" style="display: none;" accept="image/*">
                                 <input type="hidden" id="user_id" value="<?php echo $tpl['user']['id']; ?>">
                                 <div class="profile-image-container mb-3" id="profileImageWrapper">
-                                    <?php if (!empty($tpl['user']['photo_path'])): ?>
+                                    <?php if (!empty($tpl['user']['photo_path'])) : ?>
                                         <img id="profileImage" src="<?php echo htmlspecialchars($tpl['user']['photo_path']); ?>" 
                                              alt="Profile Photo" class="rounded-circle profile-img">
-                                         <?php else: ?>
+                                    <?php else : ?>
                                         <div id="profileImagePlaceholder" class="placeholder-image rounded-circle d-flex align-items-center justify-content-center bg-light">
                                             <i class="mdi mdi-account" style="font-size: 80px;"></i>
                                         </div>
@@ -52,7 +52,7 @@
                                        class="btn btn-primary rounded-pill text-white">
                                         <i class="mdi mdi-pencil me-2"></i> Edit Profile
                                     </a>
-                                    <?php if ($tpl['user']['role'] !== 'root'): ?>
+                                    <?php if ($tpl['user']['role'] !== 'root') : ?>
                                         <button type="button" class="btn btn-danger rounded-pill text-white" id="deleteAccount" data-id="<?php echo $tpl['user']['id']; ?>">
                                             <i class="mdi mdi-delete me-2"></i> Delete Account
                                         </button>

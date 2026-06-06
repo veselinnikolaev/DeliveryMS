@@ -6,8 +6,8 @@ namespace App\Models;
 
 use Core\Model;
 
-class User extends Model {
-
+class User extends Model
+{
     public ?string $primaryKey = 'id';
     public ?string $table = 'users';
 

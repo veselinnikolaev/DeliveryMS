@@ -6,8 +6,8 @@ namespace Core;
 
 use Core\Exceptions\DatabaseException;
 
-class Model {
-
+class Model
+{
     private ?\mysqli $mysqli = null;
     private bool $debug = false;
     public string $host = '';
@@ -17,7 +17,8 @@ class Model {
     public ?string $table = null;
     public ?string $primaryKey = null;
 
-    public function connect(): void {
+    public function connect(): void
+    {
         // Initialize mysqli connection
         $this->host = DEFAULT_HOST;
         $this->user = DEFAULT_USER;
@@ -35,7 +36,8 @@ class Model {
         }
     }
 
-    public function checkConnection(string $host, string $user, string $password, string $database): array {
+    public function checkConnection(string $host, string $user, string $password, string $database): array
+    {
         // Create connection to MySQL server (without database)
         try {
             $this->mysqli = new \mysqli($host, $user, $password);
@@ -82,7 +84,8 @@ class Model {
         ];
     }
 
-    public function migrate(string $filePath = 'config/database.sql'): array {
+    public function migrate(string $filePath = 'config/database.sql'): array
+    {
         $this->connect();
 
         // Check if file exists
@@ -124,7 +127,8 @@ class Model {
         }
     }
 
-    public function isDbMigrated(string $databaseName): bool {
+    public function isDbMigrated(string $databaseName): bool
+    {
         $this->connect();
 
         // Validate database name to prevent SQL injection
@@ -170,7 +174,8 @@ class Model {
         return false; // No tables -> not migrated
     }
 
-    public function getAll($options = null, $column = null, $limit = null): array {
+    public function getAll($options = null, $column = null, $limit = null): array
+    {
         // Create base SELECT query
         $query = "SELECT * FROM " . $this->getTable();
         $params = [];
@@ -183,11 +188,11 @@ class Model {
                 if (preg_match('/^([a-zA-Z0-9_-]+)\s*(>=|<=|>|<|!=|LIKE)$/i', $field, $matches)) {
                     $sanitizedField = $matches[1];
                     $operator = strtoupper($matches[2]);
-                    
+
                     if ($sanitizedField === false) {
                         continue; // Skip invalid field names
                     }
-                    
+
                     // Build WHERE condition with operator
                     if ($operator === 'LIKE') {
                         $conditions[] = "`$sanitizedField` LIKE ?";
@@ -241,7 +246,8 @@ class Model {
         return $this->executeQuery($query, $params, $types);
     }
 
-    public function get($id): array {
+    public function get($id): array
+    {
         // Returns a single record by primary key
         $primaryKeyName = $this->primaryKey ?: 'id';
         $query = "SELECT * FROM " . $this->getTable() . " WHERE `$primaryKeyName` = ?";
@@ -250,7 +256,8 @@ class Model {
         return $arr[0];
     }
 
-    public function getFirstBy($options = null): ?array {
+    public function getFirstBy($options = null): ?array
+    {
         $query = "SELECT * FROM `" . $this->getTable() . "`";
         $params = [];
 
@@ -273,7 +280,8 @@ class Model {
         return null;
     }
 
-    public function countAll($options = null): int {
+    public function countAll($options = null): int
+    {
         $query = "SELECT COUNT(*) as total FROM " . $this->getTable();
         $params = [];
 
@@ -301,7 +309,8 @@ class Model {
         return isset($result[0]['total']) ? (int) $result[0]['total'] : 0;
     }
 
-    public function getMultiple($ids): array {
+    public function getMultiple($ids): array
+    {
         // Create base SELECT query
         $query = "SELECT * FROM " . $this->getTable();
         $primaryKeyName = $this->primaryKey ?: 'id';
@@ -332,7 +341,8 @@ class Model {
         return $result;
     }
 
-    public function existsBy($options = null): bool {
+    public function existsBy($options = null): bool
+    {
         $query = "SELECT COUNT(*) as count FROM " . $this->getTable();
         $params = [];
 
@@ -362,7 +372,8 @@ class Model {
         return isset($result[0]['count']) && $result[0]['count'] > 0;
     }
 
-    public function save($data): int|false {
+    public function save($data): int|false
+    {
         $this->connect();
         // Insert new record
 
@@ -397,14 +408,13 @@ class Model {
         }
     }
 
-    public function update($data): bool {
+    public function update($data): bool
+    {
         // Update existing record
         $save = array();
 
         foreach ($this->schema as $field) {
-
             if (isset($data[$field['name']])) {
-
                 if (!is_array($data[$field['name']])) {
                     $save["`" . $field['name'] . "`"] = $data[$field['name']];
                 } else {
@@ -431,7 +441,8 @@ class Model {
         return $this->executeQuery($query, $values, str_repeat('s', count($values) - 1) . 'i'); // Add 'i' for integer
     }
 
-    public function updateBy($data, $options = null): bool {
+    public function updateBy($data, $options = null): bool
+    {
         // Prepare an array of fields/values to update based on the defined schema
         $save = [];
         foreach ($this->schema as $field) {
@@ -496,14 +507,16 @@ class Model {
         return $this->executeQuery($query, $values, $types);
     }
 
-    public function delete($id): bool {
+    public function delete($id): bool
+    {
         // Delete record
         $primaryKeyName = $this->primaryKey ?: 'id';
         $query = "DELETE FROM " . $this->getTable() . " WHERE `$primaryKeyName` = ?";
         return $this->executeQuery($query, [$id], 'i'); // 'i' for integer
     }
 
-    public function deleteBy($options = null): bool {
+    public function deleteBy($options = null): bool
+    {
         // Delete record
         $query = "DELETE FROM " . $this->getTable();
         $params = [];
@@ -534,7 +547,8 @@ class Model {
         return $this->executeQuery($query, $params, $types);
     }
 
-    public function updateBatch($data = null, $keyColumn = null): bool {
+    public function updateBatch($data = null, $keyColumn = null): bool
+    {
         $this->connect();
         // Check if data is provided
         if (empty($data) || empty($keyColumn)) {
@@ -581,7 +595,8 @@ class Model {
         return false;
     }
 
-    public function executeQuery(string $query, array $params = [], string $types = ''): array|bool {
+    public function executeQuery(string $query, array $params = [], string $types = ''): array|bool
+    {
         $this->connect();
         // Prepare the query
         $stmt = $this->mysqli->prepare($query);
@@ -610,12 +625,14 @@ class Model {
         return true; // For queries without results, like UPDATE or DELETE
     }
 
-    public function getTable(): ?string {
+    public function getTable(): ?string
+    {
         // Return table name
         return $this->table;
     }
 
-    public function close(): void {
+    public function close(): void
+    {
         // Close database connection
         if ($this->mysqli) {
             $this->mysqli->close();
@@ -625,11 +642,12 @@ class Model {
     /**
      * Sanitize field name to prevent SQL injection
      * Only allows alphanumeric characters, underscores, and dashes
-     * 
+     *
      * @param string $field The field name to sanitize
      * @return string|false Sanitized field name or false if invalid
      */
-    private function sanitizeFieldName($field): string|false {
+    private function sanitizeFieldName($field): string|false
+    {
         // Check if field name contains only valid characters
         if (!preg_match('/^[a-zA-Z0-9_-]+$/', $field)) {
             return false;
@@ -640,11 +658,12 @@ class Model {
     /**
      * Validate SQL identifier (database name, table name, etc.)
      * Only allows alphanumeric characters and underscores
-     * 
+     *
      * @param string $identifier The identifier to validate
      * @return bool True if valid, false otherwise
      */
-    private function isValidIdentifier(string $identifier): bool {
+    private function isValidIdentifier(string $identifier): bool
+    {
         // Check if identifier contains only valid characters
         return preg_match('/^[a-zA-Z0-9_]+$/', $identifier) === 1;
     }

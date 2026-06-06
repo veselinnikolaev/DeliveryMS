@@ -6,8 +6,8 @@ namespace App\Models;
 
 use Core\Model;
 
-class CourierLocation extends Model {
-
+class CourierLocation extends Model
+{
     public ?string $primaryKey = 'id';
     public ?string $table = 'courier_locations';
     public array $schema = array(
@@ -18,7 +18,8 @@ class CourierLocation extends Model {
         array('name' => 'timestamp', 'type' => 'bigint', 'default' => '')
     );
 
-    public function getLatestLocation($courierId): array {
+    public function getLatestLocation($courierId): array
+    {
         return $this->getAll(['user_id' => $courierId], 'timestamp DESC')[0];
     }
 }

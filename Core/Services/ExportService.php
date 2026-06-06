@@ -6,17 +6,18 @@ namespace Core\Services;
 
 use Shuchkin\SimpleXLSXGen;
 
-class ExportService {
-
+class ExportService
+{
     /**
      * Export data to PDF format
-     * 
+     *
      * @param array $data The data to export
      * @param string $title The title of the PDF document
      * @param string $filename The filename for the download
      * @return void
      */
-    public static function exportToPDF(array $data, string $title, string $filename): void {
+    public static function exportToPDF(array $data, string $title, string $filename): void
+    {
         if (ob_get_level()) {
             ob_end_clean();
         }
@@ -25,11 +26,11 @@ class ExportService {
         $pdf->SetCreator('DeliveryMS');
         $pdf->SetTitle($title);
         $pdf->SetHeaderData('', 0, $title, '');
-        $pdf->setHeaderFont(Array('helvetica', '', 12));
-        $pdf->setFooterFont(Array('helvetica', '', 10));
+        $pdf->setHeaderFont(array('helvetica', '', 12));
+        $pdf->setFooterFont(array('helvetica', '', 10));
         $pdf->SetDefaultMonospacedFont('courier');
         $pdf->SetMargins(15, 15, 15);
-        $pdf->SetAutoPageBreak(TRUE, 15);
+        $pdf->SetAutoPageBreak(true, 15);
 
         $pdf->AddPage();
 
@@ -44,19 +45,20 @@ class ExportService {
 
     /**
      * Export data to Excel format
-     * 
+     *
      * @param array $data The data to export
      * @param string $filename The filename for the download
      * @return void
      */
-    public static function exportToExcel(array $data, string $filename): void {
+    public static function exportToExcel(array $data, string $filename): void
+    {
         $exportData = [];
 
         // First item in array determines headers
         if (!empty($data) && is_array($data[0])) {
             // Use keys from first item for headers, ensuring proper capitalization
             $headers = array_keys($data[0]);
-            $capitalizedHeaders = array_map(function($header) {
+            $capitalizedHeaders = array_map(function ($header) {
                 return ucwords(str_replace('_', ' ', $header));
             }, $headers);
 
@@ -84,12 +86,13 @@ class ExportService {
 
     /**
      * Export data to CSV format
-     * 
+     *
      * @param array $data The data to export
      * @param string $filename The filename for the download
      * @return void
      */
-    public static function exportToCSV(array $data, string $filename): void {
+    public static function exportToCSV(array $data, string $filename): void
+    {
         // Set headers for CSV download
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="' . $filename . '"');
@@ -100,7 +103,7 @@ class ExportService {
         // Determine headers dynamically from the first item
         if (!empty($data) && is_array($data[0])) {
             $headers = array_keys($data[0]);
-            $capitalizedHeaders = array_map(function($header) {
+            $capitalizedHeaders = array_map(function ($header) {
                 return ucwords(str_replace('_', ' ', $header));
             }, $headers);
 
@@ -126,11 +129,12 @@ class ExportService {
 
     /**
      * Generate dynamic HTML table from data
-     * 
+     *
      * @param array $data The data to convert to table
      * @return string HTML table
      */
-    private static function generateDynamicTable(array $data): string {
+    private static function generateDynamicTable(array $data): string
+    {
         // Start HTML table
         $html = '<table>
 <thead>

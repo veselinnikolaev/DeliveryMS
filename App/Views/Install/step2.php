@@ -18,9 +18,11 @@
             <h2 class="card-title text-center mb-4">Create Root Account</h2>
             <p class="card-text mb-4">Please create a root account for the application:</p>
 
-            <?php use Core\Security;
+            <?php
 
-            if (isset($tpl['error_message'])): ?>
+            use Core\Security;
+
+            if (isset($tpl['error_message'])) : ?>
                 <div class="alert alert-danger" role="alert">
                     <?php echo $tpl['error_message']; ?>
                 </div>
@@ -32,19 +34,19 @@
                     <label for="rootName" class="form-label">Root Name</label>
                     <input type="text" class="form-control" id="rootName" name="root_name"
                            value="<?php
-                           if (!empty($tpl['root']['name'])) {
-                               echo $tpl['root']['name'];
-                           }
-                           ?>" required>
+                            if (!empty($tpl['root']['name'])) {
+                                echo $tpl['root']['name'];
+                            }
+                            ?>" required>
                 </div>
                 <div class="mb-3">
                     <label for="rootEmail" class="form-label">Root Email</label>
                     <input type="email" class="form-control" id="rootEmail" name="root_email" 
                            value="<?php
-                           if (!empty($tpl['root']['email'])) {
-                               echo $tpl['root']['email'];
-                           }
-                           ?>" required>
+                            if (!empty($tpl['root']['email'])) {
+                                echo $tpl['root']['email'];
+                            }
+                            ?>" required>
                     <div class="form-text">This email will be used for login and important notifications</div>
                 </div>
                 <div class="mb-3">

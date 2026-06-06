@@ -310,7 +310,7 @@ class OrderControllerTest extends TestCase {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         
         ob_start();
-        $this->controller->pay_success();
+        $this->controller->paySuccess();
         $output = ob_get_clean();
         
         $this->assertIsString($output);
@@ -321,7 +321,7 @@ class OrderControllerTest extends TestCase {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         
         ob_start();
-        $this->controller->pay_cancel();
+        $this->controller->payCancel();
         $output = ob_get_clean();
         
         $this->assertIsString($output);
@@ -336,7 +336,7 @@ class OrderControllerTest extends TestCase {
         $_SERVER['REQUEST_METHOD'] = 'POST';
         
         ob_start();
-        $this->controller->paypal_ipn();
+        $this->controller->paypalIpn();
         $output = ob_get_clean();
         
         $this->assertIsString($output);

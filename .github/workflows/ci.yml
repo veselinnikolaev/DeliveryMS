@@ -127,6 +127,11 @@ jobs:
         run: |
           mysql -h 127.0.0.1 -u root -proot deliveryms_test < config/database.sql
 
+
+
+      - name: Create coverage directory
+        run: mkdir -p coverage
+
       - name: Run PHPUnit
         run: |
           vendor/bin/phpunit \

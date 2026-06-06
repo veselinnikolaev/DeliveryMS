@@ -100,7 +100,7 @@
         <script src="web/js/bulkStatusChange.js"></script>
 
         <!-- Inline script for chart data (Needs to be before chart.js if chart.js uses it immediately) -->
-        <?php if (!empty($tpl['sales_data']) && !empty($currency)): // Added check for $currency too ?>
+        <?php if (!empty($tpl['sales_data']) && !empty($currency)) : // Added check for $currency too ?>
             <script>
                 // Ensure these are defined globally before chart.js runs
                 window.salesData = <?= json_encode($tpl['sales_data']) ?>;

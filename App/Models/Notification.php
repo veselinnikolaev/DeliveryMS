@@ -6,8 +6,8 @@ namespace App\Models;
 
 use Core\Model;
 
-class Notification extends Model {
-
+class Notification extends Model
+{
     public ?string $primaryKey = 'id';
     public ?string $table = 'notifications';
 

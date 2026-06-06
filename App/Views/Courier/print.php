@@ -56,7 +56,7 @@
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($tpl['couriers'] as $user): ?>
+                <?php foreach ($tpl['couriers'] as $user) : ?>
                     <tr>
                         <td><?php echo htmlspecialchars($user['courier_id']); ?></td>
                         <td><?php echo htmlspecialchars($user['name']); ?></td>

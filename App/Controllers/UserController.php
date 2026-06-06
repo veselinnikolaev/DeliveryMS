@@ -11,18 +11,20 @@ use Core\Services\ExportService;
 use Core\View;
 use Core\Controller;
 
-class UserController extends Controller {
-
+class UserController extends Controller
+{
     public string $layout = 'admin';
 
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         if (empty($_SESSION['user'])) {
             $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
         }
     }
 
-    public function list($layout = 'admin'): void {
+    public function list($layout = 'admin'): void
+    {
         if ($_SESSION['user']['role'] == 'user') {
             $this->redirect(INSTALL_URL);
         }
@@ -62,7 +64,8 @@ class UserController extends Controller {
         $this->view($layout, ['users' => $users]);
     }
 
-    public function filter(): void {
+    public function filter(): void
+    {
         if ($_SESSION['user']['role'] == 'user') {
             $this->redirect(INSTALL_URL);
         }
@@ -70,7 +73,8 @@ class UserController extends Controller {
         $this->list('ajax');
     }
 
-    public function print(): void {
+    public function print(): void
+    {
         if ($_SESSION['user']['role'] == 'user') {
             $this->redirect(INSTALL_URL);
         }
@@ -89,7 +93,8 @@ class UserController extends Controller {
         $this->view('ajax', ['users' => $users]);
     }
 
-    public function changeRole(): void {
+    public function changeRole(): void
+    {
         if ($_SESSION['user']['role'] == 'user') {
             $this->redirect(INSTALL_URL);
         }
@@ -119,8 +124,8 @@ class UserController extends Controller {
 
                 // Notify admins
                 $this->notifyAdmins(
-                        "User role changed: {$user['name']} is now a $role",
-                        INSTALL_URL . "?controller=User&action=profile&id=$userId"
+                    "User role changed: {$user['name']} is now a $role",
+                    INSTALL_URL . "?controller=User&action=profile&id=$userId"
                 );
             }
         }
@@ -130,7 +135,8 @@ class UserController extends Controller {
         $this->view('ajax', ['users' => $users]);
     }
 
-    public function create(): void {
+    public function create(): void
+    {
         if ($_SESSION['user']['role'] == 'user') {
             $this->redirect(INSTALL_URL);
         }
@@ -142,7 +148,7 @@ class UserController extends Controller {
         if (!empty($this->post('send'))) {
             if ($userModel->existsBy(['email' => $this->post('email')])) {
                 $error_message = "User with this email already exists.";
-            } else if ($this->post('password') !== $this->post('repeat_password')) {
+            } elseif ($this->post('password') !== $this->post('repeat_password')) {
                 $error_message = "Passwords do not match.";
             } else {
                 $postData = $this->post();
@@ -167,7 +173,8 @@ class UserController extends Controller {
         $this->view($this->layout, $arr);
     }
 
-    public function delete(): void {
+    public function delete(): void
+    {
         $userModel = new User();
 
         if (!empty($this->post('id'))) {
@@ -182,7 +189,8 @@ class UserController extends Controller {
         $this->view('ajax', ['users' => $users]);
     }
 
-    public function bulkDelete(): void {
+    public function bulkDelete(): void
+    {
         if ($_SESSION['user']['role'] == 'user') {
             $this->redirect(INSTALL_URL);
         }
@@ -202,7 +210,8 @@ class UserController extends Controller {
         $this->view('ajax', ['users' => $users]);
     }
 
-    public function edit(): void {
+    public function edit(): void
+    {
         $userModel = new User();
 
         $id = $this->post('id') ?? $this->get('id') ?? null;
@@ -224,7 +233,8 @@ class UserController extends Controller {
         $this->view($this->layout, $arr);
     }
 
-    public function profile(): void {
+    public function profile(): void
+    {
         if ($_SESSION['user']['role'] == 'user' && $_SESSION['user']['id'] != $this->get('id')) {
             $this->redirect(INSTALL_URL);
         }
@@ -236,7 +246,8 @@ class UserController extends Controller {
         $this->view($this->layout, ['user' => $user]);
     }
 
-    public function uploadProfilePicture(): void {
+    public function uploadProfilePicture(): void
+    {
         $this->setHeader('Content-Type: application/json');
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_FILES['profile_picture'])) {
@@ -263,7 +274,7 @@ class UserController extends Controller {
         $destination = UPLOAD_PATH . $newFileName;
 
         // Resize using GD
-        $src = match($fileExt) {
+        $src = match ($fileExt) {
             'jpg', 'jpeg' => imagecreatefromjpeg($file['tmp_name']),
             'png'         => imagecreatefrompng($file['tmp_name']),
             'gif'         => imagecreatefromgif($file['tmp_name']),
@@ -275,7 +286,7 @@ class UserController extends Controller {
         $dst = imagecreatetruecolor($newW, $newH);
         imagecopyresampled($dst, $src, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
 
-        match($fileExt) {
+        match ($fileExt) {
             'jpg', 'jpeg' => imagejpeg($dst, $destination, 90),
             'png'         => imagepng($dst, $destination),
             'gif'         => imagegif($dst, $destination),
@@ -290,7 +301,8 @@ class UserController extends Controller {
 
         echo json_encode(['status' => 'success', 'photo_path' => $destination]);
     }
-    public function editPassword(): void {
+    public function editPassword(): void
+    {
         $id = $this->post('id') ?? $this->get('id') ?? null;
 
         if ($_SESSION['user']['role'] == 'user' && $_SESSION['user']['id'] != $id) {
@@ -321,8 +333,8 @@ class UserController extends Controller {
                     if ($_SESSION['user']['role'] == 'admin' && $_SESSION['user']['id'] != $id) {
                         $user = $userModel->get($id);
                         $this->notifyAdmins(
-                                "Password changed for user: {$user['name']} by admin: {$_SESSION['user']['name']}",
-                                INSTALL_URL . "?controller=User&action=profile&id=$id"
+                            "Password changed for user: {$user['name']} by admin: {$_SESSION['user']['name']}",
+                            INSTALL_URL . "?controller=User&action=profile&id=$id"
                         );
                     }
 
@@ -335,7 +347,8 @@ class UserController extends Controller {
         $this->view($this->layout, ['id' => $id, 'error_message' => $errorMessage ?? null]);
     }
 
-    public function export(): void {
+    public function export(): void
+    {
         // Check if userData is provided
         $userData = $this->post('userData');
         if (isset($userData)) {
@@ -367,7 +380,8 @@ class UserController extends Controller {
         }
     }
 
-    private function notifyAdmins($message, $link = null): void {
+    private function notifyAdmins($message, $link = null): void
+    {
         $userModel = new User();
         $notificationModel = new Notification();
 

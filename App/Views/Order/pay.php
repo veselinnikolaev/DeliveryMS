@@ -25,7 +25,7 @@
             </span>
         </div>
 
-        <?php if (!empty($tpl['order_products'])): ?>
+        <?php if (!empty($tpl['order_products'])) : ?>
             <div class="order-details-row">
                 <span class="order-details-label">Items:</span>
                 <span class="order-details-value">

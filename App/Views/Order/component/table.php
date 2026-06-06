@@ -46,7 +46,7 @@
                 <td><?php echo htmlspecialchars($order['region']); ?></td>
                 <td><?php
                     echo htmlspecialchars(Utility::$order_status[$order['status']]);
-                    ?></td>
+                ?></td>
                 <td style="text-align: right;">
                     <a class="btn btn-light btn-circle mdc-ripple-upgraded" href="<?php echo INSTALL_URL; ?>?controller=Order&action=details&id=<?php echo $order['id'] ?>">
                         <i class="fa fa-eye" aria-hidden="true"></i>

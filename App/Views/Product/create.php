@@ -5,7 +5,7 @@
                 <div class="card-body">
                     <h4 class="card-title">Create New Product</h4>
 
-                    <?php if (isset($error_message)): ?>
+                    <?php if (isset($error_message)) : ?>
                         <div class="alert alert-danger"><?php echo $error_message; ?></div>
                     <?php endif; ?>
 

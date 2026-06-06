@@ -10,11 +10,12 @@ use Core;
 use Core\View;
 use Core\Controller;
 
-class AuthController extends Controller {
-
+class AuthController extends Controller
+{
     public string $layout = 'admin';
 
-    public function register(): void {
+    public function register(): void
+    {
         if (!empty($_SESSION['user'])) {
             $this->redirect(INSTALL_URL);
         }
@@ -24,7 +25,7 @@ class AuthController extends Controller {
         if (!empty($this->post('send'))) {
             if ($userModel->existsBy(['email' => $this->post('email')])) {
                 $error_message = "User with this email already exists.";
-            } else if ($this->post('password') !== $this->post('repeat_password')) {
+            } elseif ($this->post('password') !== $this->post('repeat_password')) {
                 $error_message = "Passwords do not match.";
             } else {
                 $postData = $this->post();
@@ -47,7 +48,8 @@ class AuthController extends Controller {
         $this->view($this->layout, $arr);
     }
 
-    public function login(): void {
+    public function login(): void
+    {
         if (!empty($_SESSION['user'])) {
             $this->redirect($_SESSION['previous_url'] ?? INSTALL_URL);
         }

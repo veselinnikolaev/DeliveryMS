@@ -3,7 +3,7 @@
         <h1>Payment Success</h1>
     </div>
 
-    <?php if ($tpl['order']): ?>
+    <?php if ($tpl['order']) : ?>
         <div class="order-details">
             <div class="order-details-row">
                 <span class="order-details-label">Order ID:</span>
@@ -40,7 +40,7 @@
                 ← Back to Order Details
             </a>
         </div>
-    <?php else: ?>
+    <?php else : ?>
         <div class="order-details">
             <p>Order not found. Please contact support.</p>
         </div>

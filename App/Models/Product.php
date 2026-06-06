@@ -3,10 +3,11 @@
 declare(strict_types=1);
 
 namespace App\Models;
+
 use Core\Model;
 
-class Product extends Model {
-
+class Product extends Model
+{
     public ?string $primaryKey = 'id';
     public ?string $table = 'products';
 

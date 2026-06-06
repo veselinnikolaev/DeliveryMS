@@ -54,7 +54,7 @@
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($tpl['products'] as $product): ?>
+                <?php foreach ($tpl['products'] as $product) : ?>
                     <tr>
                         <td><?php echo htmlspecialchars($product['product_id']); ?></td>
                         <td><?php echo htmlspecialchars($product['product_name']); ?></td>

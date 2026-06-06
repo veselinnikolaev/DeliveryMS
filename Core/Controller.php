@@ -6,12 +6,13 @@ namespace Core;
 
 use App\Models\Setting;
 
-class Controller {
-
+class Controller
+{
     protected Security $security;
     public array $settings;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->security = new Security();
         $this->validateCsrfOnPost();
         $this->settings = $this->loadSettings();
@@ -19,10 +20,11 @@ class Controller {
 
     /**
      * Load application settings from database
-     * 
+     *
      * @return array Application settings
      */
-    protected function loadSettings(): array {
+    protected function loadSettings(): array
+    {
         try {
             $settingModel = new Setting();
             $settings = $settingModel->getAll();
@@ -58,10 +60,11 @@ class Controller {
     /**
      * Automatically validate CSRF token on POST requests
      * Can be overridden in child controllers if needed
-     * 
+     *
      * @return void
      */
-    protected function validateCsrfOnPost(): void {
+    protected function validateCsrfOnPost(): void
+    {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
                 strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
@@ -83,38 +86,42 @@ class Controller {
 
     /**
      * Get sanitized POST data
-     * 
+     *
      * @param string|null $key Specific key to retrieve, or null for all POST data
      * @param mixed|null $default Default value if key doesn't exist
      * @return mixed Sanitized POST data
      */
-    protected function post(?string $key = null, mixed $default = null): mixed {
+    protected function post(?string $key = null, mixed $default = null): mixed
+    {
         return Security::post($key, $default);
     }
 
     /**
      * Get sanitized GET data
-     * 
+     *
      * @param string|null $key Specific key to retrieve, or null for all GET data
      * @param mixed|null $default Default value if key doesn't exist
      * @return mixed Sanitized GET data
      */
-    protected function get(?string $key = null, mixed $default = null): mixed {
+    protected function get(?string $key = null, mixed $default = null): mixed
+    {
         return Security::get($key, $default);
     }
 
     /**
      * Get sanitized REQUEST data
-     * 
+     *
      * @param string|null $key Specific key to retrieve, or null for all REQUEST data
      * @param mixed|null $default Default value if key doesn't exist
      * @return mixed Sanitized REQUEST data
      */
-    protected function request(?string $key = null, mixed $default = null): mixed {
+    protected function request(?string $key = null, mixed $default = null): mixed
+    {
         return Security::request($key, $default);
     }
 
-    public function view($layout, array $data = []): void {
+    public function view($layout, array $data = []): void
+    {
         $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
                 strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
         if ($_SERVER['REQUEST_METHOD'] === 'GET' && !$isAjax) {
