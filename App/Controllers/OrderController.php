@@ -886,38 +886,37 @@ class OrderController extends Controller
 
     public function export(): void
     {
-        try {
-// Check if orderData is provided
-            if ($this->post('orderData') !== null) {
-// Decode the JSON data
-                $orders = json_decode($_POST['orderData'] ?? 'null', true);
+        // Initialize $orders here so it is ALWAYS defined
+        $orders = [];
 
-                if (!$orders || empty($orders)) {
+        try {
+            if ($this->post('orderData') !== null) {
+                $decoded = json_decode((string)$this->post('orderData'), true);
+                if (is_array($decoded) && !empty($decoded)) {
+                    $orders = $decoded;
+                } else {
                     echo "No orders to export";
                     $this->terminate();
                 }
+            } else {
+                // Handle the case where no data was sent at all
+                echo "No orders provided";
+                $this->terminate();
             }
 
-            $format = $this->post('format') !== null ? $this->post('format') : 'pdf';
+            $format = $this->post('format') ?? 'pdf';
 
-// Export based on format
             switch ($format) {
-                case 'pdf':
-                    ExportService::exportToPDF($orders, 'Orders Export', 'orders_export.pdf');
-                    break;
-                case 'excel':
-                    ExportService::exportToExcel($orders, 'orders_export.xlsx');
-                    break;
-                case 'csv':
-                    ExportService::exportToCSV($orders, 'orders_export.csv');
-                    break;
+                case 'pdf': ExportService::exportToPDF($orders, 'Orders Export', 'orders_export.pdf'); break;
+                case 'excel': ExportService::exportToExcel($orders, 'orders_export.xlsx'); break;
+                case 'csv': ExportService::exportToCSV($orders, 'orders_export.csv'); break;
                 default:
                     echo "Invalid export format";
                     $this->terminate();
             }
         } catch (DatabaseException $e) {
-            error_log("Database error in OrderController::export: " . $e->getMessage());
-            echo "An error occurred while exporting orders.";
+            error_log("Database error: " . $e->getMessage());
+            echo "An error occurred.";
             $this->terminate();
         }
     }

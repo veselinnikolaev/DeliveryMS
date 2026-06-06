@@ -146,11 +146,13 @@ class ProductController extends Controller
 
     public function print(): void
     {
+        $products = [];
+
         if ($this->post('productData') !== null) {
             // Decode the JSON data
             $products = json_decode($this->post('productData'), true);
 
-            if (!$products || empty($products)) {
+            if (empty($products)) {
                 echo "No products to export";
                 $this->terminate();
             }
@@ -161,12 +163,13 @@ class ProductController extends Controller
 
     public function export(): void
     {
+        $products = [];
         // Check if productData is provided
         if ($this->post('productData') !== null) {
             // Decode the JSON data
             $products = json_decode($this->post('productData'), true);
 
-            if (!$products || empty($products)) {
+            if (empty($products)) {
                 echo "No products to export";
                 $this->terminate();
             }
