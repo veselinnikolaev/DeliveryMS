@@ -130,6 +130,13 @@ class OrderController extends Controller
 
     public function create(): void
     {
+        $orderModel = new Order();
+        $orderProductsModel = new OrderProducts();
+        $productModel = new Product();
+        $userModel = new User();
+        $notificationModel = new Notification();
+        $mailer = new MailService();
+        $currency = $this->settings['currency_code'];
         try {
             if (empty($_SESSION['user'])) {
                 $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
@@ -137,14 +144,6 @@ class OrderController extends Controller
             if ($_SESSION['user']['role'] == 'user') {
                 $this->redirect($_SESSION['previous_url']);
             }
-
-            $orderModel = new Order();
-            $orderProductsModel = new OrderProducts();
-            $productModel = new Product();
-            $userModel = new User();
-            $notificationModel = new Notification();
-            $mailer = new MailService();
-            $currency = $this->settings['currency_code'];
 
             if (!empty($this->post('send'))) {
                 $productIds = $this->post('product_id');
@@ -275,9 +274,9 @@ class OrderController extends Controller
         } catch (DatabaseException $e) {
             error_log("Database error in OrderController::create: " . $e->getMessage());
             $arr = [
-                    'users' => isset($userModel) ? $userModel->getAll() : [],
-                    'products' => isset($productModel) ? $productModel->getAll() : [],
-                    'couriers' => isset($userModel) ? $userModel->getAll(['role' => 'courier']) : [],
+                    'users' => $userModel->getAll(),
+                    'products' => $productModel->getAll(),
+                    'couriers' => $userModel->getAll(['role' => 'courier']),
                     'currency' => $currency ?? 'USD',
                     'error_message' => 'An error occurred while creating the order. Please try again.'
             ];
