@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Notification;
+use Config\Utility;
 use Core\Controller;
 
 class HomeController extends Controller
@@ -63,7 +64,7 @@ class HomeController extends Controller
                 $data['recent_orders'] = $orderModel->getAll([], 'created_at DESC', 5);
                 foreach ($data['recent_orders'] as &$order) {
                     $order['customer_name'] = $userModel->get($order['user_id'])['name'] ?? 'Unknown';
-                    $order['formatted_total'] = \Utility::getDisplayableAmount($order['total_amount']);
+                    $order['formatted_total'] = Utility::getDisplayableAmount($order['total_amount']);
                 }
 
                 // Sales data for charts
@@ -101,8 +102,8 @@ class HomeController extends Controller
                     5
                 );
                 foreach ($data['recent_orders'] as &$order) {
-                    $order['formatted_total'] = \Utility::getDisplayableAmount($order['total_amount']);
-                    $order['status_text'] = \Utility::$order_status[$order['status']];
+                    $order['formatted_total'] = Utility::getDisplayableAmount($order['total_amount']);
+                    $order['status_text'] = Utility::$order_status[$order['status']];
                 }
                 break;
         }
@@ -137,7 +138,7 @@ class HomeController extends Controller
             ]);
 
             $total = 0;
-            if (is_array($sales) && !empty($sales)) {
+            if (!empty($sales)) {
                 foreach ($sales as $sale) {
                     $total += $sale['total_amount'];
                 }

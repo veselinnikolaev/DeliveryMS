@@ -194,7 +194,7 @@ class CourierController extends Controller
         if ($rawData !== null) {
             $couriers = json_decode($rawData, true);
 
-            if (!$couriers || empty($couriers)) {
+            if (empty($couriers)) {
                 echo "No couriers to export";
                 $this->terminate();
             }

@@ -123,12 +123,12 @@ class OrderController extends Controller
         }
     }
 
-    public function filter()
+    public function filter(): void
     {
         $this->list('ajax');
     }
 
-    public function create()
+    public function create(): void
     {
         try {
             if (empty($_SESSION['user'])) {
@@ -275,17 +275,17 @@ class OrderController extends Controller
         } catch (DatabaseException $e) {
             error_log("Database error in OrderController::create: " . $e->getMessage());
             $arr = [
-                'users' => $userModel->getAll() ?? [],
-                'products' => $productModel->getAll() ?? [],
-                'couriers' => $userModel->getAll(['role' => 'courier']) ?? [],
-                'currency' => $currency,
-                'error_message' => 'An error occurred while creating the order. Please try again.'
+                    'users' => isset($userModel) ? $userModel->getAll() : [],
+                    'products' => isset($productModel) ? $productModel->getAll() : [],
+                    'couriers' => isset($userModel) ? $userModel->getAll(['role' => 'courier']) : [],
+                    'currency' => $currency ?? 'USD',
+                    'error_message' => 'An error occurred while creating the order. Please try again.'
             ];
             $this->view($this->layout, $arr);
         }
     }
 
-    public function changeStatus()
+    public function changeStatus(): void
     {
         try {
             if ($_SESSION['user']['role'] != 'courier') {
