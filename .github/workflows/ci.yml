@@ -121,6 +121,7 @@ jobs:
           INSTALLED=false
           MAIL_CONFIGURED=false
           EOF
+          cp .env.testing .env
 
       - name: Run migrations / seed schema
         run: |

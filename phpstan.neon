@@ -1,16 +1,27 @@
 parameters:
-  # Analysis level: 0 (loosest) → 9 (strictest).
-  # Level 5 is a good starting point for a legacy PHP project.
-  # Raise it incrementally once the baseline is clean.
   level: 5
-
   paths:
     - Core
     - App
     - config
-
   excludePaths:
     - vendor
+  dynamicConstantNames:
+    - INSTALL_URL
+    - ROOT_PATH
+    - INSTALL_FOLDER
+    - INSTALLED
+    - MAIL_CONFIGURED
+    - DEFAULT_HOST
+    - DEFAULT_USER
+    - DEFAULT_PASS
+    - DEFAULT_DB
+    - PAYPAL_EMAIL
+    - MAIL_HOST
+    - MAIL_PORT
+    - MAIL_USERNAME
+    - MAIL_PASSWORD
+    - UPLOAD_PATH
 
   # Ignore errors you can't fix yet (legacy code, third-party quirks).
   # Remove entries here as you clean up the codebase.

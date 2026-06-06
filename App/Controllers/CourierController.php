@@ -70,7 +70,7 @@ class CourierController extends Controller {
 // Decode the JSON data
             $couriers = json_decode($this->post('courierData'), true);
 
-            if (!$couriers || empty($couriers)) {
+            if (empty($couriers)) {
                 echo "No couriers to print";
                 $this->terminate();
             }
