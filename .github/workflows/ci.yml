@@ -24,6 +24,9 @@ jobs:
           php-version: "8.2"
           tools: phpcs
 
+      - name: Install Composer dependencies
+        run: composer install --no-progress --prefer-dist --optimize-autoloader --ignore-platform-reqs
+
       - name: Auto-fix code style
         run: |
           vendor/bin/phpcbf \
