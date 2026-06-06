@@ -40,16 +40,16 @@ class ProductController extends Controller
                 $opts['description LIKE'] = '%' . $this->post('description') . '%';
             }
             if (!empty($this->post('minPrice'))) {
-                $opts['price >='] = \Core\Security::float($this->post('minPrice'));
+                $opts['price >='] = Security::float($this->post('minPrice'));
             }
             if (!empty($this->post('maxPrice'))) {
-                $opts['price <='] = \Core\Security::float($this->post('maxPrice'));
+                $opts['price <='] = Security::float($this->post('maxPrice'));
             }
             if (!empty($this->post('minStock'))) {
-                $opts['stock >='] = \Core\Security::int($this->post('minStock'));
+                $opts['stock >='] = Security::int($this->post('minStock'));
             }
             if (!empty($this->post('maxStock'))) {
-                $opts['stock <='] = \Core\Security::int($this->post('maxStock'));
+                $opts['stock <='] = Security::int($this->post('maxStock'));
             }
         }
 
@@ -97,7 +97,7 @@ class ProductController extends Controller
         $productModel = new Product();
 
         if (!empty($this->post('id'))) {
-            $productModel->delete(\Core\Security::int($this->post('id')));
+            $productModel->delete(Security::int($this->post('id')));
         }
 
         $products = $productModel->getAll();

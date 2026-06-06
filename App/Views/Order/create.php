@@ -26,7 +26,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="customer" class="form-label">Customer</label>
+                                    <label for="userId" class="form-label">Customer</label>
                                     <select name="user_id" id="userId" class="form-select" required>
                                         <option value=''>Select Customer</option>
                                         <?php

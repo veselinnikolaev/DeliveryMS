@@ -23,7 +23,7 @@
             use Core\Security;
 
             echo INSTALL_URL; ?>?controller=Install&action=step3" method="POST">
-                <?= Security::csrfField() ?>
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                 <div class="mb-3">
                     <label for="paypalBusinessEmail" class="form-label">PayPal Business Email</label>
                     <input type="email" class="form-control" id="paypalBusinessEmail" name="paypal_email" 

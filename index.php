@@ -24,7 +24,7 @@ $domain = $_SERVER['HTTP_HOST'];
 $path = dirname($_SERVER['PHP_SELF']);
 
 // Combine the protocol, domain, and path
-$fullUrl = $protocol . "://" . $domain . $path . '/index.php';
+$fullUrl = $protocol . "://" . $domain . $path . 'index.php';
 define("INSTALL_URL", $fullUrl);
 }
 

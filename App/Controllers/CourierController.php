@@ -123,8 +123,8 @@ class CourierController extends Controller
         $userModel = new User();
 
         if (!empty($this->post('id'))) {
-            $userModel->delete(\Core\Security::int($this->post('id')));
-            if (\Core\Security::int($this->post('id')) == $_SESSION['user']['id']) {
+            $userModel->delete(Security::int($this->post('id')));
+            if (Security::int($this->post('id')) == $_SESSION['user']['id']) {
                 session_destroy();
             }
         }
@@ -167,7 +167,7 @@ class CourierController extends Controller
                 $notificationModel = new Notification();
                 $adminName = $_SESSION['user']['name'];
                 $notificationModel->save([
-                    'user_id' => \Core\Security::int($this->post('id')),
+                    'user_id' => Security::int($this->post('id')),
                     'message' => "Your profile has been edited by: $adminName",
                     'link' => INSTALL_URL . "?controller=User&action=profile&id=" . \Core\Security::int($this->post('id')),
                     'created_at' => time()

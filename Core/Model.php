@@ -17,6 +17,9 @@ class Model
     public ?string $table = null;
     public ?string $primaryKey = null;
 
+    /**
+     * @throws DatabaseException
+     */
     public function connect(): void
     {
         // Initialize mysqli connection
@@ -84,6 +87,9 @@ class Model
         ];
     }
 
+    /**
+     * @throws DatabaseException
+     */
     public function migrate(string $filePath = 'config/database.sql'): array
     {
         $this->connect();
@@ -127,6 +133,9 @@ class Model
         }
     }
 
+    /**
+     * @throws DatabaseException
+     */
     public function isDbMigrated(string $databaseName): bool
     {
         $this->connect();

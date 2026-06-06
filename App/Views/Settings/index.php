@@ -5,7 +5,9 @@
                 <div class="card-body">
                     <h4 class="card-title">Settings</h4>
 
-                    <?php if (isset($error_message)) : ?>
+                    <?php use Config\Utility;
+
+                    if (isset($error_message)) : ?>
                         <div class="alert alert-danger"><?php echo $error_message; ?></div>
                     <?php endif; ?>
 
@@ -50,7 +52,7 @@
                                             <div class="form-group">
                                                 <label for="<?php echo $setting['key']; ?>" class="form-label"><?php echo ucwords(str_replace('_', ' ', $setting['key'])); ?></label>
                                                 <?php if ($setting['key'] === 'timezone') : ?>
-                                                    <select class="form-control settings-input" id="timezone" name="settings[timezone]" required>
+                                                    <select class="form-control settings-input" id="<?php echo $setting['key']; ?>" name="settings[timezone]" required>
                                                         <?php
                                                         $timezones = DateTimeZone::listIdentifiers();
                                                         foreach ($timezones as $timezone) {
@@ -60,7 +62,7 @@
                                                         ?>
                                                     </select>
                                                 <?php elseif ($setting['key'] === 'date_format') : ?>
-                                                    <select class="form-control settings-input" id="date_format" name="settings[date_format]" required>
+                                                    <select class="form-control settings-input" id="<?php echo $setting['key']; ?>" name="settings[date_format]" required>
                                                         <?php
                                                         foreach (Utility::$dateFormats as $format => $label) {
                                                             $selected = ($format == $setting['value']) ? 'selected' : '';
@@ -80,7 +82,7 @@
                             <h5 class="section-title border-bottom pb-2 mb-3">Communication</h5>
                             <div class="row">
                                 <?php foreach ($tpl['settings'] as $setting) : ?>
-                                    <?php if (in_array($setting['key'], ['email_sending'])) : ?>
+                                    <?php if ($setting['key'] == 'email_sending') : ?>
                                         <div class="col-md-6 mb-3">
                                             <div class="form-group">
                                                 <label for="<?php echo $setting['key']; ?>" class="form-label"><?php echo ucwords(str_replace('_', ' ', $setting['key'])); ?></label>

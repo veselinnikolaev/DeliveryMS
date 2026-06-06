@@ -1,7 +1,9 @@
 <table class="table select-table" id="order-table-id">
     <thead>
         <tr>
-            <?php if (in_array($_SESSION['user']['role'], ['admin', 'root', 'courier'])) { ?>
+            <?php use Config\Utility;
+
+            if (in_array($_SESSION['user']['role'], ['admin', 'root', 'courier'])) { ?>
                 <th>
                     <div class="form-check form-check-flat mt-0">
                         <label class="form-check-label">

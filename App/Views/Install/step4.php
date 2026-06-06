@@ -29,7 +29,7 @@
             <?php endif; ?>
 
             <form action="<?php echo INSTALL_URL; ?>?controller=Install&action=step3" method="POST">
-                <?= Security::csrfField() ?>
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
                 <div class="mb-3">
                     <label for="mailHost" class="form-label">Mail Host</label>
                     <input type="text" class="form-control" id="mailHost" name="mail_host" placeholder="smtp.example.com" 

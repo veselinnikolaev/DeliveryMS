@@ -6,10 +6,10 @@ namespace App\Controllers;
 
 use App\Models\User;
 use App\Models\Notification;
-use Core;
+use Core\Security;
 use Core\Services\ExportService;
-use Core\View;
 use Core\Controller;
+use RuntimeException;
 
 class UserController extends Controller
 {
@@ -104,7 +104,7 @@ class UserController extends Controller
         $userModel = new User();
 
         if (!empty($this->post('id')) && !empty($this->post('role'))) {
-            $userId = \Core\Security::int($this->post('id'));
+            $userId = Security::int($this->post('id'));
             $role = $this->post('role');
 
             if (in_array($role, ['user', 'admin', 'courier'])) {
@@ -180,7 +180,7 @@ class UserController extends Controller
         $userModel = new User();
 
         if (!empty($this->post('id'))) {
-            $userId = \Core\Security::int($this->post('id'));
+            $userId = Security::int($this->post('id'));
             $userModel->delete($userId);
             if ($userId == $_SESSION['user']['id']) {
                 session_destroy();
@@ -243,7 +243,7 @@ class UserController extends Controller
 
         $userModel = new User();
 
-        $user = $userModel->get(\Core\Security::int($this->get('id')));
+        $user = $userModel->get(Security::int($this->get('id')));
 
         $this->view($this->layout, ['user' => $user]);
     }
@@ -257,7 +257,7 @@ class UserController extends Controller
             $this->terminate();
         }
 
-        $user_id = \Core\Security::int($this->post('user_id'));
+        $user_id = Security::int($this->post('user_id'));
         $file = $_FILES['profile_picture'];
         $fileExt = strtolower(pathinfo(basename($file['name']), PATHINFO_EXTENSION));
         $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'];
@@ -280,7 +280,7 @@ class UserController extends Controller
             'jpg', 'jpeg' => imagecreatefromjpeg($file['tmp_name']),
             'png'         => imagecreatefrompng($file['tmp_name']),
             'gif'         => imagecreatefromgif($file['tmp_name']),
-            default       => throw new \RuntimeException("Unsupported image type"),
+            default       => throw new RuntimeException("Unsupported image type"),
         };
 
         [$origW, $origH] = getimagesize($file['tmp_name']);
@@ -290,10 +290,10 @@ class UserController extends Controller
         imagecopyresampled($dst, $src, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
 
         match ($fileExt) {
-            'jpg', 'jpeg' => imagejpeg($dst, $destination, 90),
-            'png'         => imagepng($dst, $destination),
-            'gif'         => imagegif($dst, $destination),
-            default       => throw new \RuntimeException("Unsupported image type"),
+            'jpg', 'jpeg' => imagejpeg(imagecreatefromjpeg($file['tmp_name']), $destination, 90),
+            'png'         => imagepng(imagecreatefrompng($file['tmp_name']), $destination),
+            'gif'         => imagegif(imagecreatefromgif($file['tmp_name']), $destination),
+            default       => throw new RuntimeException("Unsupported image type"),
         };
 
         imagedestroy($src);
