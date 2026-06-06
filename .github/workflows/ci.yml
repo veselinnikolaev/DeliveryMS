@@ -111,7 +111,7 @@ jobs:
           cat > .env.testing << EOF
           DB_HOST=127.0.0.1
           DB_USER=root
-          DB_PASS=root_password  # Changed from 'root'
+          DB_PASS=root_password
           DB_NAME=deliveryms_test
           PAYPAL_EMAIL=test@test.com
           MAIL_HOST=localhost
@@ -125,8 +125,10 @@ jobs:
 
       - name: Run migrations / seed schema
         run: |
-          mysql -h 127.0.0.1 -u root -proot_password deliveryms_test < config/database.sql # Changed -proot to -proot_password
-
+          # Ensure the database exists explicitly (redundancy)
+          mysql -h 127.0.0.1 -u root -proot_password -e "CREATE DATABASE IF NOT EXISTS deliveryms_test;"
+          # Import the schema
+          mysql -h 127.0.0.1 -u root -proot_password deliveryms_test < config/database.sql
 
 
       - name: Create coverage directory

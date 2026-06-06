@@ -4,9 +4,19 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-// Load test environment variables
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..', '.env.testing');
-$dotenv->load();
+// Force load .env.testing
+if (file_exists(__DIR__ . '/../.env.testing')) {
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..', '.env.testing');
+    $dotenv->load();
+}
+
+// Ensure the environment variables are accessible to $_ENV
+// If they aren't, load them into superglobals
+foreach ($_ENV as $key => $value) {
+    if (!isset($_SERVER[$key])) {
+        $_SERVER[$key] = $value;
+    }
+}
 
 // Simulate $_SERVER vars index.php normally provides
 $_SERVER['HTTPS']     = 'off';

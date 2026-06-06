@@ -635,21 +635,38 @@ class OrderController extends Controller
 
     public function print(): void
     {
-        if ($this->post('orderData') !== null) {
-// Decode the JSON data
-            $orders = json_decode($_POST['orderData'] ?? 'null', true);
+        // 1. Always initialize $orders as an empty array
+        $orders = [];
 
-            if (!$orders || empty($orders)) {
-                echo "No orders to print";
+        // 2. Only attempt to decode if the POST data actually exists
+        $postData = $this->post('orderData');
+        if ($postData !== null) {
+            $decoded = json_decode($postData, true);
+
+            // 3. Only update $orders if the decode was successful and returned an array
+            if (is_array($decoded) && !empty($decoded)) {
+                $orders = $decoded;
+            } else {
+                echo "No valid orders to print";
                 $this->terminate();
             }
+        } else {
+            echo "No orders to print";
+            $this->terminate();
         }
 
+        // Now $orders is guaranteed to be defined and an array
         $this->view('ajax', ['orders' => $orders]);
     }
 
     public function edit(): void
     {
+        $orderModel = new Order();
+        $orderProductsModel = new OrderProducts();
+        $productModel = new Product();
+        $userModel = new User();
+        $notificationModel = new Notification();
+        $mailer = new MailService();
         try {
             if (empty($_SESSION['user'])) {
                 $this->redirect(INSTALL_URL . "?controller=Auth&action=login");
@@ -658,12 +675,7 @@ class OrderController extends Controller
                 $this->redirect(INSTALL_URL);
             }
 
-            $orderModel = new Order();
-            $orderProductsModel = new OrderProducts();
-            $productModel = new Product();
-            $userModel = new User();
-            $notificationModel = new Notification();
-            $mailer = new MailService();
+
             $currency = $this->settings['currency_code'];
 
             if (!empty($this->post('id'))) {
@@ -811,18 +823,14 @@ class OrderController extends Controller
 
             $this->view($this->layout, $arr);
         } catch (DatabaseException $e) {
-            error_log("Database error in OrderController::edit: " . $e->getMessage());
-            $arr = [
-                'order' => $orderModel->get($orderId) ?? null,
-                'orderProducts' => $orderProductsModel->getAll(['order_id' => $orderId]) ?? [],
-                'users' => $userModel->getAll() ?? [],
-                'products' => $productModel->getAll() ?? [],
-                'couriers' => $userModel->getAll(['role' => 'courier']) ?? [],
-                'productQuantities' => $productQuantities ?? [],
-                'currency' => $currency,
-                'error_message' => 'An error occurred while editing the order. Please try again.'
-            ];
-            $this->view($this->layout, $arr);
+            error_log("Database error: " . $e->getMessage());
+            $this->view($this->layout, [
+                    'users' => $userModel->getAll(),
+                    'products' => $productModel->getAll(),
+                    'couriers' => $userModel->getAll(['role' => 'courier']),
+                    'currency' => $this->settings['currency_code'],
+                    'error_message' => 'An error occurred.'
+            ]);
         }
     }
 
