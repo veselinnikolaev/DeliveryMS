@@ -2,15 +2,17 @@
 
 namespace Core;
 
+use Random\RandomException;
+
 class Security
 {
     /**
      * Sanitize input data to prevent XSS attacks
      *
      * @param mixed $data The data to sanitize
-     * @return mixed Sanitized data
+     * @return string|array Sanitized data
      */
-    public static function sanitize($data)
+    public static function sanitize(mixed $data): string|array
     {
         if (is_array($data)) {
             return array_map([self::class, 'sanitize'], $data);
@@ -29,10 +31,10 @@ class Security
      * Get sanitized POST data
      *
      * @param string|null $key Specific key to retrieve, or null for all POST data
-     * @param mixed $default Default value if key doesn't exist
+     * @param mixed|null $default Default value if key doesn't exist
      * @return mixed Sanitized POST data
      */
-    public static function post($key = null, $default = null)
+    public static function post(string $key = null, mixed $default = null): mixed
     {
         if ($key === null) {
             return self::sanitize($_POST);
@@ -45,10 +47,10 @@ class Security
      * Get sanitized GET data
      *
      * @param string|null $key Specific key to retrieve, or null for all GET data
-     * @param mixed $default Default value if key doesn't exist
+     * @param mixed|null $default Default value if key doesn't exist
      * @return mixed Sanitized GET data
      */
-    public static function get($key = null, $default = null)
+    public static function get(string $key = null, mixed $default = null): mixed
     {
         if ($key === null) {
             return self::sanitize($_GET);
@@ -61,10 +63,10 @@ class Security
      * Get sanitized REQUEST data
      *
      * @param string|null $key Specific key to retrieve, or null for all REQUEST data
-     * @param mixed $default Default value if key doesn't exist
+     * @param mixed|null $default Default value if key doesn't exist
      * @return mixed Sanitized REQUEST data
      */
-    public static function request($key = null, $default = null)
+    public static function request(string $key = null, mixed $default = null): mixed
     {
         if ($key === null) {
             return self::sanitize($_REQUEST);
@@ -80,7 +82,7 @@ class Security
      * @param int $default Default value if validation fails
      * @return int Validated integer
      */
-    public static function int($value, $default = 0)
+    public static function int(mixed $value, int $default = 0): int
     {
         if (is_numeric($value)) {
             return (int) $value;
@@ -95,7 +97,7 @@ class Security
      * @param float $default Default value if validation fails
      * @return float Validated float
      */
-    public static function float($value, $default = 0.0)
+    public static function float(mixed $value, float $default = 0.0): float
     {
         if (is_numeric($value)) {
             return (float) $value;
@@ -109,7 +111,7 @@ class Security
      * @param string $email The email to validate
      * @return bool True if valid, false otherwise
      */
-    public static function validateEmail($email)
+    public static function validateEmail(string $email): bool
     {
         return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
@@ -120,7 +122,7 @@ class Security
      * @param string $url The URL to validate
      * @return bool True if valid, false otherwise
      */
-    public static function validateUrl($url)
+    public static function validateUrl(string $url): bool
     {
         return filter_var($url, FILTER_VALIDATE_URL) !== false;
     }
@@ -129,8 +131,9 @@ class Security
      * Generate a CSRF token
      *
      * @return string The generated token
+     * @throws RandomException
      */
-    public static function generateCsrfToken()
+    public static function generateCsrfToken(): string
     {
         if (!isset($_SESSION)) {
             session_start();
@@ -150,8 +153,9 @@ class Security
      * Get the current CSRF token (generate if doesn't exist)
      *
      * @return string The CSRF token
+     * @throws RandomException
      */
-    public static function getCsrfToken()
+    public static function getCsrfToken(): string
     {
         if (!isset($_SESSION)) {
             session_start();
@@ -175,7 +179,7 @@ class Security
      * @param string $token The token to validate
      * @return bool True if valid, false otherwise
      */
-    public static function validateCsrfToken($token)
+    public static function validateCsrfToken($token): bool
     {
         if (!isset($_SESSION)) {
             session_start();
@@ -203,7 +207,7 @@ class Security
      *
      * @return bool True if valid, false otherwise
      */
-    public static function validateCsrfFromPost()
+    public static function validateCsrfFromPost(): bool
     {
         $token = self::post('csrf_token');
         return self::validateCsrfToken($token);
@@ -213,8 +217,9 @@ class Security
      * Generate HTML for CSRF token input field
      *
      * @return string HTML input element
+     * @throws RandomException
      */
-    public static function csrfField()
+    public static function csrfField(): string
     {
         $token = self::getCsrfToken();
         return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($token, ENT_QUOTES, 'UTF-8') . '">';
@@ -224,8 +229,9 @@ class Security
      * Regenerate CSRF token (useful after login or sensitive operations)
      *
      * @return string The new token
+     * @throws RandomException
      */
-    public static function regenerateCsrfToken()
+    public static function regenerateCsrfToken(): string
     {
         return self::generateCsrfToken();
     }
@@ -235,7 +241,7 @@ class Security
      *
      * @return void
      */
-    public static function clearCsrfToken()
+    public static function clearCsrfToken(): void
     {
         if (!isset($_SESSION)) {
             session_start();

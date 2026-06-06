@@ -1,9 +1,11 @@
 <?php
 // Extract data from the template array
 $isLoggedIn = !empty($_SESSION['user']);
-$currency = $isLoggedIn ? $tpl['currency'] : '';
-$user_role = $isLoggedIn ? $tpl['user_role'] : '';
-$notifications = $isLoggedIn ? $tpl['notifications'] : [];
+
+// Use ?? to provide a default value if the key is missing from $tpl
+$currency      = $isLoggedIn ? ($tpl['currency'] ?? '') : '';
+$user_role     = $isLoggedIn ? ($tpl['user_role'] ?? 'guest') : 'guest';
+$notifications = $isLoggedIn ? ($tpl['notifications'] ?? []) : [];
 ?>
 <div class="container-scroller">
     <div class="main-panel">

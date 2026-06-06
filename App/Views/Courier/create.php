@@ -10,7 +10,7 @@
                     <?php endif; ?>
 
                     <form class="forms-sample" method="POST" action="<?php echo INSTALL_URL; ?>?controller=Courier&action=create">
-                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8'); ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo \Core\Security::csrfField(); ?>">
                         <input type="hidden" name="send" value="1" />
 
                         <div class="row">

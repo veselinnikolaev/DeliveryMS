@@ -37,9 +37,17 @@ class View
             date_default_timezone_set($settingModel->getFirstBy(['key' => 'timezone'])['value']);
             $tpl['date_format'] = $settingModel->getFirstBy(['key' => 'date_format'])['value'];
         }
-        // Extract variables
+        $defaults = [
+            'csrf_token'    => Security::getCsrfToken(),
+            'user'          => $_SESSION['user'] ?? null,
+            'notifications' => [],
+            'tpl'           => $tpl, // Keep the original array available as $tpl
+        ];
+        $tpl = array_merge($defaults, $tpl);
+
         extract($tpl);
-        // Load the view
+
+        // Now include the layout, which likely contains the include $viewPath;
         include "App/Views/Layouts/" . $layout . ".php";
     }
 }

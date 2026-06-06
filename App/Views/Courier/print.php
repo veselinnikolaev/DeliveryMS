@@ -56,17 +56,25 @@
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($tpl['couriers'] as $user) : ?>
+            <?php
+            // 1. Safely check if 'couriers' exists and is an array/object
+            if (!empty($tpl['couriers']) && is_iterable($tpl['couriers'])) :
+                foreach ($tpl['couriers'] as $user) : ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($user['courier_id']); ?></td>
-                        <td><?php echo htmlspecialchars($user['name']); ?></td>
-                        <td><?php echo htmlspecialchars($user['email']); ?></td>
-                        <td><?php echo htmlspecialchars($user['phone_number'] ?? 'N/A'); ?></td>
-                        <td><?php echo htmlspecialchars($user['address'] ?? 'N/A'); ?></td>
-                        <td><?php echo htmlspecialchars($user['country'] ?? 'N/A'); ?></td>
-                        <td><?php echo htmlspecialchars($user['region'] ?? 'N/A'); ?></td>
+                        <td><?= htmlspecialchars((string)($user['courier_id'] ?? 'N/A')); ?></td>
+                        <td><?= htmlspecialchars((string)($user['name'] ?? 'N/A')); ?></td>
+                        <td><?= htmlspecialchars((string)($user['email'] ?? 'N/A')); ?></td>
+                        <td><?= htmlspecialchars((string)($user['phone_number'] ?? 'N/A')); ?></td>
+                        <td><?= htmlspecialchars((string)($user['address'] ?? 'N/A')); ?></td>
+                        <td><?= htmlspecialchars((string)($user['country'] ?? 'N/A')); ?></td>
+                        <td><?= htmlspecialchars((string)($user['region'] ?? 'N/A')); ?></td>
                     </tr>
-                <?php endforeach; ?>
+                <?php endforeach;
+            else : ?>
+                <tr>
+                    <td colspan="7" class="text-center">No courier data available.</td>
+                </tr>
+            <?php endif; ?>
             </tbody>
         </table>
 

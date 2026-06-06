@@ -29,21 +29,27 @@
                                 </tr>
                             </thead>
                             <tbody>
+                            <?php if (!empty($tpl['active_orders']) && is_iterable($tpl['active_orders'])) : ?>
                                 <?php foreach ($tpl['active_orders'] as $order) : ?>
-                                <tr>
-                                    <td>#<?php echo $order['id']; ?></td>
-                                    <td><?php echo htmlspecialchars($order['address'] . ', ' . $order['region'] . ', ' . $order['country']); ?></td>
-                                    <td>
-                                        <span class="badge bg-info">In Transit</span>
-                                    </td>
-                                    <td>
-                                        <a href="<?php INSTALL_URL; ?>?controller=Order&action=details&id=<?php echo $order['id']; ?>" 
-                                           class="btn btn-sm btn-outline-primary">
-                                            View Details
-                                        </a>
-                                    </td>
-                                </tr>
+                                    <tr>
+                                        <td>#<?= htmlspecialchars((string)($order['id'] ?? 'N/A')); ?></td>
+                                        <td><?= htmlspecialchars((string)($order['address'] ?? 'N/A') . ', ' . ($order['region'] ?? 'N/A') . ', ' . ($order['country'] ?? 'N/A')); ?></td>
+                                        <td>
+                                            <span class="badge bg-info">In Transit</span>
+                                        </td>
+                                        <td>
+                                            <a href="<?= INSTALL_URL; ?>?controller=Order&action=details&id=<?= $order['id'] ?? 0; ?>"
+                                               class="btn btn-sm btn-outline-primary">
+                                                View Details
+                                            </a>
+                                        </td>
+                                    </tr>
                                 <?php endforeach; ?>
+                            <?php else : ?>
+                                <tr>
+                                    <td colspan="4" class="text-center">No active orders found.</td>
+                                </tr>
+                            <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
