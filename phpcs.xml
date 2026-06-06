@@ -1,5 +1,4 @@
-<?xml version="1.0"?>
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <ruleset name="DeliveryMS">
     <description>PSR-12 for DeliveryMS with project-specific tweaks.</description>
 
@@ -19,7 +18,6 @@
         <exclude-pattern>*/Views/*</exclude-pattern>
     </rule>
 
-    <!-- Allow longer lines in view/template files -->
     <rule ref="Generic.Files.LineLength">
         <properties>
             <property name="lineLimit" value="120"/>
@@ -28,7 +26,6 @@
         <exclude-pattern>*/Views/*</exclude-pattern>
     </rule>
 
-    <!-- Exclude conflicting multi-line condition sniff -->
     <rule ref="PSR12.ControlStructures.ControlStructureSpacing">
         <exclude name="PSR12.ControlStructures.ControlStructureSpacing.FirstExpressionLine"/>
     </rule>

@@ -2,6 +2,12 @@
 
 declare(strict_types=1);
 
+// Capture all output during tests to prevent HTML from corrupting coverage reports
+ob_start();
+register_shutdown_function(function () {
+    ob_end_clean();
+});
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
 // Force load .env.testing
@@ -11,7 +17,6 @@ if (file_exists(__DIR__ . '/../.env.testing')) {
 }
 
 // Ensure the environment variables are accessible to $_ENV
-// If they aren't, load them into superglobals
 foreach ($_ENV as $key => $value) {
     if (!isset($_SERVER[$key])) {
         $_SERVER[$key] = $value;
@@ -19,9 +24,9 @@ foreach ($_ENV as $key => $value) {
 }
 
 // Simulate $_SERVER vars index.php normally provides
-$_SERVER['HTTPS']     = 'off';
-$_SERVER['HTTP_HOST'] = 'localhost';
-$_SERVER['PHP_SELF']  = '/index.php';
+$_SERVER['HTTPS']       = 'off';
+$_SERVER['HTTP_HOST']   = 'localhost';
+$_SERVER['PHP_SELF']    = '/index.php';
 $_SERVER['REQUEST_URI'] = '/';
 
 // Define constants index.php sets before requiring constant.php
