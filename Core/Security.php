@@ -87,6 +87,7 @@ class Security
         if (is_numeric($value)) {
             return (int) $value;
         }
+
         return $default;
     }
 
@@ -102,6 +103,7 @@ class Security
         if (is_numeric($value)) {
             return (float) $value;
         }
+
         return $default;
     }
 
@@ -162,8 +164,7 @@ class Security
         }
 
         // Generate token if it doesn't exist or is expired (1 hour)
-        if (
-            !isset($_SESSION['csrf_token']) ||
+        if (!isset($_SESSION['csrf_token']) ||
             !isset($_SESSION['csrf_token_time']) ||
             (time() - $_SESSION['csrf_token_time']) > 3600
         ) {
@@ -179,7 +180,7 @@ class Security
      * @param string $token The token to validate
      * @return bool True if valid, false otherwise
      */
-    public static function validateCsrfToken($token): bool
+    public static function validateCsrfToken(string $token): bool
     {
         if (!isset($_SESSION)) {
             session_start();
@@ -191,8 +192,7 @@ class Security
         }
 
         // Check if token is expired (1 hour)
-        if (
-            isset($_SESSION['csrf_token_time']) &&
+        if (isset($_SESSION['csrf_token_time']) &&
             (time() - $_SESSION['csrf_token_time']) > 3600
         ) {
             return false;
