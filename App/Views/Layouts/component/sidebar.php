@@ -64,8 +64,8 @@
                     </a>
                     <div class="collapse" id="couriers">
                         <ul class="nav flex-column sub-menu">
-                            <li class="nav-item"> <a class="nav-link" href="<?php INSTALL_URL; ?>?controller=Courier&action=list">List Couriers</a></li>
-                            <li class="nav-item"> <a class="nav-link" href="<?php INSTALL_URL; ?>?controller=Courier&action=create">Create Courier</a></li>
+                            <li class="nav-item"> <a class="nav-link" href="<?= INSTALL_URL; ?>?controller=Courier&action=list">List Couriers</a></li>
+                            <li class="nav-item"> <a class="nav-link" href="<?= INSTALL_URL; ?>?controller=Courier&action=create">Create Courier</a></li>
                         </ul>
                     </div>
                 </li>
